@@ -1,2 +1,3 @@
 # IFJ-Projekt
-Projekt do predmetu IFJ 2022
+
+Projekt do předmětu IFJ 2022
