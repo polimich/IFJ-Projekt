@@ -1,6 +1,7 @@
 *.a
 *.app
 *.cmd
+compiler
 *.d
 dkms.conf
 *.dll
@@ -19,6 +20,7 @@ dkms.conf
 *.lib
 *.lo
 *.map
+memory.dbg
 Mkfile.old
 *.mod*
 Module.symvers
