@@ -1,3 +1,16 @@
+//////////////////////////////////////////////////////////
+//                                                      //
+//    Implementace překladače jazyka IFJ22              //
+//                                                      //
+//    Autoři: xlukas18, xmedri01, xpoliv07, xschie03    //
+//                                                      //
+//    Implementace memory.c: xschie03                   //
+//    Datum: 3. 10. 2022                                //
+//                                                      //
+//    Licence: GNU GPL v3, nebo pozdější                //
+//                                                      //
+//////////////////////////////////////////////////////////
+
 #ifndef MEMDEBUG
 #define MEMNDEBUG
 #define MEMDEBUG
