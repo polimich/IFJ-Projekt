@@ -23,15 +23,16 @@ void mem_clean();
 
 #endif
 
-inline void* mem_alloc_safe(size_t size) {
-	void* ptr = mem_alloc(size);
+inline void* mem_alloc_safe(size_t size)
+{
+    void* ptr = mem_alloc(size);
 
-	if (ptr == NULL) {
-		perror("Memory allocation error");
-		exit(99);
-	}
+    if (ptr == NULL) {
+        perror("Memory allocation error");
+        exit(99);
+    }
 
-	return ptr;
+    return ptr;
 }
 
 #endif
