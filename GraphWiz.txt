@@ -1,0 +1,74 @@
+digraph G {
+    node [shape=circle, width=1, height=1]
+    {
+        node [shape=doublecircle,width=1,height=1]
+        IDENTIFIER_OR_KEYWORD
+        NUMBER
+        NUMBER_DOUBLE
+        NUMBER_EXPONENT_FINAL
+        
+        EOL
+        SEMICOLON
+        COMMA
+        LPAR
+        RPAR
+        DIV
+        MUL
+        PLUS
+        MINUS
+        ASIGN
+        EQUALS
+        GREATER
+        GREATER_E
+        LESSER
+        LESSER_E
+    }
+    edge[fontname=mono]
+    Start -> Start [label="Whitespace - EOL"];
+    Start -> IDENTIFIER_OR_KEYWORD[label="a-z,A-Z,_"];
+    IDENTIFIER_OR_KEYWORD -> IDENTIFIER_OR_KEYWORD [label="a-z,A-Z,_"]
+    Start -> NUMBER [label="0-9"]
+    NUMBER -> NUMBER[label="0-9"]
+    NUMBER -> POINT[label=" ."]
+    POINT -> NUMBER_DOUBLE[label="0-9"]
+    NUMBER_DOUBLE -> NUMBER_DOUBLE[label="0-9"]
+    NUMBER_DOUBLE -> NUMBER_EXPONENT[label="e,E"]
+    NUMBER -> NUMBER_EXPONENT[label="e,E"]
+    NUMBER_EXPONENT -> NUMBER_EXPONENT_SIGN[label="+,-"]
+    NUMBER_EXPONENT_SIGN -> NUMBER_EXPONENT_FINAL[label="0-9"]
+    NUMBER_EXPONENT -> NUMBER_EXPONENT_FINAL[label="0-9"]
+    NUMBER_EXPONENT_FINAL -> NUMBER_EXPONENT_FINAL[label="0-9"]    
+    Start -> COMMENT [label=" /"]
+    COMMENT -> BLOCK_COMMENT [label=" *"]
+    COMMENT -> LINE_COMMENT [label=" /"]
+    LINE_COMMENT -> LINE_COMMENT[label= " \&Sigma;-EOL,EOF"]
+    LINE_COMMENT -> Start[label="EOL"]
+    BLOCK_COMMENT -> BLOCK_COMMENT[label= " \&Sigma;-*"]
+    BLOCK_COMMENT -> BLOCK_COMMENT_END[label=" *"]
+    BLOCK_COMMENT_END -> BLOCK_COMMENT[label="\&Sigma; - *"]
+    BLOCK_COMMENT_END -> BLOCK_COMMENT_END[label=" *"]
+    BLOCK_COMMENT_END -> Start[label=" /"]
+    
+    Start -> EOL[label="EOL"]
+    EOL -> EOL[label="whitespace"]
+    Start -> SEMICOLON[label=" ;"]
+    Start -> COMMA[label=" ,"]
+    Start -> LPAR[label=" ("]
+    Start -> RPAR[label=" )"]
+    Start -> DIV[label=" \\"]
+    Start -> MUL[label=" *"]
+    Start -> PLUS[label=" +"]
+    Start -> MINUS[label=" -"]
+    Start -> ASIGN[label=" ="]
+    ASIGN -> EQUALS[label=" ="]
+    Start -> GREATER[label=" >"]
+    Start -> LESSER[label=" <"]
+    GREATER -> GREATER_E[label=" ="]
+    LESSER -> LESSER_E[label=" ="]
+    
+    Start -> STRING[label="\""]
+    STRING -> STRING[label="\&Sigma; - \", \\, ASCII<32, >255"]
+    STRING -> STRING_ESC[label="\\"]
+    STRING_ESC -> STRING [label="\\, \", n, t"]
+        
+}
