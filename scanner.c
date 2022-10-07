@@ -39,6 +39,7 @@ typedef enum {
   LineComment,
   BlockComment,
   String,
+  StringEsc,
   Var0,
   VarId,
   Point, 
@@ -95,6 +96,14 @@ FsmState transition (FsmState in, char edge) {
       if (isalpha(edge) || edge == '_') return Identifier;
       return Error;
 
+    case Var0:
+      if (isalpha(edge) || edge == '_') return VarId;
+      return Error;
+
+    case VarId:
+      if (isalnum(edge) || edge == '_') return VarId;
+      return Error;
+
     //single char operators
     case Semicolon:
     case Comma:
@@ -105,5 +114,20 @@ FsmState transition (FsmState in, char edge) {
     case Plus:
     case Minus:
     
+    case Assign:
+      if (edge == '=') return Equals;
+      return Assign;
+
+    case Greater:
+      if (edge = '=') return GreaterEven;
+      return Greater;
+
+    case Lesser:
+      if (edge == '=') return LesserEven;
+      return Lesser;
+
+    case Comment:
+      if (edge == '/') return LineComment;
+      else if (edge == '*') return BlockComment;
   }
 }
