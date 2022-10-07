@@ -67,8 +67,9 @@ digraph G {
     LESSER -> LESSER_E[label=" ="]
     
     Start -> STRING[label="\""]
-    STRING -> STRING[label="\&Sigma; - \", \\, ASCII<32, >255"]
-    STRING -> STRING_ESC[label="\\"]
-    STRING_ESC -> STRING [label="\\, \", n, t"]
+    STRING -> STRING[label="\   ASCII>32, <255"]
+    STRING -> STRING_ESC[label="    \\"]
+    STRING -> STRING_LIT[label=" \" "]
+    STRING_ESC -> STRING [label="ASCII>32, <255     "]
         
 }

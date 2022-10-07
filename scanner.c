@@ -41,6 +41,7 @@ typedef enum {
     Comment,
     LineComment,
     BlockComment,
+    String,
     StringLit,
     StringEsc,
     Var0,
@@ -82,7 +83,7 @@ FsmState transition(FsmState in, char edge)
         if (edge == "/")
             return Comment;
         if (edge == "\"")
-            return StringLit;
+            return String;
         if (edge == "$")
             return Var0;
 
@@ -145,6 +146,7 @@ FsmState transition(FsmState in, char edge)
     case Mul:
     case Plus:
     case Minus:
+    case StringLit:
 
     case Assign:
         if (edge == "=")
@@ -166,6 +168,21 @@ FsmState transition(FsmState in, char edge)
             return LineComment;
         else if (edge == "*")
             return BlockComment;
+
+    // string
+    case String:
+        if (edge < 32 || edge > 255)
+            return Error;
+        else if (edge == "\\")
+            return StringEsc;
+        else if (edge == "\"")
+            return StringLit;
+        return String;
+
+    case StringEsc:
+        if (edge < 32 || edge > 255)
+            return Error;
+        return String;
     }
 }
 
@@ -200,40 +217,59 @@ typedef struct {
 } Lexeme;
 
 //todo dynamicky
-char a[2048] = {0};
-char *pool_startp = &a[0];
+char a[2048] = { 0 };
+char* pool_startp = &a[0];
 
-
-
-
-
-Lexeme make_lexeme(FsmState final, char* data  ) {
-  switch(final) {
-        case Identifier: return (Lexeme) {.kind=IDENTIFIER, .data = data - a};
-        case Number: return (Lexeme) {.kind=NUM, .data = data - a};
-        case NumberDouble: return (Lexeme) {.kind=NUM_DOUBLE, .data = data - a};
-        case NumberExponentFinal: return (Lexeme) {.kind=NUM_EXP, .data = data - a};
-        case Semicolon: return (Lexeme) {.kind=SEMICOLON};
-        case Comma: return (Lexeme) {.kind=COMMA};
-        case LPar: return (Lexeme) {.kind=LPAR};
-        case RPar: return (Lexeme) {.kind=RPAR};
-        case Div: return (Lexeme) {.kind=DIV};
-        case Mul: return (Lexeme) {.kind=MUL};
-        case Plus: return (Lexeme) {.kind=PLUS};
-        case Minus: return (Lexeme) {.kind=MINUS};
-        case Assign: return (Lexeme) {.kind=ASSIGN};
-        case Equals: return (Lexeme) {.kind=EQUALS};
-        case Greater: return (Lexeme) {.kind=GREATER};
-        case GreaterEven: return (Lexeme) {.kind=GREATER_E};
-        case Lesser: return (Lexeme) {.kind=LESSER};
-        case LesserEven: return (Lexeme) {.kind=LESSER_E};
-        case LineComment: return (Lexeme) {.kind=L_COMMENT};
-        case BlockComment: return (Lexeme) {.kind=B_COMMENT};
-        case StringLit: return (Lexeme) {.kind=STRING_LIT, .data = data - a};
-        case VarId: return (Lexeme) {.kind=STRING_LIT, .data = data - a};
-        case Error:
-          exit(1);
-  }
+Lexeme make_lexeme(FsmState final, char* data)
+{
+    switch (final) {
+    case Identifier:
+        return (Lexeme) { .kind = IDENTIFIER, .data = data - a };
+    case Number:
+        return (Lexeme) { .kind = NUM, .data = data - a };
+    case NumberDouble:
+        return (Lexeme) { .kind = NUM_DOUBLE, .data = data - a };
+    case NumberExponentFinal:
+        return (Lexeme) { .kind = NUM_EXP, .data = data - a };
+    case Semicolon:
+        return (Lexeme) { .kind = SEMICOLON };
+    case Comma:
+        return (Lexeme) { .kind = COMMA };
+    case LPar:
+        return (Lexeme) { .kind = LPAR };
+    case RPar:
+        return (Lexeme) { .kind = RPAR };
+    case Div:
+        return (Lexeme) { .kind = DIV };
+    case Mul:
+        return (Lexeme) { .kind = MUL };
+    case Plus:
+        return (Lexeme) { .kind = PLUS };
+    case Minus:
+        return (Lexeme) { .kind = MINUS };
+    case Assign:
+        return (Lexeme) { .kind = ASSIGN };
+    case Equals:
+        return (Lexeme) { .kind = EQUALS };
+    case Greater:
+        return (Lexeme) { .kind = GREATER };
+    case GreaterEven:
+        return (Lexeme) { .kind = GREATER_E };
+    case Lesser:
+        return (Lexeme) { .kind = LESSER };
+    case LesserEven:
+        return (Lexeme) { .kind = LESSER_E };
+    case LineComment:
+        return (Lexeme) { .kind = L_COMMENT };
+    case BlockComment:
+        return (Lexeme) { .kind = B_COMMENT };
+    case StringLit:
+        return (Lexeme) { .kind = STRING_LIT, .data = data - a };
+    case VarId:
+        return (Lexeme) { .kind = STRING_LIT, .data = data - a };
+    case Error:
+        exit(1);
+    }
 }
 
 Lexeme get_lexeme()
@@ -244,10 +280,10 @@ Lexeme get_lexeme()
     while (true) {
         edge = getchar();
         if (edge == EOF) {
-          if (now == Start) {
-            return (Lexeme){.kind=LEX_EOF};
-          }
-          return make_lexeme(now, lexeme_text);
+            if (now == Start) {
+                return (Lexeme) { .kind = LEX_EOF };
+            }
+            return make_lexeme(now, lexeme_text);
         }
         FsmState next = transition(now, edge);
         if (next == Error) {
@@ -260,37 +296,62 @@ Lexeme get_lexeme()
     }
 }
 
-char * str_lexeme(Lexeme in) {
-  switch(in.kind) {
-    case LEX_EOF: return "EOF";
-    case IDENTIFIER: a + in.data;
-    case NUM: return a + in.data;
-    case NUM_DOUBLE: return a + in.data;
-    case NUM_EXP: return a + in.data;
-    case SEMICOLON: return ";";
-    case COMMA: return ",";
-    case LPAR: return "(";
-    case RPAR: return ")";
-    case DIV: return "\\";
-    case MUL: return "*";
-    case PLUS: return "+";
-    case MINUS: return "-";
-    case ASSIGN: return "=";
-    case EQUALS: return "==";
-    case GREATER: return ">";
-    case GREATER_E: return ">=";
-    case LESSER: return "<";
-    case LESSER_E: return "<=";
-    case L_COMMENT: return "//";
-    case B_COMMENT: return "Block";
-    case STRING_LIT: return a + in.data;
-    case VARID: return a + in.data;
-  }
+char* str_lexeme(Lexeme in)
+{
+    switch (in.kind) {
+    case LEX_EOF:
+        return "EOF";
+    case IDENTIFIER:
+        a + in.data;
+    case NUM:
+        return a + in.data;
+    case NUM_DOUBLE:
+        return a + in.data;
+    case NUM_EXP:
+        return a + in.data;
+    case SEMICOLON:
+        return ";";
+    case COMMA:
+        return ",";
+    case LPAR:
+        return "(";
+    case RPAR:
+        return ")";
+    case DIV:
+        return "\\";
+    case MUL:
+        return "*";
+    case PLUS:
+        return "+";
+    case MINUS:
+        return "-";
+    case ASSIGN:
+        return "=";
+    case EQUALS:
+        return "==";
+    case GREATER:
+        return ">";
+    case GREATER_E:
+        return ">=";
+    case LESSER:
+        return "<";
+    case LESSER_E:
+        return "<=";
+    case L_COMMENT:
+        return "//";
+    case B_COMMENT:
+        return "Block";
+    case STRING_LIT:
+        return a + in.data;
+    case VARID:
+        return a + in.data;
+    }
 }
 
-int main () {
-  Lexeme l = {0};
-  while (l.kind != LEX_EOF) {
-    l = get_lexeme();
-  }
+int main()
+{
+    Lexeme l = { 0 };
+    while (l.kind != LEX_EOF) {
+        l = get_lexeme();
+    }
 }
