@@ -11,7 +11,9 @@
 //                                                      //
 //////////////////////////////////////////////////////////
 
+#include <stdio.h>
 #include <ctype.h>
+#include <stdbool.h>
 
 typedef enum {
   Start,
@@ -129,5 +131,55 @@ FsmState transition (FsmState in, char edge) {
     case Comment:
       if (edge == '/') return LineComment;
       else if (edge == '*') return BlockComment;
+  }
+}
+
+typedef struct  {
+  enum {
+    IDENTIFIER,
+    NUM,
+    NUM_DOUBLE,
+    NUM_EXP,
+    SEMICOLON,
+    COMMA,
+    LPAR,
+    RPAR,
+    DIV,
+    MUL,
+    PLUS,
+    MINUS,
+    ASSING,
+    EQUALS,
+    GREATER,
+    GREATER_E,
+    LESSER,
+    LESSER_E,
+    L_COMMENT,
+    B_COMMENT,
+    STRING,
+    VARID,
+  } kind;
+  union {
+      char* String;
+      int value;
+      int symlab_index;
+  };
+
+} Lexeme;
+
+Lexeme make_lexeme();
+
+Lexeme get_lexeme() {
+  char edge; 
+  FsmState now = Start;
+  while(true) {
+    edge = getchar();
+    FsmState next = transition(now, edge);
+    if (next == Error) {
+      fungetc(edge, stdin);
+      return make_lexeme(/*todo*/);
+    }
+
+
   }
 }
