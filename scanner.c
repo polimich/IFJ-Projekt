@@ -28,9 +28,12 @@ typedef enum {
     Comma,
     LPar,
     RPar,
+    LBrace,
+    RBrace,
     Div,
     Mul,
     Plus,
+    Colon,
     Minus,
     Assign,
     Equals,
@@ -38,9 +41,11 @@ typedef enum {
     GreaterEven,
     Lesser,
     LesserEven,
+    Not,
     Comment,
     LineComment,
     BlockComment,
+    BlockCommentEnd,
     String,
     StringLit,
     StringEsc,
@@ -86,6 +91,16 @@ FsmState transition(FsmState in, char edge)
             return String;
         if (edge == '$')
             return Var0;
+        if (isspace(edge))
+            return Start;
+        if (edge == ':')
+            return Colon;
+        if (edge == '{')
+            return LBrace;
+        if (edge == '}')
+            return RBrace;
+        if (edge == '!')
+            return Not;
 
     //Number state
     case Number:
@@ -146,44 +161,62 @@ FsmState transition(FsmState in, char edge)
     case Mul:
     case Plus:
     case Minus:
-    case StringLit:
-
+    case Colon:
+    case LBrace:
+    case RBrace:
+    case Not:
+        return Error;
     case Assign:
         if (edge == '=')
             return Equals;
-        return Assign;
+        return Error;
 
     case Greater:
-        if (edge = '=')
+        if (edge == '=')
             return GreaterEven;
-        return Greater;
+        return Error;
 
     case Lesser:
         if (edge == '=')
             return LesserEven;
-        return Lesser;
+        return Error;
 
+    //Comments
     case Comment:
         if (edge == '/')
             return LineComment;
         else if (edge == '*')
             return BlockComment;
+    case LineComment:
+        if (edge != '\n')
+            return LineComment;
+        return Error;
+    case BlockComment:
+        if(edge == '*')
+            return BlockCommentEnd;
+        return BlockComment;
+    case BlockCommentEnd:
+        if(edge == '/')
+            return Error;
+        return BlockComment;
 
     // string
     case String:
         if (edge < 32 || edge > 255)
             return Error;
-        else if (edge == "\\")
+        else if (edge == '\\')
             return StringEsc;
-        else if (edge == "\"")
+        else if (edge == '\"')
             return StringLit;
         return String;
-
     case StringEsc:
         if (edge < 32 || edge > 255)
             return Error;
         return String;
+    case StringLit:
+            return Error;
     }
+    return Error;
 }
 
 typedef struct {
@@ -196,12 +229,16 @@ typedef struct {
         COMMA,
         LPAR,
         RPAR,
+        LBRACE,
+        RBRACE,
         DIV,
         MUL,
         PLUS,
         MINUS,
         ASSIGN,
         EQUALS,
+        NOT,
+        COLON,
         GREATER,
         GREATER_E,
         LESSER,
@@ -266,10 +303,19 @@ Lexeme make_lexeme(FsmState final, char* data)
     case StringLit:
         return (Lexeme) { .kind = STRING_LIT, .data = data - a };
     case VarId:
-        return (Lexeme) { .kind = STRING_LIT, .data = data - a };
+        return (Lexeme) { .kind = VARID, .data = data - a };
+    case Colon:
+        return (Lexeme) { .kind = COLON };
+    case LBrace:
+        return (Lexeme) { .kind = LBRACE };
+    case RBrace:
+        return (Lexeme) { .kind = RBRACE };
+    case Not:
+        return (Lexeme) { .kind = NOT };
     case Error:
-        exit(1);
+            exit(1);
     }
+    exit(1);
 }
 
 Lexeme get_lexeme()
@@ -286,12 +332,23 @@ Lexeme get_lexeme()
             return make_lexeme(now, lexeme_text);
         }
         FsmState next = transition(now, edge);
+        
         if (next == Error) {
             ungetc(edge, stdin);
-            pool_startp++;
+            *(pool_startp++) = '\0';
             return make_lexeme(now, lexeme_text);
         }
-        *(pool_startp++) = edge;
+        if (isspace(edge) && now == String || now == StringEsc){
+            *(pool_startp++) = edge;
+        }
+        else if (!isspace(edge)){
+            *(pool_startp++) = edge;
+        }
+        if (next == Start) {
+            pool_startp = lexeme_text;
+        }
+        
+        
         now = next;
     }
 }
@@ -345,6 +402,14 @@ char* str_lexeme(Lexeme in)
         return a + in.data;
     case VARID:
         return a + in.data;
+    case COLON:
+        return ":";
+    case LBRACE:
+        return "{";
+    case RBRACE:
+        return "}";
+    case NOT:
+        return "!";
     }
 }
 
@@ -353,5 +418,6 @@ int main()
     Lexeme l = { 0 };
     while (l.kind != LEX_EOF) {
         l = get_lexeme();
+        puts(str_lexeme(l));
     }
 }
