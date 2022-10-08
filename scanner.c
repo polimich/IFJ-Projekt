@@ -123,7 +123,7 @@ FsmState transition(FsmState in, char edge)
 
     //Identifier or Keyword
     case Identifier:
-        if (isalpha(edge) || edge == '_')
+        if (isalnum(edge) || edge == '_')
             return Identifier;
         return Error;
 
@@ -302,7 +302,7 @@ char* str_lexeme(Lexeme in)
     case LEX_EOF:
         return "EOF";
     case IDENTIFIER:
-        a + in.data;
+        return a + in.data;
     case NUM:
         return a + in.data;
     case NUM_DOUBLE:
