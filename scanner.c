@@ -54,46 +54,46 @@ FsmState transition(FsmState in, char edge)
 {
     switch (in) {
     case Start:
-        if (isalpha(edge) || edge == "_")
+        if (isalpha(edge) || edge == '_')
             return Identifier;
         if (isdigit(edge))
             return Number;
-        if (edge == ";")
+        if (edge == ';')
             return Semicolon;
-        if (edge == ",")
+        if (edge == ',')
             return Comma;
-        if (edge == "(")
+        if (edge == '(')
             return LPar;
-        if (edge == ")")
+        if (edge == ')')
             return RPar;
-        if (edge == "\\")
+        if (edge == '\\')
             return Div;
-        if (edge == "*")
+        if (edge == '*')
             return Mul;
-        if (edge == "+")
+        if (edge == '+')
             return Plus;
-        if (edge == "-")
+        if (edge == '-')
             return Minus;
-        if (edge == "=")
+        if (edge == '=')
             return Assign;
-        if (edge == ">")
+        if (edge == '>')
             return Greater;
-        if (edge == "<")
+        if (edge == '<')
             return Lesser;
-        if (edge == "/")
+        if (edge == '/')
             return Comment;
-        if (edge == "\"")
+        if (edge == '\"')
             return String;
-        if (edge == "$")
+        if (edge == '$')
             return Var0;
 
     //Number state
     case Number:
         if (isdigit(edge))
             return Number;
-        else if (edge == ".")
+        else if (edge == '.')
             return Point;
-        else if (edge == "e" || edge == "E")
+        else if (edge == 'e' || edge == 'E')
             return NumberExponent;
         return Error;
     case Point:
@@ -103,13 +103,13 @@ FsmState transition(FsmState in, char edge)
     case NumberDouble:
         if (isdigit(edge))
             return NumberDouble;
-        else if (edge == "e" || edge == "E")
+        else if (edge == 'e' || edge == 'E')
             return NumberExponent;
         return Error;
     case NumberExponent:
         if (isdigit(edge))
             return NumberExponentFinal;
-        else if (edge == "+" || edge == "-")
+        else if (edge == '+' || edge == '-')
             return NumberExponentSign;
         return Error;
     case NumberExponentSign:
@@ -123,17 +123,17 @@ FsmState transition(FsmState in, char edge)
 
     //Identifier or Keyword
     case Identifier:
-        if (isalpha(edge) || edge == "_")
+        if (isalpha(edge) || edge == '_')
             return Identifier;
         return Error;
 
     case Var0:
-        if (isalpha(edge) || edge == "_")
+        if (isalpha(edge) || edge == '_')
             return VarId;
         return Error;
 
     case VarId:
-        if (isalnum(edge) || edge == "_")
+        if (isalnum(edge) || edge == '_')
             return VarId;
         return Error;
 
@@ -149,24 +149,24 @@ FsmState transition(FsmState in, char edge)
     case StringLit:
 
     case Assign:
-        if (edge == "=")
+        if (edge == '=')
             return Equals;
         return Assign;
 
     case Greater:
-        if (edge = "=")
+        if (edge = '=')
             return GreaterEven;
         return Greater;
 
     case Lesser:
-        if (edge == "=")
+        if (edge == '=')
             return LesserEven;
         return Lesser;
 
     case Comment:
-        if (edge == "/")
+        if (edge == '/')
             return LineComment;
-        else if (edge == "*")
+        else if (edge == '*')
             return BlockComment;
 
     // string
@@ -287,7 +287,7 @@ Lexeme get_lexeme()
         }
         FsmState next = transition(now, edge);
         if (next == Error) {
-            fungetc(edge, stdin);
+            ungetc(edge, stdin);
             pool_startp++;
             return make_lexeme(now, lexeme_text);
         }
