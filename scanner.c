@@ -102,7 +102,7 @@ FsmState transition(FsmState in, char edge)
         if (edge == '!')
             return Not;
 
-    //Number state
+    // Number state
     case Number:
         if (isdigit(edge))
             return Number;
@@ -136,7 +136,7 @@ FsmState transition(FsmState in, char edge)
             return NumberExponentFinal;
         return Error;
 
-    //Identifier or Keyword
+    // Identifier or Keyword
     case Identifier:
         if (isalnum(edge) || edge == '_')
             return Identifier;
@@ -152,7 +152,7 @@ FsmState transition(FsmState in, char edge)
             return VarId;
         return Error;
 
-    //single char operators
+    // single char operators
     case Semicolon:
     case Comma:
     case LPar:
@@ -181,7 +181,7 @@ FsmState transition(FsmState in, char edge)
             return LesserEven;
         return Error;
 
-    //Comments
+    // Comments
     case Comment:
         if (edge == '/')
             return LineComment;
@@ -192,11 +192,11 @@ FsmState transition(FsmState in, char edge)
             return LineComment;
         return Error;
     case BlockComment:
-        if(edge == '*')
+        if (edge == '*')
             return BlockCommentEnd;
         return BlockComment;
     case BlockCommentEnd:
-        if(edge == '/')
+        if (edge == '/')
             return Error;
         return BlockComment;
 
@@ -214,7 +214,7 @@ FsmState transition(FsmState in, char edge)
             return Error;
         return String;
     case StringLit:
-            return Error;
+        return Error;
     }
     return Error;
 }
@@ -253,7 +253,7 @@ typedef struct {
 
 } Lexeme;
 
-//todo dynamicky
+// todo dynamicky
 char a[2048] = { 0 };
 char* pool_startp = &a[0];
 
@@ -313,7 +313,7 @@ Lexeme make_lexeme(FsmState final, char* data)
     case Not:
         return (Lexeme) { .kind = NOT };
     case Error:
-            exit(1);
+        exit(1);
     }
     exit(1);
 }
@@ -332,23 +332,21 @@ Lexeme get_lexeme()
             return make_lexeme(now, lexeme_text);
         }
         FsmState next = transition(now, edge);
-        
+
         if (next == Error) {
             ungetc(edge, stdin);
             *(pool_startp++) = '\0';
             return make_lexeme(now, lexeme_text);
         }
-        if (isspace(edge) && now == String || now == StringEsc){
+        if (isspace(edge) && now == String || now == StringEsc) {
             *(pool_startp++) = edge;
-        }
-        else if (!isspace(edge)){
+        } else if (!isspace(edge)) {
             *(pool_startp++) = edge;
         }
         if (next == Start) {
             pool_startp = lexeme_text;
         }
-        
-        
+
         now = next;
     }
 }
