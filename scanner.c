@@ -11,10 +11,7 @@
 //                                                      //
 //////////////////////////////////////////////////////////
 
-#include <ctype.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include "./scanner.h"
 
 typedef enum {
     Start,
