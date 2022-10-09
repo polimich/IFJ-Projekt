@@ -4,7 +4,7 @@
 //                                                      //
 //    Autoři: xlukas18, xmedri01, xpoliv07, xschie03    //
 //                                                      //
-//    Implementace singleton.c: xpoliv07, xlukas18      //
+//    Implementace scanner.c: xpoliv07, xlukas18        //
 //    Datum: 7. 10. 2022                                //
 //                                                      //
 //    Licence: GNU GPL v3, nebo pozdější                //
