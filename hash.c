@@ -13,6 +13,8 @@
 
 #include "./hash.h"
 
+#include <stdint.h>
+
 size_t hash_f(const char* restrict str)
 {
     size_t hash = 0;

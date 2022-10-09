@@ -15,7 +15,6 @@
 #define __HASH_H__
 
 #include <stddef.h>
-#include <stdint.h>
 
 size_t hash_f(const char* restrict str);
 
