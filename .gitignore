@@ -5,6 +5,7 @@ compiler
 *.d
 dkms.conf
 *.dll
+.DS_Store
 *.dSYM/
 *.dylib
 *.elf
@@ -30,6 +31,7 @@ modules.order
 *.out
 *.pch
 *.pdb
+scanner
 *.so
 *.so.*
 *.su
