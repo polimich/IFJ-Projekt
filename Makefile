@@ -1,11 +1,33 @@
-PROJ=scanner
-CFLAGS=-std=c11
+##########################################################
+##                                                      ##
+##    Implementace překladače jazyka IFJ22              ##
+##                                                      ##
+##    Autoři: xlukas18, xmedri01, xpoliv07, xschie03    ##
+##                                                      ##
+##    Implementace Makefile: xschie03                   ##
+##    Datum: 9. 10. 2022                                ##
+##                                                      ##
+##    Licence: GNU GPL v3, nebo pozdější                ##
+##                                                      ##
+##########################################################
+
 CC=gcc
-RM=rm -f
+CFLAGS=--std=gnu99 -pedantic -Wall -Wextra -Wformat -g -fPIC -O3 -DMEMDEBUG
 
-$(PROJ) : $(PROJ).c
-		$(CC) $(CFLAGS) -o $(PROJ) $(PROJ).c
+HDRS := $(wildcard *.h)
+SRCS := $(wildcard *.c)
+OBJS := $(SRCS:c=o)
 
-clean :
-	$(RM) *.o $(PROJ)
+all: compiler
 
+clean:
+	rm -rf *.o compiler memory.dbg
+
+fmt:
+	clang-format -i *.c *.h --style=WebKit
+
+compiler: $(HDRS) $(SRCS) $(OBJS)
+	$(CC) $(CFLAGS) -o compiler *.o
+
+$(OBJS): %.o: %.c %.h Makefile
+	$(CC) -c $< $(CFLAGS)
