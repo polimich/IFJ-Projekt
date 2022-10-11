@@ -4,7 +4,7 @@
 //                                                      //
 //    Autoři: xlukas18, xmedri01, xpoliv07, xschie03    //
 //                                                      //
-//    Implementace scanner.h: xschie03      			//
+//    Implementace scanner.h: xschie03                  //
 //    Datum: 9. 10. 2022                                //
 //                                                      //
 //    Licence: GNU GPL v3, nebo pozdější                //
