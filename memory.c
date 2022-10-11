@@ -55,6 +55,9 @@ void mem_init()
         exit(99);
     }
 
+    truncate((MEM_FILE), 0);
+    // delete old contents
+
     truncate((MEM_FILE), (MEM_SIZE));
 
     if (errno) {
