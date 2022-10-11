@@ -26,7 +26,7 @@ typedef struct varstring_t {
 
 inline varstring_t* varstring_init()
 {
-    varstring_t* str = (varstring_t*)mem_alloc(sizeof(varstring_t));
+    varstring_t* str = (varstring_t*)mem_alloc_safe(sizeof(varstring_t));
 
     str->stream = open_memstream(&str->data, &str->length);
 
