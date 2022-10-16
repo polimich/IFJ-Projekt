@@ -35,5 +35,6 @@ scanner
 *.so
 *.so.*
 *.su
+test.php
 .tmp_versions/
 *.x86_64
