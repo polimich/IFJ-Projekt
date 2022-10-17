@@ -15,41 +15,22 @@
 
 enum lexer_state {
     lexer_state_start,
-
     lexer_state_identifier,
-
     lexer_state_var0,
     lexer_state_var_id,
-
     lexer_state_number,
     lexer_state_number_exponent,
     lexer_state_number_exponent_sign,
     lexer_state_number_double,
     lexer_state_number_point,
     lexer_state_number_exponent_final,
-
-    lexer_state_semicolon,
-    lexer_state_comma,
-    lexer_state_l_par,
-    lexer_state_r_par,
-    lexer_state_l_brace,
-    lexer_state_r_brace,
     lexer_state_div,
-    lexer_state_mul,
-    lexer_state_plus,
-    lexer_state_colon,
-    lexer_state_minus,
     lexer_state_assign,
     lexer_state_equals0,
-    lexer_state_equals,
     lexer_state_greater,
-    lexer_state_greater_even,
     lexer_state_lesser,
-    lexer_state_lesser_even,
     lexer_state_not,
     lexer_state_not_equal0,
-    lexer_state_not_equal,
-    lexer_state_concat,
     lexer_state_line_comment,
     lexer_state_block_comment,
     lexer_state_block_comment_end,
@@ -58,9 +39,7 @@ enum lexer_state {
     lexer_state_string_esc,
     lexer_state_question_mark,
     lexer_state_type,
-    lexer_state_end,
     lexer_state_prolog0,
-
 };
 
 #define putback(c)        \
@@ -129,7 +108,7 @@ singleton_t* lexer_get_token(FILE* input)
             case '.':
                 return get_singleton(".");
             case '?':
-                lexer_state = lexer_state_concat;
+                lexer_state = lexer_state_question_mark;
                 identifier = varstring_init();
                 putc(c, identifier->stream);
                 continue;
@@ -194,7 +173,6 @@ singleton_t* lexer_get_token(FILE* input)
                 putc(c, identifier->stream);
                 continue;
             }
-            // TODO: error kdyz nic dalsi znak bude to co by melo
             else {
                 varstring_destroy(identifier);
                 exit(1);
@@ -231,8 +209,7 @@ singleton_t* lexer_get_token(FILE* input)
                 putc(c, identifier->stream);
                 lexer_state = lexer_state_number_double;
                 continue;
-            }
-            else {
+            } else {
                 varstring_destroy(identifier);
                 exit(1);
             }
@@ -291,14 +268,11 @@ singleton_t* lexer_get_token(FILE* input)
 
         case lexer_state_equals0:
             if (c == '=') {
-                lexer_state = lexer_state_equals;
-                continue;
+                return get_singleton("===");
+
             } else {
                 exit(1);
             }
-        case lexer_state_equals:
-            putback(c);
-            return get_singleton("===");
         case lexer_state_not:
             if (c == '=') {
                 lexer_state = lexer_state_not_equal0;
@@ -331,10 +305,10 @@ singleton_t* lexer_get_token(FILE* input)
             putback(c);
             return varstring_destroy(identifier);
         case lexer_state_string_esc:
-                putc(c, identifier->stream);
-                lexer_state = lexer_state_string;
-                continue;
-            
+            putc(c, identifier->stream);
+            lexer_state = lexer_state_string;
+            continue;
+
         case lexer_state_greater:
             if (c == '=') {
                 return get_singleton(">=");
@@ -345,8 +319,7 @@ singleton_t* lexer_get_token(FILE* input)
 
         case lexer_state_lesser:
             if (c == '=') {
-                lexer_state = lexer_state_lesser_even;
-                continue;
+                return get_singleton("<=");
             } else if (c == '?') {
                 lexer_state = lexer_state_prolog0;
                 identifier = varstring_init();
@@ -367,8 +340,7 @@ singleton_t* lexer_get_token(FILE* input)
                 lexer_state = lexer_state_type;
                 putc(c, identifier->stream);
                 continue;
-            }
-            else {
+            } else {
                 varstring_destroy(identifier);
                 exit(1);
             }
@@ -380,15 +352,15 @@ singleton_t* lexer_get_token(FILE* input)
                 putback(c);
                 return varstring_destroy(identifier);
             }
-        /*
-        case lexer_state_prolog0:
-            for (int i = 0; i < 3; i++) {
-                c = getc(input);
-                putc(c, identifier->stream);
-            }
-            if (identifier == "<?php") {
-            }
-        */
+            /*
+            case lexer_state_prolog0:
+                for (int i = 0; i < 3; i++) {
+                    c = getc(input);
+                    putc(c, identifier->stream);
+                }
+                if (identifier == "<?php") {
+                }
+            */
         }
     }
 }
