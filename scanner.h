@@ -18,5 +18,9 @@
 #include <stdbool.h>
 
 #include "./singleton.h"
+#include "./varstring.h"
+
+singleton_t* lexer_get_token(FILE* input);
+
 
 #endif
