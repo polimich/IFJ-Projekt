@@ -5,7 +5,7 @@
 //    Autoři: xlukas18, xmedri01, xpoliv07, xschie03    //
 //                                                      //
 //    Implementace scanner.c: xpoliv07, xlukas18        //
-//    Datum: 7. 10. 2022                                //
+//    Datum: 7. 10. 2022 - 16. 10. 2022                 //
 //                                                      //
 //    Licence: GNU GPL v3, nebo pozdější                //
 //                                                      //
@@ -13,406 +13,383 @@
 
 #include "./scanner.h"
 
-typedef enum {
-    Start,
-    Identifier,
-    Number,
-    NumberExponent,
-    NumberExponentSign,
-    NumberDouble,
-    NumberExponentFinal,
-    Semicolon,
-    Comma,
-    LPar,
-    RPar,
-    LBrace,
-    RBrace,
-    Div,
-    Mul,
-    Plus,
-    Colon,
-    Minus,
-    Assign,
-    Equals,
-    Greater,
-    GreaterEven,
-    Lesser,
-    LesserEven,
-    Not,
-    Comment,
-    LineComment,
-    BlockComment,
-    BlockCommentEnd,
-    String,
-    StringLit,
-    StringEsc,
-    Var0,
-    VarId,
-    Point,
-    Error
-} FsmState;
+enum lexer_state {
+    lexer_state_start,
 
-FsmState transition(FsmState in, char edge)
-{
-    switch (in) {
-    case Start:
-        if (isalpha(edge) || edge == '_')
-            return Identifier;
-        if (isdigit(edge))
-            return Number;
-        if (edge == ';')
-            return Semicolon;
-        if (edge == ',')
-            return Comma;
-        if (edge == '(')
-            return LPar;
-        if (edge == ')')
-            return RPar;
-        if (edge == '\\')
-            return Div;
-        if (edge == '*')
-            return Mul;
-        if (edge == '+')
-            return Plus;
-        if (edge == '-')
-            return Minus;
-        if (edge == '=')
-            return Assign;
-        if (edge == '>')
-            return Greater;
-        if (edge == '<')
-            return Lesser;
-        if (edge == '/')
-            return Comment;
-        if (edge == '\"')
-            return String;
-        if (edge == '$')
-            return Var0;
-        if (isspace(edge))
-            return Start;
-        if (edge == ':')
-            return Colon;
-        if (edge == '{')
-            return LBrace;
-        if (edge == '}')
-            return RBrace;
-        if (edge == '!')
-            return Not;
+    lexer_state_identifier,
 
-    // Number state
-    case Number:
-        if (isdigit(edge))
-            return Number;
-        else if (edge == '.')
-            return Point;
-        else if (edge == 'e' || edge == 'E')
-            return NumberExponent;
-        return Error;
-    case Point:
-        if (isdigit(edge))
-            return NumberDouble;
-        return Error;
-    case NumberDouble:
-        if (isdigit(edge))
-            return NumberDouble;
-        else if (edge == 'e' || edge == 'E')
-            return NumberExponent;
-        return Error;
-    case NumberExponent:
-        if (isdigit(edge))
-            return NumberExponentFinal;
-        else if (edge == '+' || edge == '-')
-            return NumberExponentSign;
-        return Error;
-    case NumberExponentSign:
-        if (isdigit(edge))
-            return NumberExponentFinal;
-        return Error;
-    case NumberExponentFinal:
-        if (isdigit(edge))
-            return NumberExponentFinal;
-        return Error;
+    lexer_state_var0,
+    lexer_state_var_id,
 
-    // Identifier or Keyword
-    case Identifier:
-        if (isalnum(edge) || edge == '_')
-            return Identifier;
-        return Error;
+    lexer_state_number,
+    lexer_state_number_exponent,
+    lexer_state_number_exponent_sign,
+    lexer_state_number_double,
+    lexer_state_number_point,
+    lexer_state_number_exponent_final,
 
-    case Var0:
-        if (isalpha(edge) || edge == '_')
-            return VarId;
-        return Error;
+    lexer_state_semicolon,
+    lexer_state_comma,
+    lexer_state_l_par,
+    lexer_state_r_par,
+    lexer_state_l_brace,
+    lexer_state_r_brace,
+    lexer_state_div,
+    lexer_state_mul,
+    lexer_state_plus,
+    lexer_state_colon,
+    lexer_state_minus,
+    lexer_state_assign,
+    lexer_state_equals0,
+    lexer_state_equals,
+    lexer_state_greater,
+    lexer_state_greater_even,
+    lexer_state_lesser,
+    lexer_state_lesser_even,
+    lexer_state_not,
+    lexer_state_not_equal0,
+    lexer_state_not_equal,
+    lexer_state_concat,
+    lexer_state_line_comment,
+    lexer_state_block_comment,
+    lexer_state_block_comment_end,
+    lexer_state_string,
+    lexer_state_string_literal,
+    lexer_state_string_esc,
+    lexer_state_question_mark,
+    lexer_state_type,
+    lexer_state_end,
+    lexer_state_prolog0,
 
-    case VarId:
-        if (isalnum(edge) || edge == '_')
-            return VarId;
-        return Error;
+};
 
-    // single char operators
-    case Semicolon:
-    case Comma:
-    case LPar:
-    case RPar:
-    case Div:
-    case Mul:
-    case Plus:
-    case Minus:
-    case Colon:
-    case LBrace:
-    case RBrace:
-    case Not:
-        return Error;
-    case Assign:
-        if (edge == '=')
-            return Equals;
-        return Error;
-
-    case Greater:
-        if (edge == '=')
-            return GreaterEven;
-        return Error;
-
-    case Lesser:
-        if (edge == '=')
-            return LesserEven;
-        return Error;
-
-    // Comments
-    case Comment:
-        if (edge == '/')
-            return LineComment;
-        else if (edge == '*')
-            return BlockComment;
-    case LineComment:
-        if (edge != '\n')
-            return LineComment;
-        return Error;
-    case BlockComment:
-        if (edge == '*')
-            return BlockCommentEnd;
-        return BlockComment;
-    case BlockCommentEnd:
-        if (edge == '/')
-            return Error;
-        return BlockComment;
-
-    // string
-    case String:
-        if (edge < 32 || edge > 255)
-            return Error;
-        else if (edge == '\\')
-            return StringEsc;
-        else if (edge == '\"')
-            return StringLit;
-        return String;
-    case StringEsc:
-        if (edge < 32 || edge > 255)
-            return Error;
-        return String;
-    case StringLit:
-        return Error;
+#define putback(c)        \
+    if (c != EOF) {       \
+        ungetc(c, input); \
     }
-    return Error;
-}
 
-typedef struct {
-    enum {
-        IDENTIFIER,
-        NUM,
-        NUM_DOUBLE,
-        NUM_EXP,
-        SEMICOLON,
-        COMMA,
-        LPAR,
-        RPAR,
-        LBRACE,
-        RBRACE,
-        DIV,
-        MUL,
-        PLUS,
-        MINUS,
-        ASSIGN,
-        EQUALS,
-        NOT,
-        COLON,
-        GREATER,
-        GREATER_E,
-        LESSER,
-        LESSER_E,
-        L_COMMENT,
-        B_COMMENT,
-        STRING_LIT,
-        VARID,
-        LEX_EOF
-    } kind;
-    size_t data;
-
-} Lexeme;
-
-// todo dynamicky
-char a[2048] = { 0 };
-char* pool_startp = &a[0];
-
-Lexeme make_lexeme(FsmState final, char* data)
+singleton_t* lexer_get_token(FILE* input)
 {
-    switch (final) {
-    case Identifier:
-        return (Lexeme) { .kind = IDENTIFIER, .data = data - a };
-    case Number:
-        return (Lexeme) { .kind = NUM, .data = data - a };
-    case NumberDouble:
-        return (Lexeme) { .kind = NUM_DOUBLE, .data = data - a };
-    case NumberExponentFinal:
-        return (Lexeme) { .kind = NUM_EXP, .data = data - a };
-    case Semicolon:
-        return (Lexeme) { .kind = SEMICOLON };
-    case Comma:
-        return (Lexeme) { .kind = COMMA };
-    case LPar:
-        return (Lexeme) { .kind = LPAR };
-    case RPar:
-        return (Lexeme) { .kind = RPAR };
-    case Div:
-        return (Lexeme) { .kind = DIV };
-    case Mul:
-        return (Lexeme) { .kind = MUL };
-    case Plus:
-        return (Lexeme) { .kind = PLUS };
-    case Minus:
-        return (Lexeme) { .kind = MINUS };
-    case Assign:
-        return (Lexeme) { .kind = ASSIGN };
-    case Equals:
-        return (Lexeme) { .kind = EQUALS };
-    case Greater:
-        return (Lexeme) { .kind = GREATER };
-    case GreaterEven:
-        return (Lexeme) { .kind = GREATER_E };
-    case Lesser:
-        return (Lexeme) { .kind = LESSER };
-    case LesserEven:
-        return (Lexeme) { .kind = LESSER_E };
-    case LineComment:
-        return (Lexeme) { .kind = L_COMMENT };
-    case BlockComment:
-        return (Lexeme) { .kind = B_COMMENT };
-    case StringLit:
-        return (Lexeme) { .kind = STRING_LIT, .data = data - a };
-    case VarId:
-        return (Lexeme) { .kind = VARID, .data = data - a };
-    case Colon:
-        return (Lexeme) { .kind = COLON };
-    case LBrace:
-        return (Lexeme) { .kind = LBRACE };
-    case RBrace:
-        return (Lexeme) { .kind = RBRACE };
-    case Not:
-        return (Lexeme) { .kind = NOT };
-    case Error:
-        exit(1);
-    }
-    exit(1);
-}
+    int lexer_state = lexer_state_start;
+    int c = 0;
 
-Lexeme get_lexeme()
-{
-    int edge;
-    FsmState now = Start;
-    char* lexeme_text = pool_startp;
-    while (true) {
-        edge = getchar();
-        if (edge == EOF) {
-            if (now == Start) {
-                return (Lexeme) { .kind = LEX_EOF };
+    varstring_t* identifier = NULL;
+
+    while ((c = getc(input)), 1) {
+        switch (lexer_state) {
+        case lexer_state_start:
+            switch (c) {
+            case EOF:
+                return NULL;
+            case '/':
+                lexer_state = lexer_state_div;
+                continue;
+            case ';':
+                return get_singleton(";");
+            case ',':
+                return get_singleton(",");
+            case '(':
+                return get_singleton("(");
+            case ')':
+                return get_singleton(")");
+            case '*':
+                return get_singleton("*");
+            case '+':
+                return get_singleton("+");
+            case '-':
+                return get_singleton("-");
+            case '=':
+                lexer_state = lexer_state_assign;
+                continue;
+            case '>':
+                lexer_state = lexer_state_greater;
+                continue;
+            case '<':
+                lexer_state = lexer_state_lesser;
+                continue;
+            case '\"':
+                lexer_state = lexer_state_string;
+                identifier = varstring_init();
+                putc(c, identifier->stream);
+                continue;
+            case '$':
+                lexer_state = lexer_state_var0;
+                identifier = varstring_init();
+                putc(c, identifier->stream);
+                continue;
+            case ':':
+                return get_singleton(":");
+            case '{':
+                return get_singleton("{");
+            case '}':
+                return get_singleton("}");
+            case '!':
+                lexer_state = lexer_state_not;
+                continue;
+            case '.':
+                return get_singleton(".");
+            case '?':
+                lexer_state = lexer_state_concat;
+                identifier = varstring_init();
+                putc(c, identifier->stream);
+                continue;
+            default:
+                if (isalpha(c) || c == '_') {
+                    lexer_state = lexer_state_identifier;
+                    identifier = varstring_init();
+                    putc(c, identifier->stream);
+                } else if (isdigit(c)) {
+                    lexer_state = lexer_state_number;
+                    identifier = varstring_init();
+                    putc(c, identifier->stream);
+                }
+                continue;
             }
-            return make_lexeme(now, lexeme_text);
-        }
-        FsmState next = transition(now, edge);
+        case lexer_state_div:
+            switch (c) {
+            case '/':
+                lexer_state = lexer_state_line_comment;
+                continue;
+            case '*':
+                lexer_state = lexer_state_block_comment;
+                continue;
+            default:
+                putback(c);
+                return get_singleton("/");
+            }
+        case lexer_state_line_comment:
+            if (c != '\n') {
+                continue;
+            } else {
+                lexer_state = lexer_state_start;
+                continue;
+            }
+        case lexer_state_block_comment:
+            if (c == '*') {
+                lexer_state = lexer_state_block_comment_end;
+                continue;
+            } else {
+                continue;
+            }
+        case lexer_state_block_comment_end:
+            if (c == '/') {
+                lexer_state = lexer_state_start;
+                continue;
+            } else {
+                lexer_state = lexer_state_block_comment;
+                continue;
+            }
 
-        if (next == Error) {
-            ungetc(edge, stdin);
-            *(pool_startp++) = '\0';
-            return make_lexeme(now, lexeme_text);
-        }
-        if (isspace(edge) && now == String || now == StringEsc) {
-            *(pool_startp++) = edge;
-        } else if (!isspace(edge)) {
-            *(pool_startp++) = edge;
-        }
-        if (next == Start) {
-            pool_startp = lexeme_text;
-        }
+        case lexer_state_identifier:
+            if (isalnum(c) || c == '_') {
+                putc(c, identifier->stream);
+                continue;
+            } else {
+                putback(c);
+                return varstring_destroy(identifier);
+            }
+        case lexer_state_var0:
+            if (isalpha(c) || c == '_') {
+                lexer_state = lexer_state_var_id;
+                putc(c, identifier->stream);
+                continue;
+            }
+            // TODO: error kdyz nic dalsi znak bude to co by melo
+            else {
+                varstring_destroy(identifier);
+                exit(1);
+            }
+        case lexer_state_var_id:
+            if (isalnum(c) || c == '_') {
+                lexer_state = lexer_state_var_id;
+                putc(c, identifier->stream);
+                continue;
+            } else {
+                putback(c);
+                return varstring_destroy(identifier);
+            }
 
-        now = next;
+        case lexer_state_number:
+            if (isdigit(c)) {
+                putc(c, identifier->stream);
+                continue;
+            } else if (c == '.') {
+                putc(c, identifier->stream);
+                lexer_state = lexer_state_number_point;
+                continue;
+            } else if (c == 'e' || c == 'E') {
+                putc(c, identifier->stream);
+                lexer_state = lexer_state_number_exponent;
+                continue;
+            } else {
+                lexer_state = lexer_state_start;
+                putback(c);
+                return varstring_destroy(identifier);
+            }
+        case lexer_state_number_point:
+            if (isdigit(c)) {
+                putc(c, identifier->stream);
+                lexer_state = lexer_state_number_double;
+                continue;
+            }
+            else {
+                varstring_destroy(identifier);
+                exit(1);
+            }
+
+        case lexer_state_number_double:
+            if (isdigit(c)) {
+                putc(c, identifier->stream);
+                continue;
+            } else if (c == 'e' || c == 'E') {
+                putc(c, identifier->stream);
+                lexer_state = lexer_state_number_exponent;
+                continue;
+            } else {
+                putback(c);
+                lexer_state = lexer_state_start;
+                return varstring_destroy(identifier);
+            }
+        case lexer_state_number_exponent:
+            if (isdigit(c)) {
+                putc(c, identifier->stream);
+                lexer_state = lexer_state_number_exponent_final;
+                continue;
+            } else if (c == '+' || c == '-') {
+                putc(c, identifier->stream);
+                lexer_state = lexer_state_number_exponent_sign;
+                continue;
+            } else {
+                putback(c);
+                return varstring_destroy(identifier);
+            }
+        case lexer_state_number_exponent_sign:
+            if (isdigit(c)) {
+                putc(c, identifier->stream);
+                lexer_state = lexer_state_number_exponent_final;
+                continue;
+            } else {
+                varstring_destroy(identifier);
+                exit(1);
+            }
+        case lexer_state_number_exponent_final:
+            if (isdigit(c)) {
+                putc(c, identifier->stream);
+                continue;
+            } else {
+                putback(c);
+                return varstring_destroy(identifier);
+            }
+        case lexer_state_assign:
+            if (c == '=') {
+                lexer_state = lexer_state_equals0;
+                continue;
+            } else {
+                putback(c);
+                return get_singleton("=");
+            }
+
+        case lexer_state_equals0:
+            if (c == '=') {
+                lexer_state = lexer_state_equals;
+                continue;
+            } else {
+                exit(1);
+            }
+        case lexer_state_equals:
+            putback(c);
+            return get_singleton("===");
+        case lexer_state_not:
+            if (c == '=') {
+                lexer_state = lexer_state_not_equal0;
+                continue;
+            } else {
+                putback(c);
+                return get_singleton("!");
+            }
+        case lexer_state_not_equal0:
+            if (c == '=') {
+                return get_singleton("!==");
+            } else {
+                exit(1);
+            }
+
+        case lexer_state_string:
+            if (c == '\"') {
+                putc(c, identifier->stream);
+                lexer_state = lexer_state_string_literal;
+                continue;
+            } else if (c == '\\') {
+                putc(c, identifier->stream);
+                lexer_state = lexer_state_string_esc;
+                continue;
+            } else {
+                putc(c, identifier->stream);
+                continue;
+            }
+        case lexer_state_string_literal:
+            putback(c);
+            return varstring_destroy(identifier);
+        case lexer_state_string_esc:
+                putc(c, identifier->stream);
+                lexer_state = lexer_state_string;
+                continue;
+            
+        case lexer_state_greater:
+            if (c == '=') {
+                return get_singleton(">=");
+            } else {
+                putback(c);
+                return get_singleton(">");
+            }
+
+        case lexer_state_lesser:
+            if (c == '=') {
+                lexer_state = lexer_state_lesser_even;
+                continue;
+            } else if (c == '?') {
+                lexer_state = lexer_state_prolog0;
+                identifier = varstring_init();
+                putc('<', identifier->stream);
+                putc(c, identifier->stream);
+                continue;
+            } else {
+                putback(c);
+                return get_singleton("<");
+            }
+
+        case lexer_state_question_mark:
+            if (c == '>') {
+                putc(c, identifier->stream);
+                return varstring_destroy(identifier);
+
+            } else if (isalpha(c)) {
+                lexer_state = lexer_state_type;
+                putc(c, identifier->stream);
+                continue;
+            }
+            else {
+                varstring_destroy(identifier);
+                exit(1);
+            }
+        case lexer_state_type:
+            if (isalpha(c)) {
+                putc(c, identifier->stream);
+                continue;
+            } else {
+                putback(c);
+                return varstring_destroy(identifier);
+            }
+        /*
+        case lexer_state_prolog0:
+            for (int i = 0; i < 3; i++) {
+                c = getc(input);
+                putc(c, identifier->stream);
+            }
+            if (identifier == "<?php") {
+            }
+        */
+        }
     }
 }
 
-char* str_lexeme(Lexeme in)
-{
-    switch (in.kind) {
-    case LEX_EOF:
-        return "EOF";
-    case IDENTIFIER:
-        return a + in.data;
-    case NUM:
-        return a + in.data;
-    case NUM_DOUBLE:
-        return a + in.data;
-    case NUM_EXP:
-        return a + in.data;
-    case SEMICOLON:
-        return ";";
-    case COMMA:
-        return ",";
-    case LPAR:
-        return "(";
-    case RPAR:
-        return ")";
-    case DIV:
-        return "\\";
-    case MUL:
-        return "*";
-    case PLUS:
-        return "+";
-    case MINUS:
-        return "-";
-    case ASSIGN:
-        return "=";
-    case EQUALS:
-        return "==";
-    case GREATER:
-        return ">";
-    case GREATER_E:
-        return ">=";
-    case LESSER:
-        return "<";
-    case LESSER_E:
-        return "<=";
-    case L_COMMENT:
-        return "//";
-    case B_COMMENT:
-        return "Block";
-    case STRING_LIT:
-        return a + in.data;
-    case VARID:
-        return a + in.data;
-    case COLON:
-        return ":";
-    case LBRACE:
-        return "{";
-    case RBRACE:
-        return "}";
-    case NOT:
-        return "!";
-    }
-}
-
-int main()
-{
-    Lexeme l = { 0 };
-    while (l.kind != LEX_EOF) {
-        l = get_lexeme();
-        puts(str_lexeme(l));
-    }
-}
