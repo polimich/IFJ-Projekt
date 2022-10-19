@@ -29,9 +29,14 @@ typedef struct ast_node_t {
     struct ast_node_t* right;
 } ast_node_t;
 
-typedef struct ast_root_t {
-    struct ast_node_t* node;
-    struct ast_root_t* next;
-} ast_root_t;
+typedef struct ast_block_item_t {
+    struct ast_node_t* item;
+    struct ast_block_item_t* next;
+} ast_block_item_t;
+
+typedef struct ast_block_t {
+    size_t num_items;
+    struct ast_block_item_t* first;
+} ast_block_t;
 
 #endif
