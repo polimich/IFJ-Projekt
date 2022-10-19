@@ -20,11 +20,12 @@
 
 typedef enum symbol_type {
     symbol_type_undefined = 1,
+    symbol_type_keyword,
+    symbol_type_operator,
     symbol_type_function_identifier,
     symbol_type_constant,
     symbol_type_global_variable,
     symbol_type_local_variable,
-    symbol_type_operator,
 } symbol_type_t;
 
 typedef struct symbol_t {
