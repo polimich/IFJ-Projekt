@@ -18,4 +18,6 @@
 
 symbol_t* get_symbol(symbol_type_t type, singleton_t* value);
 
+symbol_t* get_symbol_by_str(symbol_type_t type, const char* str);
+
 #endif

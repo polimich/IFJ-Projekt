@@ -58,3 +58,8 @@ symbol_t* get_symbol(symbol_type_t type, singleton_t* value)
 
     return create_symbol(type, value);
 }
+
+symbol_t* get_symbol_by_str(symbol_type_t type, const char* str)
+{
+    return get_symbol(type, get_singleton(str));
+}
