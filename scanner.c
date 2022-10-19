@@ -172,8 +172,7 @@ singleton_t* lexer_get_token(FILE* input)
                 lexer_state = lexer_state_var_id;
                 putc(c, identifier->stream);
                 continue;
-            }
-            else {
+            } else {
                 varstring_destroy(identifier);
                 exit(1);
             }
@@ -364,4 +363,3 @@ singleton_t* lexer_get_token(FILE* input)
         }
     }
 }
-
