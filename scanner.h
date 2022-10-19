@@ -20,6 +20,6 @@
 #include "./singleton.h"
 #include "./varstring.h"
 
-singleton_t* lexer_get_token(FILE* input);
+singleton_t* lexer_get_token(FILE* input, int* line_number);
 
 #endif

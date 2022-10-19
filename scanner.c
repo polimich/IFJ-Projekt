@@ -47,14 +47,22 @@ enum lexer_state {
         ungetc(c, input); \
     }
 
-singleton_t* lexer_get_token(FILE* input)
+int line_counter = 1;
+
+singleton_t* lexer_get_token(FILE* input, int* line_number)
 {
     int lexer_state = lexer_state_start;
     int c = 0;
 
     varstring_t* identifier = NULL;
 
+    *line_number = line_counter;
+
     while ((c = getc(input)), 1) {
+        if (c == '\n') {
+            ++line_counter;
+        }
+
         switch (lexer_state) {
         case lexer_state_start:
             switch (c) {
