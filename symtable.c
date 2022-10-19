@@ -27,7 +27,7 @@ symbol_t* create_symbol(symbol_type_t type, singleton_t* value)
     symbol_t* symbol = (symbol_t*)mem_alloc_safe(sizeof(*symbol));
 
     symbol->type = type;
-    symbol->value = value;
+    symbol->str = value;
 
     size_t index = get_symbol_index(type, value);
 
@@ -40,7 +40,7 @@ symbol_t* create_symbol(symbol_type_t type, singleton_t* value)
 symbol_t* find_symbol(symbol_type_t type, singleton_t* value)
 {
     for (symbol_t* symbol = symbols[get_symbol_index(type, value)]; symbol != NULL; symbol = symbol->next) {
-        if (symbol->type == type && symbol->value == value) {
+        if (symbol->type == type && symbol->str == value) {
             return symbol;
         }
     }
