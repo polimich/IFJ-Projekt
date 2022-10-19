@@ -22,5 +22,4 @@
 
 singleton_t* lexer_get_token(FILE* input);
 
-
 #endif
