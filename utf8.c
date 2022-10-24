@@ -4,35 +4,19 @@
 //                                                      //
 //    Autoři: xlukas18, xmedri01, xpoliv07, xschie03    //
 //                                                      //
-//    Implementace main.c: xschie03                     //
+//    Implementace utf8.c: xschie03                     //
 //    Datum: 24. 10. 2022                               //
 //                                                      //
 //    Licence: GNU GPL v3, nebo pozdější                //
 //                                                      //
 //////////////////////////////////////////////////////////
 
-#include "./main.h"
+#include "./utf8.h"
 
-int main(const int argc, const char* argv[])
-{
-    mem_init();
+extern inline utf8_readstream_t* utf8_init(FILE* stream); // get utf8 stream from FILE*
+extern inline void utf8_end(utf8_readstream_t* stream); // free utf8 struct
+extern inline void utf8_close(utf8_readstream_t* stream); // free utf8 struct and close file
 
-    utf8_readstream_t* utf8_stdin = utf8_init(stdin);
-
-    if ((argc > 1) && (strcmp(argv[1], "--scanner") == 0)) {
-        int line;
-        singleton_t* token = NULL;
-
-        singleton_t* end = get_singleton("?>");
-
-        for (int counter = 0; token != end; ++counter) {
-            token = lexer_get_token(utf8_stdin, &line);
-
-            fprintf(stdout, "%d\t%d\t%s\n", counter, line, token->strval);
-        }
-    }
-
-    mem_clean();
-
-    return get_current_error_code();
-}
+extern inline int utf8_getc(utf8_readstream_t* stream);
+extern inline void utf8_ungetc(int c, utf8_readstream_t* stream);
+extern inline void utf8_putc(int c, FILE* stream);

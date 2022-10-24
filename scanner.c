@@ -13,6 +13,7 @@
 
 #include "./scanner.h"
 #include "./error.h"
+#include "./utf8.h"
 
 enum lexer_state {
     lexer_state_start,
@@ -44,12 +45,12 @@ enum lexer_state {
 
 #define putback(c)               \
     if (c != EOF && c != '\n') { \
-        ungetc(c, input);        \
+        utf8_ungetc(c, input);   \
     }
 
 int line_counter = 1;
 
-singleton_t* lexer_get_token(FILE* input, int* line_number)
+singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
 {
     int lexer_state = lexer_state_start;
     int c = 0;
@@ -58,7 +59,7 @@ singleton_t* lexer_get_token(FILE* input, int* line_number)
 
     *line_number = line_counter;
 
-    while ((c = getc(input)), 1) {
+    while ((c = utf8_getc(input)), 1) {
         if (c == '\n') {
             ++line_counter;
         }
@@ -97,12 +98,12 @@ singleton_t* lexer_get_token(FILE* input, int* line_number)
             case '\"':
                 lexer_state = lexer_state_string;
                 identifier = varstring_init();
-                putc(c, identifier->stream);
+                utf8_putc(c, identifier->stream);
                 continue;
             case '$':
                 lexer_state = lexer_state_var0;
                 identifier = varstring_init();
-                putc(c, identifier->stream);
+                utf8_putc(c, identifier->stream);
                 continue;
             case ':':
                 return get_singleton(":");
@@ -118,7 +119,7 @@ singleton_t* lexer_get_token(FILE* input, int* line_number)
             case '?':
                 lexer_state = lexer_state_question_mark;
                 identifier = varstring_init();
-                putc(c, identifier->stream);
+                utf8_putc(c, identifier->stream);
                 continue;
             case '\n':
                 *line_number = line_counter;
@@ -127,11 +128,11 @@ singleton_t* lexer_get_token(FILE* input, int* line_number)
                 if (isalpha(c) || c == '_') {
                     lexer_state = lexer_state_identifier;
                     identifier = varstring_init();
-                    putc(c, identifier->stream);
+                    utf8_putc(c, identifier->stream);
                 } else if (isdigit(c)) {
                     lexer_state = lexer_state_number;
                     identifier = varstring_init();
-                    putc(c, identifier->stream);
+                    utf8_putc(c, identifier->stream);
                 }
                 continue;
             }
@@ -172,7 +173,7 @@ singleton_t* lexer_get_token(FILE* input, int* line_number)
 
         case lexer_state_identifier:
             if (isalnum(c) || c == '_') {
-                putc(c, identifier->stream);
+                utf8_putc(c, identifier->stream);
                 continue;
             } else {
                 putback(c);
@@ -181,7 +182,7 @@ singleton_t* lexer_get_token(FILE* input, int* line_number)
         case lexer_state_var0:
             if (isalpha(c) || c == '_') {
                 lexer_state = lexer_state_var_id;
-                putc(c, identifier->stream);
+                utf8_putc(c, identifier->stream);
                 continue;
             } else {
                 varstring_destroy(identifier);
@@ -190,7 +191,7 @@ singleton_t* lexer_get_token(FILE* input, int* line_number)
         case lexer_state_var_id:
             if (isalnum(c) || c == '_') {
                 lexer_state = lexer_state_var_id;
-                putc(c, identifier->stream);
+                utf8_putc(c, identifier->stream);
                 continue;
             } else {
                 putback(c);
@@ -199,14 +200,14 @@ singleton_t* lexer_get_token(FILE* input, int* line_number)
 
         case lexer_state_number:
             if (isdigit(c)) {
-                putc(c, identifier->stream);
+                utf8_putc(c, identifier->stream);
                 continue;
             } else if (c == '.') {
-                putc(c, identifier->stream);
+                utf8_putc(c, identifier->stream);
                 lexer_state = lexer_state_number_point;
                 continue;
             } else if (c == 'e' || c == 'E') {
-                putc(c, identifier->stream);
+                utf8_putc(c, identifier->stream);
                 lexer_state = lexer_state_number_exponent;
                 continue;
             } else {
@@ -216,7 +217,7 @@ singleton_t* lexer_get_token(FILE* input, int* line_number)
             }
         case lexer_state_number_point:
             if (isdigit(c)) {
-                putc(c, identifier->stream);
+                utf8_putc(c, identifier->stream);
                 lexer_state = lexer_state_number_double;
                 continue;
             } else {
@@ -226,10 +227,10 @@ singleton_t* lexer_get_token(FILE* input, int* line_number)
 
         case lexer_state_number_double:
             if (isdigit(c)) {
-                putc(c, identifier->stream);
+                utf8_putc(c, identifier->stream);
                 continue;
             } else if (c == 'e' || c == 'E') {
-                putc(c, identifier->stream);
+                utf8_putc(c, identifier->stream);
                 lexer_state = lexer_state_number_exponent;
                 continue;
             } else {
@@ -239,11 +240,11 @@ singleton_t* lexer_get_token(FILE* input, int* line_number)
             }
         case lexer_state_number_exponent:
             if (isdigit(c)) {
-                putc(c, identifier->stream);
+                utf8_putc(c, identifier->stream);
                 lexer_state = lexer_state_number_exponent_final;
                 continue;
             } else if (c == '+' || c == '-') {
-                putc(c, identifier->stream);
+                utf8_putc(c, identifier->stream);
                 lexer_state = lexer_state_number_exponent_sign;
                 continue;
             } else {
@@ -252,7 +253,7 @@ singleton_t* lexer_get_token(FILE* input, int* line_number)
             }
         case lexer_state_number_exponent_sign:
             if (isdigit(c)) {
-                putc(c, identifier->stream);
+                utf8_putc(c, identifier->stream);
                 lexer_state = lexer_state_number_exponent_final;
                 continue;
             } else {
@@ -261,7 +262,7 @@ singleton_t* lexer_get_token(FILE* input, int* line_number)
             }
         case lexer_state_number_exponent_final:
             if (isdigit(c)) {
-                putc(c, identifier->stream);
+                utf8_putc(c, identifier->stream);
                 continue;
             } else {
                 putback(c);
@@ -303,22 +304,22 @@ singleton_t* lexer_get_token(FILE* input, int* line_number)
 
         case lexer_state_string:
             if (c == '\"') {
-                putc(c, identifier->stream);
+                utf8_putc(c, identifier->stream);
                 lexer_state = lexer_state_string_literal;
                 continue;
             } else if (c == '\\') {
-                putc(c, identifier->stream);
+                utf8_putc(c, identifier->stream);
                 lexer_state = lexer_state_string_esc;
                 continue;
             } else {
-                putc(c, identifier->stream);
+                utf8_putc(c, identifier->stream);
                 continue;
             }
         case lexer_state_string_literal:
             putback(c);
             return varstring_destroy(identifier);
         case lexer_state_string_esc:
-            putc(c, identifier->stream);
+            utf8_putc(c, identifier->stream);
             lexer_state = lexer_state_string;
             continue;
 
@@ -336,8 +337,8 @@ singleton_t* lexer_get_token(FILE* input, int* line_number)
             } else if (c == '?') {
                 lexer_state = lexer_state_identifier; // ocekavame <?php
                 identifier = varstring_init();
-                putc('<', identifier->stream);
-                putc(c, identifier->stream);
+                utf8_putc('<', identifier->stream);
+                utf8_putc(c, identifier->stream);
                 continue;
             } else {
                 putback(c);
@@ -346,12 +347,12 @@ singleton_t* lexer_get_token(FILE* input, int* line_number)
 
         case lexer_state_question_mark:
             if (c == '>') {
-                putc(c, identifier->stream);
+                utf8_putc(c, identifier->stream);
                 return varstring_destroy(identifier);
 
             } else if (isalpha(c)) {
                 lexer_state = lexer_state_type;
-                putc(c, identifier->stream);
+                utf8_putc(c, identifier->stream);
                 continue;
             } else {
                 varstring_destroy(identifier);
@@ -359,7 +360,7 @@ singleton_t* lexer_get_token(FILE* input, int* line_number)
             }
         case lexer_state_type:
             if (isalpha(c)) {
-                putc(c, identifier->stream);
+                utf8_putc(c, identifier->stream);
                 continue;
             } else {
                 putback(c);

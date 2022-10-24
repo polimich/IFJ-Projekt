@@ -18,8 +18,9 @@
 #include <stdbool.h>
 
 #include "./singleton.h"
+#include "./utf8.h"
 #include "./varstring.h"
 
-singleton_t* lexer_get_token(FILE* input, int* line_number);
+singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number);
 
 #endif
