@@ -30,6 +30,7 @@ typedef enum parser_read_node_until {
     parser_read_node_entirely,
 } parser_read_node_until_t;
 
+void parser_init();
 ast_node_t* parser_read_node(parser_read_node_until_t read_until, FILE* input);
 ast_node_t* parser_fill_node(ast_node_t* node, parser_read_node_until_t read_until, FILE* input);
 
