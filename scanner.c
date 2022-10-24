@@ -120,6 +120,9 @@ singleton_t* lexer_get_token(FILE* input, int* line_number)
                 identifier = varstring_init();
                 putc(c, identifier->stream);
                 continue;
+            case '\n':
+                *line_number = line_counter;
+                continue;
             default:
                 if (isalpha(c) || c == '_') {
                     lexer_state = lexer_state_identifier;
