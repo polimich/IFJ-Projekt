@@ -5,13 +5,14 @@
 //    Autoři: xlukas18, xmedri01, xpoliv07, xschie03    //
 //                                                      //
 //    Implementace scanner.c: xpoliv07, xlukas18        //
-//    Datum: 7. 10. 2022 - 16. 10. 2022                 //
+//    Datum: 7. 10. 2022 - 24. 10. 2022                 //
 //                                                      //
 //    Licence: GNU GPL v3, nebo pozdější                //
 //                                                      //
 //////////////////////////////////////////////////////////
 
 #include "./scanner.h"
+#include "./error.h"
 
 enum lexer_state {
     lexer_state_start,
@@ -278,7 +279,10 @@ singleton_t* lexer_get_token(FILE* input, int* line_number)
                 return get_singleton("===");
 
             } else {
-                exit(1);
+                throw_warning(1, "== operator not supported, assuming ===");
+                putback(c);
+
+                return get_singleton("===");
             }
         case lexer_state_not:
             if (c == '=') {
