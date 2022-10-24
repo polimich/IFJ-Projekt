@@ -67,7 +67,7 @@ singleton_t* lexer_get_token(FILE* input, int* line_number)
         case lexer_state_start:
             switch (c) {
             case EOF:
-                return NULL;
+                return get_singleton("?>");
             case '/':
                 lexer_state = lexer_state_div;
                 continue;
