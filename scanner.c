@@ -40,7 +40,6 @@ enum lexer_state {
     lexer_state_string_esc,
     lexer_state_question_mark,
     lexer_state_type,
-    lexer_state_prolog0,
 };
 
 #define putback(c)        \
@@ -332,7 +331,7 @@ singleton_t* lexer_get_token(FILE* input, int* line_number)
             if (c == '=') {
                 return get_singleton("<=");
             } else if (c == '?') {
-                lexer_state = lexer_state_prolog0;
+                lexer_state = lexer_state_identifier; // ocekavame <?php
                 identifier = varstring_init();
                 putc('<', identifier->stream);
                 putc(c, identifier->stream);
@@ -363,15 +362,6 @@ singleton_t* lexer_get_token(FILE* input, int* line_number)
                 putback(c);
                 return varstring_destroy(identifier);
             }
-            /*
-            case lexer_state_prolog0:
-                for (int i = 0; i < 3; i++) {
-                    c = getc(input);
-                    putc(c, identifier->stream);
-                }
-                if (identifier == "<?php") {
-                }
-            */
         }
     }
 }
