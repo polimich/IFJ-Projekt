@@ -42,9 +42,9 @@ enum lexer_state {
     lexer_state_type,
 };
 
-#define putback(c)        \
-    if (c != EOF) {       \
-        ungetc(c, input); \
+#define putback(c)               \
+    if (c != EOF && c != '\n') { \
+        ungetc(c, input);        \
     }
 
 int line_counter = 1;
