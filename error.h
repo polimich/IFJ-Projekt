@@ -24,6 +24,8 @@
 #define ERROR_CODE_SEMANTIC_OTHER (8)
 #define ERROR_CODE_INTERNAL (99)
 
+int get_current_error_code();
+
 void throw_warning(int error_code, const char* fmt, ...);
 void throw_error(int error_code, const char* fmt, ...);
 
