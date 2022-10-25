@@ -5,7 +5,7 @@
 //    Autoři: xlukas18, xmedri01, xpoliv07, xschie03    //
 //                                                      //
 //    Implementace utf8.h: xschie03                     //
-//    Datum: 24. 10. 2022                               //
+//    Datum: 24. 10. 2022 - 25. 10. 2022                //
 //                                                      //
 //    Licence: GNU GPL v3, nebo pozdější                //
 //                                                      //
@@ -115,7 +115,8 @@ inline void utf8_putc(int c, FILE* stream)
 
 const char* utf8_encode_int(int c);
 
+#define utf8_isdigit(c) (c >= '0' && c <= '9')
 #define utf8_isalpha(c) ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
-#define utf8_isalnum(c) ((c >= '0' && c <= '9') || utf8_isalpha(c))
+#define utf8_isalnum(c) (utf8_isdigit(c) || utf8_isalpha(c))
 
 #endif
