@@ -124,6 +124,12 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
             case '\n':
                 *line_number = line_counter;
                 continue;
+            case ' ':
+            case '\t':
+            case '\v':
+            case '\r':
+            case '\f':
+                continue;
             default:
                 if (utf8_isalpha(c) || c == '_') {
                     lexer_state = lexer_state_identifier;
