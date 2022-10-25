@@ -139,8 +139,10 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
                     lexer_state = lexer_state_number;
                     identifier = varstring_init();
                     utf8_putc(c, identifier->stream);
+                } else if (c < ' ') {
+                    throw_warning(1, "Unexpected '\\%o' on line %d", c, line_counter);
                 } else {
-                    throw_warning(1, "Unexpected '%s' on line '%d'", utf8_encode_int(c), line_counter);
+                    throw_warning(1, "Unexpected '%s' on line %d", utf8_encode_int(c), line_counter);
                 }
                 continue;
             }
