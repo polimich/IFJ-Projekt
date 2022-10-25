@@ -5,7 +5,7 @@
 //    Autoři: xlukas18, xmedri01, xpoliv07, xschie03    //
 //                                                      //
 //    Implementace scanner.c: xpoliv07, xlukas18        //
-//    Datum: 7. 10. 2022 - 24. 10. 2022                 //
+//    Datum: 7. 10. 2022 - 25. 10. 2022                 //
 //                                                      //
 //    Licence: GNU GPL v3, nebo pozdější                //
 //                                                      //
@@ -129,7 +129,7 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
                     lexer_state = lexer_state_identifier;
                     identifier = varstring_init();
                     utf8_putc(c, identifier->stream);
-                } else if (isdigit(c)) {
+                } else if (utf8_isdigit(c)) {
                     lexer_state = lexer_state_number;
                     identifier = varstring_init();
                     utf8_putc(c, identifier->stream);
@@ -201,7 +201,7 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
             }
 
         case lexer_state_number:
-            if (isdigit(c)) {
+            if (utf8_isdigit(c)) {
                 utf8_putc(c, identifier->stream);
                 continue;
             } else if (c == '.') {
@@ -218,7 +218,7 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
                 return varstring_destroy(identifier);
             }
         case lexer_state_number_point:
-            if (isdigit(c)) {
+            if (utf8_isdigit(c)) {
                 utf8_putc(c, identifier->stream);
                 lexer_state = lexer_state_number_double;
                 continue;
@@ -228,7 +228,7 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
             }
 
         case lexer_state_number_double:
-            if (isdigit(c)) {
+            if (utf8_isdigit(c)) {
                 utf8_putc(c, identifier->stream);
                 continue;
             } else if (c == 'e' || c == 'E') {
@@ -241,7 +241,7 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
                 return varstring_destroy(identifier);
             }
         case lexer_state_number_exponent:
-            if (isdigit(c)) {
+            if (utf8_isdigit(c)) {
                 utf8_putc(c, identifier->stream);
                 lexer_state = lexer_state_number_exponent_final;
                 continue;
@@ -254,7 +254,7 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
                 return varstring_destroy(identifier);
             }
         case lexer_state_number_exponent_sign:
-            if (isdigit(c)) {
+            if (utf8_isdigit(c)) {
                 utf8_putc(c, identifier->stream);
                 lexer_state = lexer_state_number_exponent_final;
                 continue;
@@ -263,7 +263,7 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
                 exit(1);
             }
         case lexer_state_number_exponent_final:
-            if (isdigit(c)) {
+            if (utf8_isdigit(c)) {
                 utf8_putc(c, identifier->stream);
                 continue;
             } else {
