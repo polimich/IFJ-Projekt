@@ -5,7 +5,7 @@
 //    Autoři: xlukas18, xmedri01, xpoliv07, xschie03    //
 //                                                      //
 //    Implementace utf8.c: xschie03                     //
-//    Datum: 24. 10. 2022                               //
+//    Datum: 24. 10. 2022 - 25. 10. 2022                //
 //                                                      //
 //    Licence: GNU GPL v3, nebo pozdější                //
 //                                                      //
