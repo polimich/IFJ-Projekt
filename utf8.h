@@ -113,4 +113,6 @@ inline void utf8_putc(int c, FILE* stream)
     }
 }
 
+const char* utf8_encode_int(int c);
+
 #endif
