@@ -125,7 +125,7 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
                 *line_number = line_counter;
                 continue;
             default:
-                if (isalpha(c) || c == '_') {
+                if (utf8_isalpha(c) || c == '_') {
                     lexer_state = lexer_state_identifier;
                     identifier = varstring_init();
                     utf8_putc(c, identifier->stream);
@@ -174,7 +174,7 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
             }
 
         case lexer_state_identifier:
-            if (isalnum(c) || c == '_') {
+            if (utf8_isalnum(c) || c == '_') {
                 utf8_putc(c, identifier->stream);
                 continue;
             } else {
@@ -182,7 +182,7 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
                 return varstring_destroy(identifier);
             }
         case lexer_state_var0:
-            if (isalpha(c) || c == '_') {
+            if (utf8_isalpha(c) || c == '_') {
                 lexer_state = lexer_state_var_id;
                 utf8_putc(c, identifier->stream);
                 continue;
@@ -191,7 +191,7 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
                 exit(1);
             }
         case lexer_state_var_id:
-            if (isalnum(c) || c == '_') {
+            if (utf8_isalnum(c) || c == '_') {
                 lexer_state = lexer_state_var_id;
                 utf8_putc(c, identifier->stream);
                 continue;
@@ -352,7 +352,7 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
                 utf8_putc(c, identifier->stream);
                 return varstring_destroy(identifier);
 
-            } else if (isalpha(c)) {
+            } else if (utf8_isalpha(c)) {
                 lexer_state = lexer_state_type;
                 utf8_putc(c, identifier->stream);
                 continue;
@@ -361,7 +361,7 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
                 exit(1);
             }
         case lexer_state_type:
-            if (isalpha(c)) {
+            if (utf8_isalpha(c)) {
                 utf8_putc(c, identifier->stream);
                 continue;
             } else {
