@@ -115,4 +115,7 @@ inline void utf8_putc(int c, FILE* stream)
 
 const char* utf8_encode_int(int c);
 
+#define utf8_isalpha(c) ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
+#define utf8_isalnum(c) ((c >= '0' && c <= '9') || utf8_isalpha(c))
+
 #endif
