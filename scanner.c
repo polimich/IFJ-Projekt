@@ -195,13 +195,15 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
             }
         case lexer_state_var0:
             if (utf8_isalpha(c) || c == '_') {
-                lexer_state = lexer_state_var_id;
                 utf8_putc(c, identifier->stream);
-                continue;
+            } else if (c == EOF) {
+                throw_warning(1, "Unexpected end-of-file after '$' on line %d", line_counter);
             } else {
-                varstring_destroy(identifier);
-                exit(1);
+                throw_warning(1, "Variable name cannot start with '%s' (line %d)", utf8_encode_int(c), line_counter);
+                varstring_write(identifier, "_0x%x_", c);
             }
+            lexer_state = lexer_state_var_id;
+            continue;
         case lexer_state_var_id:
             if (utf8_isalnum(c) || c == '_') {
                 lexer_state = lexer_state_var_id;
