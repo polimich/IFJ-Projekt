@@ -226,8 +226,10 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
                 lexer_state = lexer_state_number_double;
                 continue;
             } else {
-                varstring_destroy(identifier);
-                exit(1);
+                utf8_putc('0', identifier->stream);
+                putback(c);
+                lexer_state = lexer_state_number_double;
+                continue;
             }
 
         case lexer_state_number_double:
