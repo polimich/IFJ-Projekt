@@ -19,7 +19,6 @@ enum lexer_state {
     lexer_state_start,
     lexer_state_identifier,
     lexer_state_var0,
-    lexer_state_var_id,
     lexer_state_number,
     lexer_state_number_exponent,
     lexer_state_number_exponent_sign,
@@ -202,18 +201,8 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
                 throw_warning(1, "Variable name cannot start with '%s' (line %d)", utf8_encode_int(c), line_counter);
                 varstring_write(identifier, "_0x%x_", c);
             }
-            lexer_state = lexer_state_var_id;
+            lexer_state = lexer_state_identifier;
             continue;
-        case lexer_state_var_id:
-            if (utf8_isalnum(c) || c == '_') {
-                lexer_state = lexer_state_var_id;
-                utf8_putc(c, identifier->stream);
-                continue;
-            } else {
-                putback(c);
-                return varstring_destroy(identifier);
-            }
-
         case lexer_state_number:
             if (utf8_isdigit(c)) {
                 utf8_putc(c, identifier->stream);
