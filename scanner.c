@@ -306,7 +306,10 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
             if (c == '=') {
                 return get_singleton("!==");
             } else {
-                exit(1);
+                throw_warning(1, "!= operator not supported, assuming !==");
+                putback(c);
+
+                return get_singleton("!==");
             }
 
         case lexer_state_string:
