@@ -237,7 +237,7 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
                 utf8_putc(c, identifier->stream);
                 continue;
             } else if (c == 'e' || c == 'E') {
-                utf8_putc(c, identifier->stream);
+                utf8_putc('E', identifier->stream);
                 lexer_state = lexer_state_number_exponent;
                 continue;
             } else {
