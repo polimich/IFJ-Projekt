@@ -264,8 +264,8 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
                 lexer_state = lexer_state_number_exponent_final;
                 continue;
             } else {
-                varstring_destroy(identifier);
-                exit(1);
+                throw_error(1, "Invalid number notation: '%s%s' on line %d", varstring_destroy(identifier)->strval, utf8_encode_int(c), line_counter);
+                continue;
             }
         case lexer_state_number_exponent_final:
             if (utf8_isdigit(c)) {
