@@ -5,7 +5,7 @@
 //    Autoři: xlukas18, xmedri01, xpoliv07, xschie03    //
 //                                                      //
 //    Implementace scanner.c: xpoliv07, xlukas18        //
-//    Datum: 7. 10. 2022 - 25. 10. 2022                 //
+//    Datum: 7. 10. 2022 - 27. 10. 2022                 //
 //                                                      //
 //    Licence: GNU GPL v3, nebo pozdější                //
 //                                                      //
@@ -159,7 +159,7 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
                 return get_singleton("/");
             }
         case lexer_state_line_comment:
-            if (c != '\n') {
+            if (c != '\n' && c != EOF) {
                 continue;
             } else {
                 lexer_state = lexer_state_start;
@@ -168,6 +168,10 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
         case lexer_state_block_comment:
             if (c == '*') {
                 lexer_state = lexer_state_block_comment_end;
+                continue;
+            } else if (c == EOF) {
+                throw_warning(1, "Unterminated block comment starting on line %d", *line_number);
+                lexer_state = lexer_state_start;
                 continue;
             } else {
                 continue;
