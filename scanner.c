@@ -39,7 +39,6 @@ enum lexer_state {
     lexer_state_string_literal,
     lexer_state_string_esc,
     lexer_state_question_mark,
-    lexer_state_type,
 };
 
 #define putback(c)               \
@@ -359,19 +358,6 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
             if (c == '>') {
                 utf8_putc(c, identifier->stream);
                 return varstring_destroy(identifier);
-
-            } else if (utf8_isalpha(c)) {
-                lexer_state = lexer_state_type;
-                utf8_putc(c, identifier->stream);
-                continue;
-            } else {
-                varstring_destroy(identifier);
-                exit(1);
-            }
-        case lexer_state_type:
-            if (utf8_isalpha(c)) {
-                utf8_putc(c, identifier->stream);
-                continue;
             } else {
                 putback(c);
                 return varstring_destroy(identifier);
