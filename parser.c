@@ -62,6 +62,9 @@ void parser_stash_singleton(singleton_t* singleton)
 }
 
 struct reserved_t {
+    symbol_t* boolean_true;
+    symbol_t* boolean_false;
+
     symbol_t* keyword_else;
     symbol_t* keyword_float;
     symbol_t* keyword_function;
@@ -109,6 +112,9 @@ struct operators_t operators = { 0 };
 
 void parser_init()
 {
+    reserved.boolean_true = get_symbol_by_str(symbol_type_keyword, "true");
+    reserved.boolean_false = get_symbol_by_str(symbol_type_keyword, "false");
+
     reserved.keyword_else = get_symbol_by_str(symbol_type_keyword, "else");
     reserved.keyword_float = get_symbol_by_str(symbol_type_keyword, "float");
     reserved.keyword_function = get_symbol_by_str(symbol_type_keyword, "function");
@@ -146,4 +152,41 @@ void parser_init()
     operators.dot = get_symbol_by_str(symbol_type_operator, ".");
     operators.mul = get_symbol_by_str(symbol_type_operator, "*");
     operators.div = get_symbol_by_str(symbol_type_operator, "/");
+}
+
+void parser_check_headers(utf8_readstream_t* input)
+{
+    singleton_t* prolog_tag = parser_read_next_singleton(input);
+
+    if (prolog_tag != reserved.prolog_start->str) {
+        throw_warning(2, "Prolog: expected '<?php', received '%s'", prolog_tag->strval);
+
+        parser_stash_singleton(prolog_tag);
+    }
+
+    singleton_t* prolog_declaration[] = {
+        reserved.prolog_declare->str,
+        operators.paren_open->str,
+        reserved.prolog_strict_types->str,
+        operators.assign->str,
+        reserved.boolean_true->str,
+        operators.paren_close->str,
+        operators.semicolon->str,
+    };
+
+    for (int i = 0; i < 7; ++i) {
+        if (parser_next_singleton == prolog_declaration[i]) {
+            parser_read_next_singleton(input);
+        } else {
+            throw_warning(2, "Prolog: expected '%s', received '%s'", prolog_declaration[i]->strval, parser_next_singleton->strval);
+        }
+    }
+}
+
+ast_node_t* parser(parser_state_t state, utf8_readstream_t* input)
+{
+    switch (state) {
+    case parser_state_start:
+        parser_check_headers(input);
+    }
 }
