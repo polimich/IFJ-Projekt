@@ -12,14 +12,17 @@
 //////////////////////////////////////////////////////////
 
 #include "./parser.h"
+#include "./error.h"
 #include "./scanner.h"
 #include "./symtable.h"
 
 singleton_t* parser_last_singleton = NULL;
 singleton_t* parser_next_singleton = NULL;
+singleton_t* parser_stashed_singleton = NULL;
 
 int parser_last_line_number = 0;
 int parser_next_line_number = 0;
+int parser_stashed_line_number = 0;
 
 singleton_t* parser_read_next_singleton(utf8_readstream_t* input)
 {
@@ -30,9 +33,32 @@ singleton_t* parser_read_next_singleton(utf8_readstream_t* input)
         parser_last_singleton = lexer_get_token(input, &parser_last_line_number);
     }
 
-    parser_next_singleton = lexer_get_token(input, &parser_next_line_number);
+    if (parser_stashed_singleton != NULL) {
+        parser_next_singleton = parser_stashed_singleton;
+        parser_next_line_number = parser_stashed_line_number;
+        parser_stashed_line_number = 0;
+        parser_stashed_singleton = NULL;
+    } else {
+        parser_next_singleton = lexer_get_token(input, &parser_next_line_number);
+    }
 
     return parser_last_singleton;
+}
+
+void parser_stash_singleton(singleton_t* singleton)
+{
+    if (parser_stashed_singleton != NULL) {
+        throw_error(99, "Parser stashing multiple tokens:\n\tstashed: %s\n\tnext:    %s\n\tnew:     %s", parser_stashed_singleton->strval, parser_next_singleton->strval, singleton->strval);
+    }
+
+    parser_stashed_singleton = parser_next_singleton;
+    parser_stashed_line_number = parser_next_line_number;
+
+    parser_next_singleton = singleton;
+    parser_next_line_number = parser_last_line_number;
+
+    parser_last_singleton = NULL;
+    parser_last_line_number = 0;
 }
 
 struct reserved_t {
