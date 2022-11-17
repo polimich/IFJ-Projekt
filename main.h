@@ -16,6 +16,7 @@
 
 #include "./error.h"
 #include "./memory.h"
+#include "./parser.h"
 #include "./scanner.h"
 
 #endif
