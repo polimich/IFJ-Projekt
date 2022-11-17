@@ -183,10 +183,10 @@ void parser_check_headers(utf8_readstream_t* input)
     }
 }
 
-ast_node_t* parser(parser_state_t state, utf8_readstream_t* input)
+ast_node_t* parser(utf8_readstream_t* input)
 {
-    switch (state) {
-    case parser_state_start:
-        parser_check_headers(input);
-    }
+    parser_init();
+    parser_check_headers(input);
+
+    return NULL; // FIXME
 }
