@@ -29,8 +29,25 @@ typedef struct ast_node_t {
     struct ast_node_t* right;
 } ast_node_t;
 
+struct ast_block_t;
+
+typedef struct ast_conditional_t {
+    struct ast_node_t* condition;
+    struct ast_block_t* true_branch;
+    struct ast_block_t* false_branch;
+} ast_conditional_t;
+
+typedef struct ast_loop_t {
+    struct ast_node_t* initializer;
+    struct ast_node_t* condition;
+    struct ast_node_t* incrementer;
+    struct ast_block_t* body;
+} ast_loop_t;
+
 typedef struct ast_block_item_t {
     struct ast_node_t* item;
+    struct ast_conditional_t* conditional;
+    struct ast_loop_t* loop;
     struct ast_block_item_t* next;
 } ast_block_item_t;
 
@@ -38,5 +55,27 @@ typedef struct ast_block_t {
     size_t num_items;
     struct ast_block_item_t* first;
 } ast_block_t;
+
+typedef struct ast_parameter_t {
+    symbol_t* type;
+    symbol_t* name;
+    bool optional;
+} ast_parameter_t;
+
+typedef struct ast_parameter_list_t {
+    size_t n_parameters;
+    ast_parameter_t* parameters[];
+} ast_parameter_list_t;
+
+typedef struct ast_function_t {
+    symbol_t* name;
+    ast_parameter_list_t* parameters;
+    ast_block_t* block;
+} ast_funciton_t;
+
+typedef struct ast_function_list_t {
+    struct ast_funciton_t* item;
+    struct ast_function_list_t* next;
+} ast_function_list_t;
 
 #endif
