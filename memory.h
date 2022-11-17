@@ -48,4 +48,6 @@ inline void* mem_alloc_safe(size_t size)
     return ptr;
 }
 
+#define salloc(type, name) struct type* name = (struct type*)mem_alloc_safe(sizeof(type));
+
 #endif
