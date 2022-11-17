@@ -21,6 +21,11 @@
 
 void parser_init();
 
+ast_node_t* parser_read_prio1(utf8_readstream_t* input);
+ast_node_t* parser_read_prio2(utf8_readstream_t* input);
+ast_node_t* parser_read_prio3(utf8_readstream_t* input);
+ast_node_t* parser_read_prio4(utf8_readstream_t* input);
+ast_node_t* parser_read_prio5(utf8_readstream_t* input);
 ast_node_t* parser(utf8_readstream_t* input);
 
 #endif
