@@ -199,10 +199,121 @@ ast_node_t* parser_read_leaf(utf8_readstream_t* input)
     return node;
 }
 
+ast_node_t* parser_read_paren(utf8_readstream_t* input)
+{
+    singleton_t* lparen = parser_read_next_singleton(input);
+
+    bool expecting_closing_paren = true;
+
+    if (lparen != operators.paren_open->str) {
+        throw_warning(2, "Expected '(', received '%s'", lparen->strval);
+        parser_stash_singleton(lparen);
+        expecting_closing_paren = false;
+    }
+
+    ast_node_t* node = parser_read_prio5(input);
+
+    if (expecting_closing_paren) {
+        singleton_t* rparen = parser_read_next_singleton(input);
+
+        if (rparen != operators.paren_close->str) {
+            throw_warning(2, "Expected ')', received '%s'", rparen->strval);
+            parser_stash_singleton(rparen);
+        }
+    }
+
+    return node;
+}
+
+ast_node_t* parser_read_prio1(utf8_readstream_t* input)
+{
+    ast_node_t* left = (parser_next_singleton == operators.paren_open->str) ? parser_read_paren(input) : parser_read_leaf(input);
+
+    if (parser_next_singleton == operators.mul->str || parser_next_singleton == operators.div->str) {
+        salloc(ast_node_t, node);
+
+        node->left = left;
+        node->op = get_symbol(symbol_type_operator, parser_read_next_singleton(input));
+        node->right = parser_read_prio1(input);
+
+        return node;
+    } else {
+        return left;
+    }
+}
+
+ast_node_t* parser_read_prio2(utf8_readstream_t* input)
+{
+    ast_node_t* left = parser_read_prio1(input);
+
+    if (parser_next_singleton == operators.plus->str || parser_next_singleton == operators.minus->str || parser_next_singleton == operators.dot->str) {
+        salloc(ast_node_t, node);
+
+        node->left = left;
+        node->op = get_symbol(symbol_type_operator, parser_read_next_singleton(input));
+        node->right = parser_read_prio2(input);
+
+        return node;
+    } else {
+        return left;
+    }
+}
+
+ast_node_t* parser_read_prio3(utf8_readstream_t* input)
+{
+    ast_node_t* left = parser_read_prio2(input);
+
+    if (parser_next_singleton == operators.LT->str || parser_next_singleton == operators.LTE->str || parser_next_singleton == operators.GT->str || parser_next_singleton == operators.GTE->str) {
+        salloc(ast_node_t, node);
+
+        node->left = left;
+        node->op = get_symbol(symbol_type_operator, parser_read_next_singleton(input));
+        node->right = parser_read_prio3(input);
+
+        return node;
+    } else {
+        return left;
+    }
+}
+
+ast_node_t* parser_read_prio4(utf8_readstream_t* input)
+{
+    ast_node_t* left = parser_read_prio3(input);
+
+    if (parser_next_singleton == operators.SEQ->str || parser_next_singleton == operators.SNEQ->str) {
+        salloc(ast_node_t, node);
+
+        node->left = left;
+        node->op = get_symbol(symbol_type_operator, parser_read_next_singleton(input));
+        node->right = parser_read_prio4(input);
+
+        return node;
+    } else {
+        return left;
+    }
+}
+
+ast_node_t* parser_read_prio5(utf8_readstream_t* input)
+{
+    ast_node_t* left = parser_read_prio4(input);
+
+    if (parser_next_singleton == operators.assign->str) {
+        salloc(ast_node_t, node);
+
+        node->left = left;
+        node->op = get_symbol(symbol_type_operator, parser_read_next_singleton(input));
+        node->right = parser_read_prio5(input);
+
+        return node;
+    } else {
+        return left;
+    }
+}
+
 ast_node_t* parser(utf8_readstream_t* input)
 {
     parser_init();
     parser_check_headers(input);
 
-    return NULL; // FIXME
+    return parser_read_prio5(input);
 }
