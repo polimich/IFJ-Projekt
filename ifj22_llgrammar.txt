@@ -1,0 +1,42 @@
+ll grammar for IFJ22 compiler
+
+<head> -> <?php declare(strict_types=1);
+<end> -> ?>
+<end> -> "EOF"
+
+<assignment> -> $ id = <expression>;
+<expression> -> $ id
+<expression> -> const
+<expression> -> <fnc_call>
+<expression> -> <expression> + <expression>
+<expression> -> <expression> - <expression>
+<expression> -> <expression> * <expression>
+<expression> -> <expression> / <expression>
+
+<fnc_dec> -> function id(<fnc_params>) type { <code> <return> <code> }
+<fnc_params> -> "epsolon"
+<fnc_params> -> type $ id <fnc_params2>
+<fnc_params2> -> "epsolon"
+<fnc_params2> -> , type $ id
+<return> -> return <expression>;
+
+<fnc_call> -> id(<fnc_arguments>)
+<fnc_arguments> -> "epsolon"
+<fnc_arguments> -> <expression> <fnc_arguments2>
+<fnc_arguments2> -> "epsolon"
+<fnc_arguments2> -> , <expression> <fnc_arguments2>
+
+<if_statement> -> if (<condition>) { <code> } <else>
+<else> -> "epsolon"
+<else> -> else { <code> }
+
+<while_loop> -> while (<condition>) { <code> }
+
+<code> -> "epsolon"
+<code> -> <assignment> <code>
+<code> -> <fnc_dec> <code>
+<code> -> <fnc_call> <code>
+<code> -> <if_statement> <code>
+<code> -> <while> <code>
+
+// type = int, string, float, ...
