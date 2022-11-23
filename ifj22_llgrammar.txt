@@ -17,6 +17,10 @@ ll grammar for IFJ22 compiler
 <fnc_params2> -> , type $ id <fnc_params2>
 <return> -> return <expression>;
 
+<void_fnc_dec> -> function id(<fnc_params>) void {<code> <void_return> <code>}
+<void_return> -> "epsilon"
+<void_return> -> return;
+
 <fnc_call> -> id(<fnc_arguments>)
 <fnc_arguments> -> "epsilon"
 <fnc_arguments> -> <expression> <fnc_arguments2>
