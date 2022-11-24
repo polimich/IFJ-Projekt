@@ -60,3 +60,17 @@ void throw_error(int error_code, const char* fmt, ...)
 
     exit(error_code);
 }
+
+void runtime_assert(int condition, int error_code, const char* fmt, ...)
+{
+    if (condition == 0) {
+        if (CURRENT_RETURN_CODE == 0) {
+            CURRENT_RETURN_CODE = error_code;
+        }
+
+        va_list args;
+        va_start(args, fmt);
+        print_error(error_code, (COLOR_ORANGE "Warning(" COLOR_YELLOW "%d" COLOR_ORANGE "): " COLOR_YELLOW "Assertion failed: "), fmt, args);
+        va_end(args);
+    }
+}

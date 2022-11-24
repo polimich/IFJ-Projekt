@@ -5,7 +5,7 @@
 //    Autoři: xlukas18, xmedri01, xpoliv07, xschie03    //
 //                                                      //
 //    Implementace error.h: xschie03                    //
-//    Datum: 19. 10. 2022                               //
+//    Datum: 19. 10. 2022 - 22. 11. 2022                //
 //                                                      //
 //    Licence: GNU GPL v3, nebo pozdější                //
 //                                                      //
@@ -26,6 +26,7 @@
 
 int get_current_error_code();
 
+void runtime_assert(int condition, int error_code, const char* fmt, ...);
 void throw_warning(int error_code, const char* fmt, ...);
 void throw_error(int error_code, const char* fmt, ...);
 
