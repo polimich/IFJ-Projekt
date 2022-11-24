@@ -521,6 +521,8 @@ ast_block_t* parser_read_block(utf8_readstream_t* input)
         ++block->num_items;
     }
 
+    parser_read_next_singleton(input); // '}'
+
     return block;
 }
 
