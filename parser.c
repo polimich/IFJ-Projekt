@@ -68,6 +68,7 @@ struct reserved_t {
     symbol_t* keyword_else;
     symbol_t* keyword_elseif;
     symbol_t* keyword_float;
+    symbol_t* keyword_for;
     symbol_t* keyword_function;
     symbol_t* keyword_if;
     symbol_t* keyword_int;
@@ -119,6 +120,7 @@ void parser_init()
     reserved.keyword_else = get_symbol_by_str(symbol_type_keyword, "else");
     reserved.keyword_elseif = get_symbol_by_str(symbol_type_keyword, "elseif");
     reserved.keyword_float = get_symbol_by_str(symbol_type_keyword, "float");
+    reserved.keyword_for = get_symbol_by_str(symbol_type_keyword, "for");
     reserved.keyword_function = get_symbol_by_str(symbol_type_keyword, "function");
     reserved.keyword_if = get_symbol_by_str(symbol_type_keyword, "if");
     reserved.keyword_int = get_symbol_by_str(symbol_type_keyword, "int");
