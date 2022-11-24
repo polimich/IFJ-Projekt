@@ -5,7 +5,7 @@
 //    Autoři: xlukas18, xmedri01, xpoliv07, xschie03    //
 //                                                      //
 //    Implementace parser.c: xschie03                   //
-//    Datum: 19. 10. 2022                               //
+//    Datum: 19. 10. 2022 - 21. 11. 2022                //
 //                                                      //
 //    Licence: GNU GPL v3, nebo pozdější                //
 //                                                      //
@@ -183,6 +183,63 @@ void parser_check_headers(utf8_readstream_t* input)
     }
 }
 
+ast_call_parameter_t* parser_read_call_parameter(utf8_readstream_t* input)
+{
+    salloc(ast_call_parameter_t, parameter);
+
+    parameter->node = parser_read_prio5(input);
+
+    return parameter;
+}
+
+ast_call_parameter_list_t* parser_read_call_parameters(utf8_readstream_t* input)
+{
+    size_t count = 0;
+    ast_call_parameter_t* param = NULL;
+    ast_call_parameter_t** next = &param;
+
+    singleton_t* paren_open = parser_read_next_singleton(input);
+
+    runtime_assert(
+        paren_open == operators.paren_open->str,
+        99,
+        "parser_read_call_parameters() expected (, received '%s'",
+        paren_open->strval);
+
+    while (parser_next_singleton != operators.paren_close->str) {
+        *next = parser_read_call_parameter(input);
+        next = &((*next)->next);
+
+        count++;
+
+        if (parser_next_singleton == operators.paren_close->str) {
+            break;
+        } else if (parser_next_singleton == operators.comma->str) {
+            parser_read_next_singleton(input);
+        } else {
+            throw_warning(2, "Missing comma in function parameters on line %d: %s %s", parser_last_line_number, parser_last_singleton->strval, parser_next_singleton->strval);
+        }
+    }
+
+    ast_call_parameter_list_t* parameter_list = mem_alloc_safe(sizeof(ast_call_parameter_list_t) + sizeof(ast_call_parameter_t*) * count);
+
+    for (size_t i = 0; i < count; ++i, param = param->next) {
+        parameter_list->parameters[i] = param;
+    }
+
+    parameter_list->size = count;
+
+    singleton_t* paren_close = parser_read_next_singleton(input);
+
+    runtime_assert(
+        paren_close == operators.paren_close->str,
+        99,
+        "parser_read_call_parameters() expected ), received '%s'",
+        paren_close->strval);
+
+    return parameter_list;
+}
+
 symbol_t* parser_read_undefined_symbol(utf8_readstream_t* input)
 {
     return get_symbol(symbol_type_undefined, parser_read_next_singleton(input));
@@ -195,6 +252,10 @@ ast_node_t* parser_read_leaf(utf8_readstream_t* input)
 
     leaf->symbol = parser_read_undefined_symbol(input);
     node->leaf = leaf;
+
+    if (parser_next_singleton == operators.paren_open->str) {
+        node->leaf->call_parameters = parser_read_call_parameters(input);
+    }
 
     return node;
 }
