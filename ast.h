@@ -5,7 +5,7 @@
 //    Autoři: xlukas18, xmedri01, xpoliv07, xschie03    //
 //                                                      //
 //    Implementace ast.h: xschie03                      //
-//    Datum: 17. 10. 2022                               //
+//    Datum: 17. 10. 2022 - 21. 11. 2022                //
 //                                                      //
 //    Licence: GNU GPL v3, nebo pozdější                //
 //                                                      //
@@ -19,7 +19,8 @@
 #include "./symbol.h"
 
 typedef struct ast_leaf_t {
-    symbol_t* symbol;
+    struct symbol_t* symbol;
+    struct ast_call_parameter_list_t* call_parameters;
 } ast_leaf_t;
 
 typedef struct ast_node_t {
@@ -29,7 +30,15 @@ typedef struct ast_node_t {
     struct ast_node_t* right;
 } ast_node_t;
 
-struct ast_block_t;
+typedef struct ast_call_parameter_t {
+    struct ast_node_t* node;
+    struct ast_call_parameter_t* next;
+} ast_call_parameter_t;
+
+typedef struct ast_call_parameter_list_t {
+    size_t size;
+    ast_call_parameter_t* parameters[];
+} ast_call_parameter_list_t;
 
 typedef struct ast_conditional_t {
     struct ast_node_t* condition;
