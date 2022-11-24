@@ -5,7 +5,7 @@
 //    Autoři: xlukas18, xmedri01, xpoliv07, xschie03    //
 //                                                      //
 //    Implementace parser.c: xschie03                   //
-//    Datum: 19. 10. 2022 - 21. 11. 2022                //
+//    Datum: 19. 10. 2022 - 24. 11. 2022                //
 //                                                      //
 //    Licence: GNU GPL v3, nebo pozdější                //
 //                                                      //
@@ -371,10 +371,23 @@ ast_node_t* parser_read_prio5(utf8_readstream_t* input)
     }
 }
 
+ast_node_t* parser_read_statement(utf8_readstream_t* input)
+{
+    ast_node_t* node = parser_read_prio5(input);
+
+    if (parser_next_singleton == operators.semicolon->str) {
+        parser_read_next_singleton(input);
+    } else {
+        throw_warning(2, "Missing semicolon on line %d", parser_last_line_number);
+    }
+
+    return node;
+}
+
 ast_node_t* parser(utf8_readstream_t* input)
 {
     parser_init();
     parser_check_headers(input);
 
-    return parser_read_prio5(input);
+    return parser_read_statement(input);
 }
