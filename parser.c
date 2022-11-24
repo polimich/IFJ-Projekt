@@ -187,7 +187,7 @@ ast_call_parameter_t* parser_read_call_parameter(utf8_readstream_t* input)
 {
     salloc(ast_call_parameter_t, parameter);
 
-    parameter->node = parser_read_prio5(input);
+    parameter->node = parser_read_expression(input);
 
     return parameter;
 }
@@ -272,7 +272,7 @@ ast_node_t* parser_read_paren(utf8_readstream_t* input)
         expecting_closing_paren = false;
     }
 
-    ast_node_t* node = parser_read_prio5(input);
+    ast_node_t* node = parser_read_expression(input);
 
     if (expecting_closing_paren) {
         singleton_t* rparen = parser_read_next_singleton(input);
@@ -371,9 +371,14 @@ ast_node_t* parser_read_prio5(utf8_readstream_t* input)
     }
 }
 
+ast_node_t* parser_read_expression(utf8_readstream_t* input)
+{
+    return parser_read_prio5(input);
+}
+
 ast_node_t* parser_read_statement(utf8_readstream_t* input)
 {
-    ast_node_t* node = parser_read_prio5(input);
+    ast_node_t* node = parser_read_expression(input);
 
     if (parser_next_singleton == operators.semicolon->str) {
         parser_read_next_singleton(input);
