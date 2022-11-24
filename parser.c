@@ -66,6 +66,7 @@ struct reserved_t {
     symbol_t* boolean_false;
 
     symbol_t* keyword_else;
+    symbol_t* keyword_elseif;
     symbol_t* keyword_float;
     symbol_t* keyword_function;
     symbol_t* keyword_if;
@@ -116,6 +117,7 @@ void parser_init()
     reserved.boolean_false = get_symbol_by_str(symbol_type_keyword, "false");
 
     reserved.keyword_else = get_symbol_by_str(symbol_type_keyword, "else");
+    reserved.keyword_elseif = get_symbol_by_str(symbol_type_keyword, "elseif");
     reserved.keyword_float = get_symbol_by_str(symbol_type_keyword, "float");
     reserved.keyword_function = get_symbol_by_str(symbol_type_keyword, "function");
     reserved.keyword_if = get_symbol_by_str(symbol_type_keyword, "if");
