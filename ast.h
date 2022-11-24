@@ -83,7 +83,7 @@ typedef struct ast_function_t {
 } ast_funciton_t;
 
 typedef struct ast_function_list_t {
-    struct ast_funciton_t* item;
+    struct ast_function_t* item;
     struct ast_function_list_t* next;
 } ast_function_list_t;
 
