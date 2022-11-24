@@ -393,6 +393,137 @@ ast_node_t* parser_read_statement(utf8_readstream_t* input)
     return node;
 }
 
+ast_conditional_t* parser_read_if(utf8_readstream_t* input)
+{
+    if (parser_next_singleton == reserved.keyword_if->str) {
+        parser_read_next_singleton(input);
+    } else {
+        throw_warning(99, "Called parser_read_if() on non-if on line %d", parser_next_line_number);
+    }
+
+    salloc(ast_conditional_t, statement);
+
+    statement->condition = parser_read_expression(input);
+    statement->true_branch = parser_read_block(input);
+
+    if (parser_next_singleton == reserved.keyword_else->str) {
+        parser_read_next_singleton(input);
+        statement->false_branch = parser_read_block(input);
+    } else if (parser_next_singleton == reserved.keyword_elseif->str) {
+        parser_next_singleton = reserved.keyword_if->str;
+        statement->false_branch = parser_read_block(input);
+    }
+
+    return statement;
+}
+
+ast_loop_t* parser_read_while(utf8_readstream_t* input)
+{
+    if (parser_next_singleton == reserved.keyword_while->str) {
+        parser_read_next_singleton(input);
+    } else {
+        throw_warning(99, "Called parser_read_while() on non-while on line %d", parser_next_line_number);
+    }
+
+    salloc(ast_loop_t, statement);
+
+    statement->condition = parser_read_expression(input);
+    statement->body = parser_read_block(input);
+
+    return statement;
+}
+
+ast_loop_t* parser_read_for(utf8_readstream_t* input)
+{
+    if (parser_next_singleton == reserved.keyword_for->str) {
+        parser_read_next_singleton(input);
+    } else {
+        throw_warning(99, "Called parser_read_for() on non-for on line %d", parser_next_line_number);
+    }
+
+    salloc(ast_loop_t, statement);
+
+    bool has_paren_condition = parser_next_singleton == operators.paren_open->str;
+
+    if (has_paren_condition) {
+        parser_read_next_singleton(input);
+    }
+
+    if (parser_next_singleton == operators.semicolon->str) {
+        statement->initializer = NULL;
+        parser_read_next_singleton(input);
+    } else {
+        statement->initializer = parser_read_statement(input);
+    }
+
+    if (parser_next_singleton == operators.semicolon->str) {
+        statement->condition = NULL;
+        parser_read_next_singleton(input);
+    } else {
+        statement->condition = parser_read_statement(input);
+    }
+
+    if (parser_next_singleton == operators.paren_close->str) {
+        statement->incrementer = NULL;
+    } else {
+        statement->incrementer = parser_read_expression(input);
+    }
+
+    if (has_paren_condition) {
+        if (parser_next_singleton == operators.paren_close->str) {
+            parser_read_next_singleton(input);
+        } else {
+            throw_warning(2, "Missing ')' in for loop on line %d", parser_last_line_number);
+        }
+    }
+
+    statement->body = parser_read_block(input);
+
+    return statement;
+}
+
+ast_block_item_t* parser_read_block_item(utf8_readstream_t* input)
+{
+    salloc(ast_block_item_t, item);
+
+    if (parser_next_singleton == reserved.keyword_if->str) {
+        item->conditional = parser_read_if(input);
+    } else if (parser_next_singleton == reserved.keyword_for->str) {
+        item->loop = parser_read_for(input);
+    } else if (parser_next_singleton == reserved.keyword_while->str) {
+        item->loop = parser_read_while(input);
+    } else {
+        item->item = parser_read_statement(input);
+    }
+
+    return item;
+}
+
+ast_block_t* parser_read_block(utf8_readstream_t* input)
+{
+    if (parser_next_singleton != operators.bracket_open->str) {
+        salloc(ast_block_t, block);
+
+        block->num_items = 1;
+        block->first = parser_read_block_item(input);
+
+        return block;
+    }
+
+    parser_read_next_singleton(input); // '{'
+
+    salloc(ast_block_t, block);
+    ast_block_item_t** next = &block->first;
+
+    while (parser_next_singleton != operators.bracket_close->str) {
+        *next = parser_read_block_item(input);
+        next = &((*next)->next);
+        ++block->num_items;
+    }
+
+    return block;
+}
+
 ast_node_t* parser(utf8_readstream_t* input)
 {
     parser_init();

@@ -5,7 +5,7 @@
 //    Autoři: xlukas18, xmedri01, xpoliv07, xschie03    //
 //                                                      //
 //    Implementace parser.h: xschie03                   //
-//    Datum: 17. 10. 2022 - 19. 10. 2022                //
+//    Datum: 17. 10. 2022 - 24. 11. 2022                //
 //                                                      //
 //    Licence: GNU GPL v3, nebo pozdější                //
 //                                                      //
@@ -28,6 +28,7 @@ ast_node_t* parser_read_prio3(utf8_readstream_t* input);
 ast_node_t* parser_read_prio4(utf8_readstream_t* input);
 ast_node_t* parser_read_prio5(utf8_readstream_t* input);
 ast_node_t* parser_read_expression(utf8_readstream_t* input);
+ast_block_t* parser_read_block(utf8_readstream_t* input);
 ast_node_t* parser(utf8_readstream_t* input);
 
 #endif
