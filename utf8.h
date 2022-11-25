@@ -18,7 +18,7 @@
 
 #include "./memory.h"
 
-typedef struct utf8_readstream {
+typedef struct utf8_readstream_t {
     FILE* stream;
     int c;
 } utf8_readstream_t;
@@ -33,7 +33,7 @@ inline void utf8_putc(int c, FILE* stream);
 
 inline utf8_readstream_t* utf8_init(FILE* stream)
 {
-    utf8_readstream_t* descriptor = (utf8_readstream_t*)mem_alloc_safe(sizeof(*descriptor));
+    salloc(utf8_readstream_t, descriptor);
 
     descriptor->stream = stream;
 
