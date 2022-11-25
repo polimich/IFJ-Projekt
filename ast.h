@@ -80,7 +80,7 @@ typedef struct ast_function_t {
     symbol_t* name;
     ast_parameter_list_t* parameters;
     ast_block_t* block;
-} ast_funciton_t;
+} ast_function_t;
 
 typedef struct ast_function_list_t {
     struct ast_function_t* item;
