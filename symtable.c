@@ -24,7 +24,7 @@ inline size_t get_symbol_index(symbol_type_t type, singleton_t* value)
 
 symbol_t* create_symbol(symbol_type_t type, singleton_t* value)
 {
-    symbol_t* symbol = (symbol_t*)mem_alloc_safe(sizeof(*symbol));
+    salloc(symbol_t, symbol);
 
     symbol->type = type;
     symbol->str = value;
