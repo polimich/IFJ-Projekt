@@ -44,7 +44,7 @@ singleton_t* get_singleton(const char* restrict strval)
 
         strcpy(strval_cpy, strval);
 
-        singleton_t* singleton = (singleton_t*)mem_alloc_safe(sizeof(singleton_t));
+        salloc(singleton_t, singleton);
 
         singleton->hash = strhash;
         singleton->strval = strval_cpy;
