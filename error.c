@@ -26,7 +26,7 @@ int get_current_error_code()
     return CURRENT_RETURN_CODE;
 }
 
-inline void print_error(int error_code, const char* hfmt, const char* fmt, va_list args)
+void print_error(int error_code, const char* hfmt, const char* fmt, va_list args)
 {
     varstring_t* errmsg = varstring_init();
 
