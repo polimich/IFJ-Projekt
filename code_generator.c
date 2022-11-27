@@ -131,9 +131,6 @@ void generate_node(ast_node_t* node)
         }
     }
 }
-void generate_instruction(symbol_t* op)
-{
-}
 
 void generate_header()
 {
