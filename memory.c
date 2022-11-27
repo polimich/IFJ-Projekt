@@ -28,7 +28,7 @@
 #endif
 
 #ifndef MEM_SIZE
-#define MEM_SIZE 0x100000000L
+#define MEM_SIZE 0x10000000L // merlin - file too long fix
 #endif
 
 #include <errno.h>
