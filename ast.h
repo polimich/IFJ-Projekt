@@ -18,13 +18,13 @@
 
 #include "./symbol.h"
 
-typedef struct ast_leaf_t {
+typedef struct ast_leaf_t { // constant, local variable or function call
     struct symbol_t* symbol;
     struct ast_call_parameter_list_t* call_parameters;
 } ast_leaf_t;
 
 typedef struct ast_node_t {
-    struct ast_leaf_t* leaf;
+    struct ast_leaf_t* leaf; // others are null if leaf is not null
     struct symbol_t* op;
     struct ast_node_t* left;
     struct ast_node_t* right;
