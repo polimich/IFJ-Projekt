@@ -688,6 +688,8 @@ ast_function_list_t* parser_read_function_list(utf8_readstream_t* input)
 
             ++main_block->num_items;
         }
+
+        parser_skip_semicolons(input);
     }
 
     return list;
