@@ -695,10 +695,10 @@ ast_function_list_t* parser_read_function_list(utf8_readstream_t* input)
     return list;
 }
 
-ast_node_t* parser(utf8_readstream_t* input)
+ast_function_list_t* parser(utf8_readstream_t* input)
 {
     parser_init();
     parser_check_headers(input);
 
-    return parser_read_statement(input);
+    return parser_read_function_list(input);
 }

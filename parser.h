@@ -29,6 +29,6 @@ ast_node_t* parser_read_prio4(utf8_readstream_t* input);
 ast_node_t* parser_read_prio5(utf8_readstream_t* input);
 ast_node_t* parser_read_expression(utf8_readstream_t* input);
 ast_block_t* parser_read_block(utf8_readstream_t* input);
-ast_node_t* parser(utf8_readstream_t* input);
+ast_function_list_t* parser(utf8_readstream_t* input);
 
 #endif
