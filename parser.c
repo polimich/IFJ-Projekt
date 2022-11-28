@@ -598,7 +598,7 @@ ast_parameter_list_t* parser_read_parameter_list(utf8_readstream_t* input)
 
     size_t count = 0;
 
-    while (parser_next_singleton != operators.paren_open->str) {
+    while (parser_next_singleton != operators.paren_close->str) {
         *next = parser_read_parameter(input);
         next = &((*next)->next);
         ++count;
