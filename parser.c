@@ -643,6 +643,39 @@ ast_function_t* parser_read_function(utf8_readstream_t* input)
     return fn;
 }
 
+ast_function_list_t* parser_read_function_list(utf8_readstream_t* input)
+{
+    salloc(ast_function_list_t, list);
+    salloc(ast_function_t, main);
+
+    list->item = main;
+
+    ast_function_list_t* current_list = list;
+
+    salloc(ast_block_t, main_block);
+    ast_block_item_t** main_next_expr_ptr = &(main_block->first);
+
+    while (parser_next_singleton != reserved.ending_tag->str) {
+        if (parser_next_singleton == reserved.keyword_function->str) {
+            salloc(ast_function_list_t, next_list);
+
+            next_list->item = parser_read_function(input);
+
+            current_list->next = next_list;
+            current_list = next_list;
+        } else {
+            ast_block_item_t* item = parser_read_block_item(input);
+
+            *main_next_expr_ptr = item;
+            main_next_expr_ptr = &(item->next);
+
+            ++main_block->num_items;
+        }
+    }
+
+    return list;
+}
+
 ast_node_t* parser(utf8_readstream_t* input)
 {
     parser_init();
