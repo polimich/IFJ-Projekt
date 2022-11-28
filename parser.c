@@ -189,6 +189,13 @@ void parser_check_headers(utf8_readstream_t* input)
     }
 }
 
+void parser_skip_semicolons(utf8_readstream_t* input)
+{
+    while (parser_next_singleton == operators.semicolon->str) {
+        parser_read_next_singleton(input);
+    }
+}
+
 ast_call_parameter_t* parser_read_call_parameter(utf8_readstream_t* input)
 {
     salloc(ast_call_parameter_t, parameter);
@@ -518,9 +525,13 @@ ast_block_t* parser_read_block(utf8_readstream_t* input)
     ast_block_item_t** next = &block->first;
 
     while (parser_next_singleton != operators.bracket_close->str) {
+        parser_skip_semicolons(input);
+
         *next = parser_read_block_item(input);
         next = &((*next)->next);
         ++block->num_items;
+
+        parser_skip_semicolons(input);
     }
 
     parser_read_next_singleton(input); // '}'
@@ -660,6 +671,8 @@ ast_function_list_t* parser_read_function_list(utf8_readstream_t* input)
     main->block = main_block;
 
     while (parser_next_singleton != reserved.ending_tag->str) {
+        parser_skip_semicolons(input);
+
         if (parser_next_singleton == reserved.keyword_function->str) {
             salloc(ast_function_list_t, next_list);
 
