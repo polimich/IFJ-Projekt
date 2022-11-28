@@ -73,7 +73,7 @@ typedef struct ast_parameter_t {
 } ast_parameter_t;
 
 typedef struct ast_parameter_list_t {
-    size_t n_parameters;
+    size_t count;
     ast_parameter_t* parameters[];
 } ast_parameter_list_t;
 
