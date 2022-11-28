@@ -655,6 +655,8 @@ ast_function_list_t* parser_read_function_list(utf8_readstream_t* input)
     salloc(ast_block_t, main_block);
     ast_block_item_t** main_next_expr_ptr = &(main_block->first);
 
+    main->block = main_block;
+
     while (parser_next_singleton != reserved.ending_tag->str) {
         if (parser_next_singleton == reserved.keyword_function->str) {
             salloc(ast_function_list_t, next_list);
