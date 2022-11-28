@@ -208,6 +208,17 @@ void formatter_print_function(ast_function_t* fn, __FMT_DREST__)
     formatter_print_symbol(fn->name, __FMT_CREST__);
     formatter_print_space(__FMT_CREST__);
     formatter_print_parameter_list(fn->parameters, __FMT_CREST__);
+
+    if (fn->returned_type) {
+        fprintf(output, ": ");
+
+        if (fn->returned_type_optional) {
+            putc('?', output);
+        }
+
+        formatter_print_symbol(fn->returned_type, __FMT_CREST__);
+    }
+
     formatter_print_space(__FMT_CREST__);
     formatter_print_block(fn->block, __FMT_CREST__);
 }
