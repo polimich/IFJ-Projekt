@@ -44,7 +44,7 @@ void generate_function(ast_function_t* function)
 
 void generate_parameters(ast_parameter_list_t* parameters)
 {
-    for (int i = 0; i < parameters->n_parameters; i++) {
+    for (int i = 0; i < parameters->count; i++) {
         ast_parameter_t* parameter = parameters->parameters[i];
         // TODO generate parameter
     }
