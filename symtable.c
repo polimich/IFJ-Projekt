@@ -17,7 +17,7 @@
 
 symbol_t* symbols[SYMBOL_MAP_SIZE] = { NULL };
 
-inline size_t get_symbol_index(symbol_type_t type, singleton_t* value)
+extern inline size_t get_symbol_index(symbol_type_t type, singleton_t* value)
 {
     return ((size_t)type * (size_t)value * (size_t)value) % SYMBOL_MAP_SIZE;
 }
