@@ -15,6 +15,7 @@
 #define __MAIN_H__
 
 #include "./error.h"
+#include "./formatter.h"
 #include "./memory.h"
 #include "./parser.h"
 #include "./scanner.h"

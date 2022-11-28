@@ -55,7 +55,7 @@ int main(const int argc, const char* argv[])
         }
     } else /*if ((argc > 1) && (strcmp(argv[1], "--parser") == 0)) */ {
 
-        print_ast_node(parser(utf8_stdin));
+        formatter(parser(utf8_stdin), "    ", stdout);
     }
 
     mem_clean();
