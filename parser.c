@@ -528,6 +528,121 @@ ast_block_t* parser_read_block(utf8_readstream_t* input)
     return block;
 }
 
+symbol_t* parser_read_function_identifier(utf8_readstream_t* input)
+{
+    singleton_t* singleton = parser_read_next_singleton(input);
+    symbol_t* symbol = get_symbol(symbol_type_function_identifier, singleton);
+    const char* name = singleton->strval;
+
+    if (!utf8_isalpha(name[0]) && (name[0] != '_')) {
+        throw_error(2, "Invalid function name: '%s'", name);
+    }
+
+    return symbol;
+}
+
+symbol_t* parser_read_type(utf8_readstream_t* input)
+{
+    if (parser_next_singleton == reserved.keyword_bool->str) {
+        parser_read_next_singleton(input);
+
+        return reserved.keyword_bool;
+    } else if (parser_next_singleton == reserved.keyword_float->str) {
+        parser_read_next_singleton(input);
+
+        return reserved.keyword_float;
+    } else if (parser_next_singleton == reserved.keyword_int->str) {
+        parser_read_next_singleton(input);
+
+        return reserved.keyword_int;
+    } else if (parser_next_singleton == reserved.keyword_string->str) {
+        parser_read_next_singleton(input);
+
+        return reserved.keyword_string;
+    } else {
+        throw_warning(2, "Invalid type: '%s'", parser_next_singleton->strval);
+
+        return NULL;
+    }
+}
+
+ast_parameter_t* parser_read_parameter(utf8_readstream_t* input)
+{
+    salloc(ast_parameter_t, parameter);
+
+    if (parser_next_singleton == operators.questionmark->str) {
+        parameter->optional = true;
+        parser_read_next_singleton(input);
+    }
+
+    parameter->type = parser_read_type(input);
+    parameter->name = get_symbol(symbol_type_local_variable, parser_read_next_singleton(input));
+
+    return parameter;
+}
+
+ast_parameter_list_t* parser_read_parameter_list(utf8_readstream_t* input)
+{
+    if (parser_next_singleton == operators.paren_open->str) {
+        parser_read_next_singleton(input);
+    } else {
+        throw_warning(2, "Expecting '(' after function name, received '%s'", parser_next_singleton->strval);
+
+        salloc(ast_parameter_list_t, empty);
+
+        return empty;
+    }
+
+    ast_parameter_t* first = NULL;
+    ast_parameter_t** next = &first;
+
+    size_t count = 0;
+
+    while (parser_next_singleton != operators.paren_open->str) {
+        *next = parser_read_parameter(input);
+        next = &((*next)->next);
+        ++count;
+
+        if (parser_next_singleton == operators.comma->str) {
+            parser_read_next_singleton(input);
+        }
+
+        if (parser_next_singleton == reserved.ending_tag->str) {
+            throw_warning(2, "Unterminated function parameters on line %d", parser_last_line_number);
+
+            break;
+        }
+    }
+
+    ast_parameter_list_t* list = mem_alloc_safe(sizeof(ast_parameter_list_t) + count * sizeof(ast_call_parameter_t*));
+
+    ast_parameter_t* ptr = first;
+    for (size_t i = 0; ptr != NULL && i < count; ptr = ptr->next) {
+        list->parameters[i++] = ptr;
+    }
+
+    list->count = count;
+
+    return list;
+}
+
+ast_function_t* parser_read_function(utf8_readstream_t* input)
+{
+    if (parser_next_singleton == reserved.keyword_function->str) {
+        parser_read_next_singleton(input);
+    } else {
+        throw_warning(99, "parser_read_function() called on non-function");
+    }
+
+    salloc(ast_function_t, fn);
+
+    fn->name = parser_read_function_identifier(input);
+    fn->parameters = parser_read_parameter_list(input);
+    fn->block = parser_read_block(input);
+
+    return fn;
+}
+
 ast_node_t* parser(utf8_readstream_t* input)
 {
     parser_init();
