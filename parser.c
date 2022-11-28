@@ -651,6 +651,20 @@ ast_function_t* parser_read_function(utf8_readstream_t* input)
 
     fn->name = parser_read_function_identifier(input);
     fn->parameters = parser_read_parameter_list(input);
+
+    if (parser_next_singleton == operators.colon->str) {
+        parser_read_next_singleton(input); // ':'
+
+        if (parser_next_singleton == operators.questionmark->str) {
+            parser_read_next_singleton(input); // '?'
+            fn->returned_type_optional = true;
+        } else {
+            fn->returned_type_optional = false;
+        }
+
+        fn->returned_type = parser_read_type(input);
+    }
+
     fn->block = parser_read_block(input);
 
     return fn;
