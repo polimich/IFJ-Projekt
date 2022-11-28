@@ -5,7 +5,7 @@
 //    Autoři: xlukas18, xmedri01, xpoliv07, xschie03    //
 //                                                      //
 //    Implementace parser.c: xschie03                   //
-//    Datum: 19. 10. 2022 - 24. 11. 2022                //
+//    Datum: 19. 10. 2022 - 28. 11. 2022                //
 //                                                      //
 //    Licence: GNU GPL v3, nebo pozdější                //
 //                                                      //
@@ -65,6 +65,7 @@ struct reserved_t {
     symbol_t* boolean_true;
     symbol_t* boolean_false;
 
+    symbol_t* keyword_bool;
     symbol_t* keyword_else;
     symbol_t* keyword_elseif;
     symbol_t* keyword_float;
@@ -117,6 +118,7 @@ void parser_init()
     reserved.boolean_true = get_symbol_by_str(symbol_type_keyword, "true");
     reserved.boolean_false = get_symbol_by_str(symbol_type_keyword, "false");
 
+    reserved.keyword_bool = get_symbol_by_str(symbol_type_keyword, "bool");
     reserved.keyword_else = get_symbol_by_str(symbol_type_keyword, "else");
     reserved.keyword_elseif = get_symbol_by_str(symbol_type_keyword, "elseif");
     reserved.keyword_float = get_symbol_by_str(symbol_type_keyword, "float");
