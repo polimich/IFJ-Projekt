@@ -614,6 +614,8 @@ ast_parameter_list_t* parser_read_parameter_list(utf8_readstream_t* input)
         }
     }
 
+    parser_read_next_singleton(input); // ')'
+
     ast_parameter_list_t* list = mem_alloc_safe(sizeof(ast_parameter_list_t) + count * sizeof(ast_call_parameter_t*));
 
     ast_parameter_t* ptr = first;
