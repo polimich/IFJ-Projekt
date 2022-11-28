@@ -81,6 +81,8 @@ typedef struct ast_function_t {
     symbol_t* name;
     ast_parameter_list_t* parameters;
     ast_block_t* block;
+    symbol_t* returned_type;
+    bool returned_type_optional;
 } ast_function_t;
 
 typedef struct ast_function_list_t {
