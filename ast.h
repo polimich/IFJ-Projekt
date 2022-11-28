@@ -66,8 +66,9 @@ typedef struct ast_block_t {
 } ast_block_t;
 
 typedef struct ast_parameter_t {
-    symbol_t* type;
-    symbol_t* name;
+    struct symbol_t* type;
+    struct symbol_t* name;
+    struct ast_parameter_t* next;
     bool optional;
 } ast_parameter_t;
 
