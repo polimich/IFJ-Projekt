@@ -13,6 +13,7 @@
 
 #include "./parser.h"
 #include "./error.h"
+#include "./formatter.h"
 #include "./scanner.h"
 #include "./symtable.h"
 
@@ -367,11 +368,45 @@ ast_node_t* parser_read_prio4(utf8_readstream_t* input)
     }
 }
 
+bool parser_check_lvalue(ast_node_t* lvalue)
+{
+    if (lvalue->op || lvalue->left || lvalue->right) {
+        return false;
+    }
+
+    if (!lvalue->leaf) {
+        return false;
+    }
+
+    if (lvalue->leaf->symbol->str->strval[0] != '$') {
+        return false;
+    }
+
+    if (lvalue->leaf->call_parameters) {
+        return false;
+    }
+
+    return true;
+}
+
 ast_node_t* parser_read_prio5(utf8_readstream_t* input)
 {
     ast_node_t* left = parser_read_prio4(input);
 
     if (parser_next_singleton == operators.assign->str) {
+        if (!parser_check_lvalue(left)) {
+            varstring_t* error_message = varstring_init();
+
+            varstring_write(error_message, "Cannot assign to ");
+
+            formatter_state_t state = { 0 };
+            formatter_print_expression(left, &state, error_message->stream);
+
+            varstring_write(error_message, " on line %d", parser_last_line_number);
+
+            throw_error(2, "%s", varstring_destroy(error_message)->strval);
+        }
+
         salloc(ast_node_t, node);
 
         node->left = left;
