@@ -122,7 +122,7 @@ void generator_print_function(ast_function_t* function, FILE* output)
 void generator_print_function_list(ast_function_list_t* function_list, FILE* output)
 {
     generator_print_function(function_list->item, output);
-    putc("\n", output);
+    putc('\n', output);
     if (function_list->next) {
         generator_print_function_list(function_list->next, output);
     }
