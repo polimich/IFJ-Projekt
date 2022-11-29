@@ -109,7 +109,6 @@ void generator_print_parameter_list(ast_parameter_list_t* parameter_list, FILE* 
     for (size_t i = 0; i < parameter_list->count; i++) {
         generator_print_parameter(parameter_list->parameters[i], output);
     }
-    return;
 }
 
 void generator_print_function(ast_function_t* function, FILE* output)
