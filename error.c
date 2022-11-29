@@ -58,7 +58,7 @@ void throw_error(int error_code, const char* fmt, ...)
     print_error(error_code, (COLOR_RED "  Error(" COLOR_YELLOW "%d" COLOR_RED "): " COLOR_YELLOW), fmt, args);
     va_end(args);
 
-    exit(error_code);
+    exit(CURRENT_RETURN_CODE ? CURRENT_RETURN_CODE : error_code);
 }
 
 void runtime_assert(int condition, int error_code, const char* fmt, ...)
