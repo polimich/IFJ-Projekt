@@ -16,7 +16,7 @@
 
 void generator_print_symbol(symbol_t* symbol, FILE* output)
 {
-    printf(symbol->str, output);
+    fprintf(output, "%s", symbol->str->strval);
     // TODO generate symbol
 }
 void generator_print_leaf(ast_leaf_t* leaf, FILE* output)
