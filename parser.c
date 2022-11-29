@@ -184,7 +184,7 @@ void parser_check_headers(utf8_readstream_t* input)
         operators.paren_open->str,
         reserved.prolog_strict_types->str,
         operators.assign->str,
-        reserved.boolean_true->str,
+        get_singleton("1"),
         operators.paren_close->str,
         operators.semicolon->str,
     };
