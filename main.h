@@ -16,6 +16,7 @@
 
 #include "./error.h"
 #include "./formatter.h"
+#include "./generator.h"
 #include "./memory.h"
 #include "./parser.h"
 #include "./scanner.h"
