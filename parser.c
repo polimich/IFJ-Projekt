@@ -238,6 +238,10 @@ ast_call_parameter_list_t* parser_read_call_parameters(utf8_readstream_t* input)
             break;
         } else if (parser_next_singleton == operators.comma->str) {
             parser_read_next_singleton(input);
+
+            if (parser_next_singleton == operators.paren_close->str) {
+                throw_warning(2, "Trailing commas are not allowed! (line %d)", parser_last_line_number);
+            }
         } else {
             throw_warning(2, "Missing comma in function parameters on line %d: %s %s", parser_last_line_number, parser_last_singleton->strval, parser_next_singleton->strval);
         }
@@ -659,6 +663,10 @@ ast_parameter_list_t* parser_read_parameter_list(utf8_readstream_t* input)
 
         if (parser_next_singleton == operators.comma->str) {
             parser_read_next_singleton(input);
+
+            if (parser_next_singleton == operators.paren_close->str) {
+                throw_warning(2, "Trailing commas are not allowed! (line %d)", parser_last_line_number);
+            }
         }
 
         if (parser_next_singleton == reserved.ending_tag->str) {
