@@ -163,6 +163,14 @@ void parser_init()
 
 void parser_check_headers(utf8_readstream_t* input)
 {
+    int first_character = utf8_getc(input);
+
+    if (first_character != '<') {
+        throw_warning(1, "Program does not begin with <?php");
+    }
+
+    utf8_ungetc(first_character, input);
+
     singleton_t* prolog_tag = parser_read_next_singleton(input);
 
     if (prolog_tag != reserved.prolog_start->str) {
