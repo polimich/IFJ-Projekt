@@ -106,7 +106,7 @@ void generator_print_parameter(ast_parameter_t* parameter, FILE* output)
 
 void generator_print_parameter_list(ast_parameter_list_t* parameter_list, FILE* output)
 {
-    for (int i = 0; i < parameter_list->count; i++) {
+    for (size_t i = 0; i < parameter_list->count; i++) {
         generator_print_parameter(parameter_list->parameters[i], output);
     }
     return;
