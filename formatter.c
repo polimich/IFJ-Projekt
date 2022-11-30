@@ -243,7 +243,7 @@ void formatter(ast_function_list_t* list, const char* indentation_str, FILE* out
         .indentation_level = 0,
     };
 
-    fprintf(output, "<?php\n\ndeclare(strict_types=true);\n\n");
+    fprintf(output, "<?php\ndeclare(strict_types=true);\n\n");
 
     ast_function_t* main = list->item;
 
