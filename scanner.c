@@ -5,7 +5,7 @@
 //    Autoři: xlukas18, xmedri01, xpoliv07, xschie03    //
 //                                                      //
 //    Implementace scanner.c: xpoliv07, xlukas18        //
-//    Datum: 7. 10. 2022 - 27. 10. 2022                 //
+//    Datum: 7. 10. 2022 - 02. 12. 2022                 //
 //                                                      //
 //    Licence: GNU GPL v3, nebo pozdější                //
 //                                                      //
@@ -356,8 +356,22 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
 
         case lexer_state_question_mark:
             if (c == '>') {
-                utf8_putc(c, identifier->stream);
-                return varstring_destroy(identifier);
+                varstring_destroy(identifier);
+
+                int next_char = utf8_getc(input);
+
+                if (next_char == '\n') {
+                    next_char = utf8_getc(input);
+                }
+
+                if (next_char != EOF) {
+                    throw_warning(1, "No characters are allowed after ?> on line %d", line_counter);
+
+                    putback(next_char);
+                    lexer_state = lexer_state_start;
+                } else {
+                    return get_singleton("?>");
+                }
             } else {
                 putback(c);
                 return varstring_destroy(identifier);
