@@ -116,8 +116,6 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
                 return get_singleton(".");
             case '?':
                 lexer_state = lexer_state_question_mark;
-                identifier = varstring_init();
-                utf8_putc(c, identifier->stream);
                 continue;
             case '\n':
                 *line_number = line_counter;
@@ -356,7 +354,6 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
 
         case lexer_state_question_mark:
             if (c == '>') {
-                varstring_destroy(identifier);
 
                 int next_char = utf8_getc(input);
 
@@ -374,7 +371,7 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
                 }
             } else {
                 putback(c);
-                return varstring_destroy(identifier);
+                return get_singleton("?");
             }
         }
     }
