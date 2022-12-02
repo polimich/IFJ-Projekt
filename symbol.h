@@ -43,7 +43,7 @@ typedef struct symbol_t {
     bool variable_is_declared;
     bool variable_has_value;
 
-    // next entry in symtable
+    // next entry in global symtable
     struct symbol_t* next;
 } symbol_t;
 
