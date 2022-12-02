@@ -32,6 +32,8 @@ typedef struct symbol_t {
     symbol_type_t type;
     singleton_t* str;
 
+    struct symbol_t* scope; // OPTIONAL function identifier
+
     long int line_number;
 
     singleton_t* constant_type;
@@ -44,6 +46,8 @@ typedef struct symbol_t {
     // next entry in symtable
     struct symbol_t* next;
 } symbol_t;
+
+symbol_t* get_symbol_scoped(symbol_type_t type, singleton_t* value, symbol_t* scope);
 
 symbol_t* get_symbol(symbol_type_t type, singleton_t* value);
 
