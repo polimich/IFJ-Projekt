@@ -5,7 +5,7 @@
 //    Autoři: xlukas18, xmedri01, xpoliv07, xschie03    //
 //                                                      //
 //    Implementace parser.c: xschie03                   //
-//    Datum: 19. 10. 2022 - 28. 11. 2022                //
+//    Datum: 19. 10. 2022 - 03. 12. 2022                //
 //                                                      //
 //    Licence: GNU GPL v3, nebo pozdější                //
 //                                                      //
@@ -541,6 +541,11 @@ ast_loop_t* parser_read_for(utf8_readstream_t* input)
 ast_block_item_t* parser_read_block_item(utf8_readstream_t* input)
 {
     salloc(ast_block_item_t, item);
+
+    if (parser_next_singleton == reserved.keyword_return->str) {
+        parser_read_next_singleton(input); // discard 'return'
+        item->is_return_statement = true;
+    }
 
     if (parser_next_singleton == reserved.keyword_if->str) {
         item->conditional = parser_read_if(input);
