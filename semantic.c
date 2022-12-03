@@ -22,7 +22,7 @@ ast_function_t* semantic_check_id(ast_leaf_t* leaf, ast_function_list_t* functio
 {
     // TODO build-in functions
     if (function_list->next == NULL) {
-        throw_error(99, "semantic: Function not declared");
+        throw_error(3, "semantic: Function not declared");
     }
     ast_function_list_t* current_function = function_list->next;
 
@@ -33,7 +33,7 @@ ast_function_t* semantic_check_id(ast_leaf_t* leaf, ast_function_list_t* functio
         current_function = current_function->next;
     }
 
-    throw_error(99, "semantic: Function not declared");
+    throw_error(3, "semantic: Function not declared");
     return NULL;
 }
 
@@ -51,7 +51,7 @@ semantic_type_t semantic_return_type(ast_function_t* function)
     } else if (function->returned_type == get_symbol_by_str(symbol_type_keyword, "void")) {
         return semantic_type_dynamic;
     } else {
-        throw_error(52, "semantic: Function return type not defined");
+        throw_warning(8, "semantic: Function return type not defined");
     }
     return semantic_type_dynamic;
 }
@@ -74,19 +74,19 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
                 if (parameter_type != semantic_type_dynamic) {
                     if (parameter_type == semantic_type_int) {
                         if (function->parameters->parameters[i]->type != get_symbol_by_str(symbol_type_keyword, "int")) {
-                            throw_error(52, "semantic: wrong parameter type");
+                            throw_error(4, "semantic: wrong parameter type");
                         }
                     } else if (parameter_type == semantic_type_float) {
                         if (function->parameters->parameters[i]->type != get_symbol_by_str(symbol_type_keyword, "float")) {
-                            throw_error(52, "semantic: wrong parameter type");
+                            throw_error(4, "semantic: wrong parameter type");
                         }
                     } else if (parameter_type == semantic_type_string) {
                         if (function->parameters->parameters[i]->type != get_symbol_by_str(symbol_type_keyword, "string")) {
-                            throw_error(52, "semantic: wrong parameter type");
+                            throw_error(4, "semantic: wrong parameter type");
                         }
                     } else if (parameter_type == semantic_type_bool) {
                         if (function->parameters->parameters[i]->type != get_symbol_by_str(symbol_type_keyword, "bool")) {
-                            throw_error(52, "semantic: wrong parameter type");
+                            throw_error(4, "semantic: wrong parameter type");
                         }
                     }
                 } else {
@@ -114,7 +114,7 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
             if (left_type == semantic_type_dynamic && right_type == semantic_type_string) {
                 return semantic_type_string;
             } else {
-                throw_error(52, "semantic: Cannot operate on string and non-string");
+                throw_error(7, "semantic: Cannot operate on string and non-string");
             }
         } else if (left_type == semantic_type_int && right_type == semantic_type_float) {
             return semantic_type_float;
@@ -146,7 +146,7 @@ void semantic_check_block(ast_block_t* block, ast_function_list_t* function_list
             semantic_check_expression(current_item->loop->condition, function_list);
             semantic_check_block(current_item->loop->body, function_list);
         } else {
-            throw_warning(52, "semantic: empty block item");
+            throw_warning(8, "semantic: empty block item");
         }
         current_item = current_item->next;
     }
