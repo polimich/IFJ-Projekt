@@ -60,8 +60,92 @@ symbol_t* symtable_get(singleton_t* str, symtable_t* table)
     return false;
 }
 
-void symtable_generate(ast_function_t* fn, __STB_DREST__)
+STB_PROCESS_DECLARE(leaf)
 {
+    (void)fn;
+    (void)list;
+    (void)table;
+
+    symbol_t* symbol = symtable_get(leaf->symbol->str, table);
+
+    if (symbol == NULL) {
+        if (leaf->symbol->str->strval[0] == '$') {
+            throw_error(5, "Undefined variable %s on line %d", leaf->symbol->str->strval, leaf->symbol->line_number);
+        }
+    }
+}
+
+STB_PROCESS_DECLARE(node)
+{
+    if (node->leaf) {
+        STB_PROCESS_CALL(leaf, node->leaf);
+    } else if (node->op->str->strval[0] == '=') {
+        // call rvalue first
+        STB_PROCESS_CALL(node, node->right);
+
+        // assignment; add lvalue to symtable
+        int lvalue_line_number = node->left->leaf->symbol->line_number;
+        node->left->leaf->symbol = get_symbol_scoped(symbol_type_local_variable, node->left->leaf->symbol->str, fn->name);
+        node->left->leaf->symbol->line_number = lvalue_line_number;
+
+        if (!symtable_get(node->left->leaf->symbol->str, table)) {
+            symtable_insert(node->left->leaf->symbol, table);
+        }
+    } else {
+        STB_PROCESS_CALL(node, node->left);
+        STB_PROCESS_CALL(node, node->right);
+    }
+}
+
+STB_PROCESS_DECLARE(conditional)
+{
+    STB_PROCESS_CALL(node, conditional->condition);
+
+    STB_PROCESS_CALL(block, conditional->true_branch);
+
+    if (conditional->false_branch) {
+        STB_PROCESS_CALL(block, conditional->false_branch);
+    }
+}
+
+STB_PROCESS_DECLARE(loop)
+{
+    if (loop->initializer) {
+        STB_PROCESS_CALL(node, loop->initializer);
+    }
+
+    if (loop->condition) {
+        STB_PROCESS_CALL(node, loop->condition);
+    }
+
+    if (loop->incrementer) {
+        STB_PROCESS_CALL(node, loop->incrementer);
+    }
+
+    STB_PROCESS_CALL(block, loop->body);
+}
+
+STB_PROCESS_DECLARE(block_item)
+{
+    if (block_item->loop) {
+        STB_PROCESS_CALL(loop, block_item->loop);
+    } else if (block_item->conditional) {
+        STB_PROCESS_CALL(conditional, block_item->conditional);
+    } else {
+        STB_PROCESS_CALL(node, block_item->item);
+    }
+}
+
+STB_PROCESS_DECLARE(block)
+{
+    for (ast_block_item_t* item = block->first; item != NULL; item = item->next) {
+        STB_PROCESS_CALL(block_item, item);
+    }
+}
+
+void symtable_generate(__STB_DREST__)
+{
+
     for (ast_function_list_t* L = list; L != NULL; L = L->next) {
         ast_function_t* F = L->item;
 
@@ -87,6 +171,8 @@ void symtable_generate(ast_function_t* fn, __STB_DREST__)
             symtable_insert(parameter->name, table);
         }
     }
+
+    STB_PROCESS_CALL(block, fn->block);
 }
 
 void symtable_init(ast_function_list_t* list)
@@ -96,7 +182,7 @@ void symtable_init(ast_function_list_t* list)
         salloc(symtable_t, table);
 
         ast_function_t* fn = L->item;
-        symtable_generate(fn, __STB_CREST__);
+        symtable_generate(__STB_CREST__);
 
         fn->symtable = table;
     }
