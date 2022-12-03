@@ -15,7 +15,40 @@
 
 semantic_type_t semantic_constant_type(ast_leaf_t* leaf)
 {
-    // TODO return type of constant
+    // TODO 
+    if (!strcmp(leaf->symbol->str->strval, "true") || !strcmp(leaf->symbol->str->strval, "false")) {
+        leaf->symbol->type = symbol_type_constant;
+        leaf->symbol->constant_type = get_singleton("bool");
+        return semantic_type_bool;
+    }else{
+        if (leaf->symbol->str->strval[0] == '"' && leaf->symbol->str->strval[strlen(leaf->symbol->str->strval) - 1] == '"') {
+            leaf->symbol->type = symbol_type_constant;
+            leaf->symbol->constant_type = get_singleton("string");
+            return semantic_type_string;
+        } else {
+            int float_flag = 0;
+            for (size_t i = 0; i < strlen(leaf->symbol->str->strval); ++i) {
+                if (i > 0 && i < strlen(leaf->symbol->str->strval) && leaf->symbol->str->strval[i] == '.') {
+                    float_flag = 1;
+                }
+                if (!isdigit(leaf->symbol->str->strval[i])) {
+                    return semantic_type_dynamic;
+                }
+            }
+            if (float_flag) {
+                leaf->symbol->type = symbol_type_constant;
+                leaf->symbol->constant_type = get_singleton("float");
+                leaf->symbol->constant_value_float = atof(leaf->symbol->str->strval);
+                return semantic_type_float;
+            } else {
+                leaf->symbol->type = symbol_type_constant;
+                leaf->symbol->constant_type = get_singleton("int");
+                leaf->symbol->constant_value_int = atoi(leaf->symbol->str->strval);
+                return semantic_type_int;
+            }
+        }
+    }
+    return semantic_type_dynamic;
 }
 
 ast_function_t* semantic_check_id(ast_leaf_t* leaf, ast_function_list_t* function_list)
@@ -68,6 +101,7 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
     if (item->leaf != NULL) {
         // semantic_check_leaf
         if (item->leaf->symbol->type == symbol_type_local_variable) {
+            // variable
             return semantic_type_dynamic;
         } else if (item->leaf->symbol->type == symbol_type_function_identifier) {
             ast_function_t* function = semantic_check_id(item->leaf, function_list);
@@ -121,7 +155,17 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
 
             return semantic_return_type(function);
         } else {
-            // TODO constants
+            // constant
+            semantic_type_t const_type = semantic_constant_type(item->leaf);
+            if (const_type == semantic_type_dynamic){
+                varstring_t* error_msg = varstring_init();
+                varstring_write(error_msg, "constant type expected ");
+                formatter_state_t state = { 0 };
+                formatter_print_expression(item, &state, error_msg->stream);
+                varstring_write(error_msg, "on line %d", item->leaf->symbol->line_number);
+                throw_error(4, "%s", varstring_destroy(error_msg)->strval);
+            }
+            return const_type;
         }
         return semantic_type_dynamic;
     }
@@ -183,28 +227,15 @@ void semantic_check_block(ast_block_t* block, ast_function_list_t* function_list
 
 // get_symbol_by_str(symbol_type_keyword, "int");
 
-void semantic_check_function(ast_function_t* function, ast_function_list_t* function_list)
+void semantic_check(ast_function_list_t* function_list)
 {
-
-    if (function->block == NULL) {
-        // destoy function, function does nothing
-        return;
-    }
-    semantic_check_block(function->block, function_list);
-}
-
-void semantic_init(ast_function_list_t* function_list)
-{
-    // TODO kontrolu mainu az po nacteni ostatnich funkci
+    // TODO check jestli se nesnazi deklarovat funkci, ktera uz je deklarovana + keyword ve jmenu funkce
+    ast_function_list_t* main_function = function_list;
     ast_function_list_t* current_function = function_list->next;
 
     while (current_function != NULL) {
-        semantic_check_function(current_function->item, function_list);
+        semantic_check_block(current_function->item->block, function_list);
         current_function = current_function->next;
     }
+    semantic_check_block(main_function->item->block, function_list);
 }
-
-// symbol types clasified from parser:
-// operator
-// function identifier
-// variable identifier
