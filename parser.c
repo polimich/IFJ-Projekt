@@ -268,7 +268,11 @@ ast_call_parameter_list_t* parser_read_call_parameters(utf8_readstream_t* input)
 
 symbol_t* parser_read_undefined_symbol(utf8_readstream_t* input)
 {
-    return get_symbol(symbol_type_undefined, parser_read_next_singleton(input));
+    symbol_t* symbol = get_symbol(symbol_type_undefined, parser_read_next_singleton(input));
+
+    symbol->line_number = parser_last_line_number;
+
+    return symbol;
 }
 
 ast_node_t* parser_read_leaf(utf8_readstream_t* input)
@@ -603,6 +607,8 @@ symbol_t* parser_read_function_identifier(utf8_readstream_t* input)
     symbol_t* symbol = get_symbol(symbol_type_function_identifier, singleton);
     const char* name = singleton->strval;
 
+    symbol->line_number = parser_last_line_number;
+
     if (!utf8_isalpha(name[0]) && (name[0] != '_')) {
         throw_error(2, "Invalid function name: '%s'", name);
     }
@@ -646,6 +652,8 @@ ast_parameter_t* parser_read_parameter(utf8_readstream_t* input)
 
     parameter->type = parser_read_type(input);
     parameter->name = get_symbol(symbol_type_local_variable, parser_read_next_singleton(input));
+
+    parameter->name->line_number = parser_last_line_number;
 
     return parameter;
 }
