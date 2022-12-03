@@ -17,13 +17,13 @@
 #include "./scanner.h"
 #include "./symtable.h"
 
-singleton_t* parser_last_singleton = NULL;
-singleton_t* parser_next_singleton = NULL;
-singleton_t* parser_stashed_singleton = NULL;
+static singleton_t* parser_last_singleton = NULL;
+static singleton_t* parser_next_singleton = NULL;
+static singleton_t* parser_stashed_singleton = NULL;
 
-int parser_last_line_number = 0;
-int parser_next_line_number = 0;
-int parser_stashed_line_number = 0;
+static int parser_last_line_number = 0;
+static int parser_next_line_number = 0;
+static int parser_stashed_line_number = 0;
 
 singleton_t* parser_read_next_singleton(utf8_readstream_t* input)
 {
@@ -87,7 +87,7 @@ struct reserved_t {
     symbol_t* ending_tag;
 };
 
-struct reserved_t reserved = { 0 };
+static struct reserved_t reserved = { 0 };
 
 struct operators_t {
     symbol_t* bracket_open;
@@ -112,7 +112,7 @@ struct operators_t {
     symbol_t* div;
 };
 
-struct operators_t operators = { 0 };
+static struct operators_t operators = { 0 };
 
 void parser_init()
 {
