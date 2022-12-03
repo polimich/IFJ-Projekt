@@ -16,10 +16,10 @@
 
 #include "./ast.h"
 #include "./error.h"
+#include "./formatter.h"
 #include "./memory.h"
 #include "./symbol.h"
 #include "./symtable.h"
-#include "./formatter.h"
 #include "./varstring.h"
 
 typedef enum semantic_type {
