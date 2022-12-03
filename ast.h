@@ -58,6 +58,8 @@ typedef struct ast_block_item_t {
     struct ast_conditional_t* conditional;
     struct ast_loop_t* loop;
     struct ast_block_item_t* next;
+
+    bool is_return_statement;
 } ast_block_item_t;
 
 typedef struct ast_block_t {
