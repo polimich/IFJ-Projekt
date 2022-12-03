@@ -60,6 +60,18 @@ symbol_t* symtable_get(singleton_t* str, symtable_t* table)
     return false;
 }
 
+STB_PROCESS_DECLARE(call_parameter)
+{
+    STB_PROCESS_CALL(node, call_parameter->node);
+}
+
+STB_PROCESS_DECLARE(call_parameter_list)
+{
+    for (size_t i = 0; i < call_parameter_list->size; ++i) {
+        STB_PROCESS_CALL(call_parameter, call_parameter_list->parameters[i]);
+    }
+}
+
 STB_PROCESS_DECLARE(leaf)
 {
     (void)fn;
@@ -72,6 +84,10 @@ STB_PROCESS_DECLARE(leaf)
         if (leaf->symbol->str->strval[0] == '$') {
             throw_error(5, "Undefined variable %s on line %d", leaf->symbol->str->strval, leaf->symbol->line_number);
         }
+    }
+
+    if (leaf->call_parameters) {
+        STB_PROCESS_CALL(call_parameter_list, leaf->call_parameters);
     }
 }
 
