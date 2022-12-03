@@ -78,10 +78,11 @@ typedef struct ast_parameter_list_t {
 } ast_parameter_list_t;
 
 typedef struct ast_function_t {
-    symbol_t* name;
-    ast_parameter_list_t* parameters;
-    ast_block_t* block;
-    symbol_t* returned_type;
+    struct symbol_t* name;
+    struct ast_parameter_list_t* parameters;
+    struct ast_block_t* block;
+    struct symbol_t* returned_type;
+    struct symtable_t* symtable; // local symtable
     bool returned_type_optional;
 } ast_function_t;
 
