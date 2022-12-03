@@ -37,4 +37,5 @@ scanner
 *.su
 test.php
 .tmp_versions/
+.vscode/
 *.x86_64
