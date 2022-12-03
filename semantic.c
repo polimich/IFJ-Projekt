@@ -59,7 +59,7 @@ semantic_type_t semantic_return_type(ast_function_t* function)
         return semantic_type_bool;
     } else if (function->returned_type == get_symbol_by_str(symbol_type_keyword, "void")) {
         return semantic_type_dynamic;
-    }    
+    }
     return semantic_type_dynamic;
 }
 
@@ -69,12 +69,11 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
         // semantic_check_leaf
         if (item->leaf->symbol->type == symbol_type_local_variable) {
             return semantic_type_dynamic;
-        }
-        else if (item->leaf->symbol->type == symbol_type_function_identifier) {
+        } else if (item->leaf->symbol->type == symbol_type_function_identifier) {
             ast_function_t* function = semantic_check_id(item->leaf, function_list);
 
             // TODO optional parameters
-            //semantic_check_call_parameters
+            // semantic_check_call_parameters
             for (size_t i = 0; i < item->leaf->call_parameters->size; i++) {
                 ast_call_parameter_t* current_parameter = item->leaf->call_parameters->parameters[i];
                 semantic_type_t parameter_type = semantic_check_expression(current_parameter->node, function_list);
@@ -89,8 +88,7 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
                             varstring_write(error_msg, "on line %d", item->leaf->symbol->line_number);
                             throw_error(4, "%s", varstring_destroy(error_msg)->strval);
                         }
-                    }
-                    else if (parameter_type == semantic_type_float) {
+                    } else if (parameter_type == semantic_type_float) {
                         if (function->parameters->parameters[i]->type != get_symbol_by_str(symbol_type_keyword, "float")) {
                             varstring_t* error_msg = varstring_init();
                             varstring_write(error_msg, "float parameter type expected ");
@@ -99,8 +97,7 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
                             varstring_write(error_msg, "on line %d", item->leaf->symbol->line_number);
                             throw_error(4, "%s", varstring_destroy(error_msg)->strval);
                         }
-                    }
-                    else if (parameter_type == semantic_type_string) {
+                    } else if (parameter_type == semantic_type_string) {
                         if (function->parameters->parameters[i]->type != get_symbol_by_str(symbol_type_keyword, "string")) {
                             varstring_t* error_msg = varstring_init();
                             varstring_write(error_msg, "string parameter type expected ");
@@ -109,8 +106,7 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
                             varstring_write(error_msg, "on line %d", item->leaf->symbol->line_number);
                             throw_error(4, "%s", varstring_destroy(error_msg)->strval);
                         }
-                    }
-                    else if (parameter_type == semantic_type_bool) {
+                    } else if (parameter_type == semantic_type_bool) {
                         if (function->parameters->parameters[i]->type != get_symbol_by_str(symbol_type_keyword, "bool")) {
                             varstring_t* error_msg = varstring_init();
                             varstring_write(error_msg, "bool parameter type expected ");
