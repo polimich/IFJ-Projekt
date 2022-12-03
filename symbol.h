@@ -34,7 +34,7 @@ typedef struct symbol_t {
 
     struct symbol_t* scope; // OPTIONAL function identifier
 
-    long int line_number;
+    int line_number;
 
     singleton_t* constant_type;
     int constant_value_int;
