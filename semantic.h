@@ -14,6 +14,8 @@
 #ifndef _SEMANTIC_H_
 #define _SEMANTIC_H_
 
+#include "ctype.h"
+
 #include "./ast.h"
 #include "./error.h"
 #include "./formatter.h"
