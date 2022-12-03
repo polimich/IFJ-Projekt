@@ -19,6 +19,8 @@
 #include "./memory.h"
 #include "./symbol.h"
 #include "./symtable.h"
+#include "./formatter.h"
+#include "./varstring.h"
 
 typedef enum semantic_type {
     semantic_type_int,
