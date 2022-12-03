@@ -23,7 +23,8 @@ void symtable_insert(symbol_t* symbol, symtable_t* table)
             table->symbol = symbol;
             return;
         } else if (symbol->str == table->str) {
-            throw_warning(0, "Double symtable insert (%s)", symbol->str);
+            throw_warning(0, "Double symtable insert (%s)", symbol->str->strval);
+            return;
         } else if (symbol->str < table->str) {
             if (table->lnode == NULL) {
                 salloc(symtable_t, lnode);
