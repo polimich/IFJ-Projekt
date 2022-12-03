@@ -53,11 +53,18 @@ int main(const int argc, const char* argv[])
 
             fprintf(stdout, "%d\t%d\t%s\n", counter, line, token->strval);
         }
-    } else if ((argc > 1) && (strcmp(argv[1], "--generator ") == 0)) {
-        generator(parser(utf8_stdin), stdout);
-    } else /*if ((argc > 1) && (strcmp(argv[1], "--parser") == 0)) */ {
 
-        formatter(parser(utf8_stdin), "    ", stdout);
+        return 0;
+    }
+
+    ast_function_list_t* list = parser(utf8_stdin);
+
+    symtable_init(list);
+
+    if ((argc > 1) && (strcmp(argv[1], "--generator ") == 0)) {
+        generator(list, stdout);
+    } else /*if ((argc > 1) && (strcmp(argv[1], "--parser") == 0)) */ {
+        formatter(list, "    ", stdout);
     }
 
     mem_clean();
