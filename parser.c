@@ -542,6 +542,8 @@ ast_block_item_t* parser_read_block_item(utf8_readstream_t* input)
 {
     salloc(ast_block_item_t, item);
 
+    int errmsg_return_line_number = parser_last_line_number;
+
     if (parser_next_singleton == reserved.keyword_return->str) {
         parser_read_next_singleton(input); // discard 'return'
         item->is_return_statement = true;
@@ -555,6 +557,10 @@ ast_block_item_t* parser_read_block_item(utf8_readstream_t* input)
         item->loop = parser_read_while(input);
     } else {
         item->item = parser_read_statement(input);
+    }
+
+    if (item->is_return_statement && !item->item) {
+        throw_warning(2, "SyntaxError: cannot return %s (line %d)", item->conditional ? "conditional statement" : "loop", errmsg_return_line_number);
     }
 
     return item;
