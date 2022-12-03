@@ -118,6 +118,10 @@ void formatter_print_loop(ast_loop_t* loop, __FMT_DREST__)
 void formatter_print_block_item(ast_block_item_t* item, __FMT_DREST__)
 {
     if (item->item) {
+        if (item->is_return_statement) {
+            fprintf(output, "return ");
+        }
+
         formatter_print_statement(item->item, __FMT_CREST__);
     } else if (item->conditional) {
         formatter_print_conditional(item->conditional, __FMT_CREST__);
