@@ -77,6 +77,10 @@ void symtable_generate(ast_function_t* fn, __STB_DREST__)
                 throw_error(4, "Duplicite parameter %s in function %s", parameter->name->str->strval, fn->name->str->strval);
             }
 
+            if (parameter->name->str->strval[0] != '$') {
+                throw_error(2, "SyntaxError: invalid parameter name %s in function %s", parameter->name->str->strval, fn->name->str->strval);
+            }
+
             parameter->name = get_symbol_scoped(symbol_type_local_variable, parameter->name->str, fn->name);
 
             symtable_insert(parameter->name, table);
