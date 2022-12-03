@@ -24,7 +24,6 @@
 #include "./symbol.h"
 
 STB_PROCESS_DECLARE(node);
-STB_PROCESS_DECLARE(block_item);
 STB_PROCESS_DECLARE(block);
 
 typedef struct symtable_t {
