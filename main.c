@@ -13,29 +13,6 @@
 
 #include "./main.h"
 
-void print_ast_node(ast_node_t* node)
-{
-    if (node->leaf) {
-        printf("%s", node->leaf->symbol->str->strval);
-        if (node->leaf->call_parameters) {
-            printf("(\x1b[B");
-            for (size_t i = 0; i < node->leaf->call_parameters->size; ++i) {
-                if (i)
-                    printf(",");
-
-                print_ast_node(node->leaf->call_parameters->parameters[i]->node);
-            }
-            printf("\x1b[A)");
-        }
-    } else {
-        printf(" ( \x1b[B");
-        print_ast_node(node->left);
-        printf(" %s ", node->op->str->strval);
-        print_ast_node(node->right);
-        printf(" \x1b[A) ");
-    }
-}
-
 int main(const int argc, const char* argv[])
 {
     mem_init();
