@@ -20,6 +20,7 @@
 #include "./memory.h"
 #include "./parser.h"
 #include "./scanner.h"
+#include "./semantic.h"
 #include "./symtable.h"
 
 #endif
