@@ -38,7 +38,8 @@ int main(const int argc, const char* argv[])
 
     symtable_init(list);
 
-    if ((argc > 1) && (strcmp(argv[1], "--generator ") == 0)) {
+    if ((argc > 1) && (strcmp(argv[1], "--generator") == 0)) {
+        semantic_check(list);
         generator(list, stdout);
     } else /*if ((argc > 1) && (strcmp(argv[1], "--parser") == 0)) */ {
         formatter(list, "    ", stdout);
