@@ -31,8 +31,8 @@ void mem_clean();
 #define mem_alloc(size) (calloc((size) + 1, 1))
 #define mem_free(pointer) (free((pointer)))
 
-#define mem_init() (0)
-#define mem_clean() (0)
+#define mem_init()
+#define mem_clean()
 
 #endif
 
