@@ -31,7 +31,7 @@ semantic_type_t semantic_constant_type(ast_leaf_t* leaf)
                 if (i > 0 && i < strlen(leaf->symbol->str->strval) && leaf->symbol->str->strval[i] == '.') {
                     float_flag = 1;
                 }
-                if (!isdigit(leaf->symbol->str->strval[i])) {
+                else if (!isdigit(leaf->symbol->str->strval[i])) {
                     return semantic_type_dynamic;
                 }
             }
