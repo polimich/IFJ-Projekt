@@ -11,17 +11,7 @@
 //                                                      //
 //////////////////////////////////////////////////////////
 
-#ifndef MEMDEBUG
-#define MEMNDEBUG
-#define MEMDEBUG
-#endif
-
 #include "./memory.h"
-
-#ifdef MEMNDEBUG
-#undef MEMNDEBUG
-#undef MEMDEBUG
-#endif
 
 #ifndef MEM_FILE
 #define MEM_FILE "memory.dbg"
@@ -36,6 +26,8 @@
 #include <stdio.h>
 #include <sys/mman.h>
 #include <unistd.h>
+
+#ifdef MEMDEBUG
 
 void* field = NULL;
 ptrdiff_t offset = 0;
@@ -95,3 +87,7 @@ void mem_free(void* pointer)
 }
 
 void mem_clean() { }
+
+#endif
+
+extern inline void* mem_alloc_safe(size_t size);
