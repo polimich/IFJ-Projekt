@@ -12,7 +12,7 @@
 ##########################################################
 
 CC=gcc
-CFLAGS=--std=gnu99 -pedantic -Wall -Wextra -Wformat -g -fPIC -O3 -DMEMDEBUG
+CFLAGS=--std=gnu99 -pedantic -Wall -Wextra -Wformat -g -fPIC -O3
 
 HDRS := $(wildcard *.h)
 SRCS := $(wildcard *.c)
