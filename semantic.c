@@ -19,7 +19,7 @@ semantic_type_t semantic_constant_type(ast_leaf_t* leaf)
         leaf->symbol->type = symbol_type_constant;
         leaf->symbol->constant_type = get_singleton("bool");
         return semantic_type_bool;
-    }else{
+    } else {
         if (leaf->symbol->str->strval[0] == '"' && leaf->symbol->str->strval[strlen(leaf->symbol->str->strval) - 1] == '"') {
             leaf->symbol->type = symbol_type_constant;
             leaf->symbol->constant_type = get_singleton("string");
@@ -29,8 +29,7 @@ semantic_type_t semantic_constant_type(ast_leaf_t* leaf)
             for (size_t i = 0; i < strlen(leaf->symbol->str->strval); ++i) {
                 if (i > 0 && i < strlen(leaf->symbol->str->strval) && leaf->symbol->str->strval[i] == '.') {
                     float_flag = 1;
-                }
-                else if (!isdigit(leaf->symbol->str->strval[i])) {
+                } else if (!isdigit(leaf->symbol->str->strval[i])) {
                     return semantic_type_dynamic;
                 }
             }
@@ -99,8 +98,12 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
 {
     if (item->leaf != NULL) {
         // semantic_check_leaf
-        if (item->leaf->symbol->type == symbol_type_local_variable || item->leaf->symbol->str->strval[0] == '$') {
+        if (item->leaf->symbol->type == symbol_type_local_variable) {
             // variable
+            return semantic_type_dynamic;
+        } else if (item->leaf->symbol->str->strval[0] == '$') {
+            // unmarked variable
+            item->leaf->symbol->type = symbol_type_local_variable;
             return semantic_type_dynamic;
         } else if (item->leaf->symbol->type == symbol_type_function_identifier) {
             ast_function_t* function = semantic_check_id(item->leaf, function_list);
@@ -156,12 +159,12 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
         } else {
             // constant
             semantic_type_t const_type = semantic_constant_type(item->leaf);
-            if (const_type == semantic_type_dynamic){
+            if (const_type == semantic_type_dynamic) {
                 varstring_t* error_msg = varstring_init();
-                varstring_write(error_msg, "constant type expected ");
+                varstring_write(error_msg, "constant type expected instead of ");
                 formatter_state_t state = { 0 };
                 formatter_print_expression(item, &state, error_msg->stream);
-                varstring_write(error_msg, "on line %d", item->leaf->symbol->line_number);
+                varstring_write(error_msg, " on line %d", item->leaf->symbol->line_number);
                 throw_error(4, "%s", varstring_destroy(error_msg)->strval);
             }
             return const_type;
