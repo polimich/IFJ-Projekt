@@ -171,6 +171,10 @@ void symtable_generate(__STB_DREST__)
         ast_function_t* F = L->item;
 
         if (F->name) {
+            if (symtable_get(F->name->str, table)) {
+                throw_error(3, "Illegal function redefinition on line %d", F->name->line_number);
+            }
+
             symtable_insert(F->name, table);
         }
     }
