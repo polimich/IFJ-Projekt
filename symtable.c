@@ -161,6 +161,11 @@ STB_PROCESS_DECLARE(block)
 
 void symtable_generate(__STB_DREST__)
 {
+    // add builting functions
+    symtable_insert(get_symbol_by_str(symbol_type_function_identifier, "readi"), table);
+    symtable_insert(get_symbol_by_str(symbol_type_function_identifier, "readf"), table);
+    symtable_insert(get_symbol_by_str(symbol_type_function_identifier, "reads"), table);
+    symtable_insert(get_symbol_by_str(symbol_type_function_identifier, "write"), table);
 
     for (ast_function_list_t* L = list; L != NULL; L = L->next) {
         ast_function_t* F = L->item;
