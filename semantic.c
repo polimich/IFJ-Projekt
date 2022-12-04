@@ -15,7 +15,6 @@
 
 semantic_type_t semantic_constant_type(ast_leaf_t* leaf)
 {
-    // TODO 
     if (!strcmp(leaf->symbol->str->strval, "true") || !strcmp(leaf->symbol->str->strval, "false")) {
         leaf->symbol->type = symbol_type_constant;
         leaf->symbol->constant_type = get_singleton("bool");
@@ -100,7 +99,7 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
 {
     if (item->leaf != NULL) {
         // semantic_check_leaf
-        if (item->leaf->symbol->type == symbol_type_local_variable) {
+        if (item->leaf->symbol->type == symbol_type_local_variable || item->leaf->symbol->str->strval[0] == '$') {
             // variable
             return semantic_type_dynamic;
         } else if (item->leaf->symbol->type == symbol_type_function_identifier) {
