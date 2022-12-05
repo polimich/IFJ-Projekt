@@ -1,0 +1,179 @@
+#prevod do spravnerho typu
+#POP OP1
+#POP OP2
+# TO_GOOD_TYPE(op1, op2)
+
+LABEL $TO_GOOD_TYPE
+PUSHFRAME
+DEFVAR LF@$VAL_OP1
+DEFVAR LF@$VAL_OP2
+DEFVAR LF@$CONVERT_OP2
+POPS LF@$VAL_OP2
+POPS LF@$VAL_OP1
+DEFVAR LF@$OP1_TYPE
+DEFVAR LF@$OP2_TYPE
+TYPE LF@$OP1_TYPE LF@$VAL_OP1
+TYPE LF@$OP2_TYPE LF@$VAL_OP2
+PUSHS LF@$VAL_OP2                                        #OP2 na zasobnik aby to pak nemusel delat pod kazdym labelem
+JUMPIFEQ $SAME_TYPES LF@$OP1_TYPE LF@$OP2_TYPE           #Když jsou typy stejné
+JUMPIFEQ $OP1_IS_INT LF@$OP1_TYPE string@int                                                
+JUMPIFEQ $OP1_IS_FLOAT LF@$OP1_TYPE string@float
+JUMPIFEQ $OP1_IS_STR LF@$OP1_TYPE string@string
+JUMPIFEQ $OP1_IS_BOOL LF@$OP1_TYPE string@bool                                                
+LABEL $OP1_IS_INT                               
+    CALL intval               
+LABEL $OP1_IS_FLOAT
+    CALL floatval 
+LABEL $OP1_IS_STR
+    CALL strval    
+LABEL $OP1_IS_BOOL
+    CALL boolval
+LABEL $SAME_TYPES
+    POPFRAME
+    RETURN
+###################################################################
+#Vraci hodnotu prevedenou do INT
+LABEL $intval
+PUSHFRAME
+DEFVAR LF@$OP
+DEFVAR LF@$TYPE_OP
+POPS LF@$OP                                 #Naplni OP
+TYPE LF@$TYPE_OP LF@$OP
+JUMPIFEQ $INTVAL_END LF@$TYPE_OP string@int              #INT se na INT nemeni
+JUMPIFEQ $INTVAL_OP_IS_FLOAT LF@$TYPE_OP string@float
+JUMPIFEQ $INTVAL_OP_IS_STR LF@$TYPE_OP string@string
+JUMPIFEQ $INTVAL_OP_IS_BOOL LF@$TYPE_OP string@bool
+
+LABEL $INTVAL_OP_IS_FLOAT
+    INT2FLOAT LF@$OP LF@$OP
+    JUMP $INTVAL_END
+
+LABEL $INTVAL_OP_IS_STR
+    PUSHS LF@$OP
+    CALL STR_TO_INT                         #Toto musiš udělat
+LABEL $INTVAL_OP_IS_BOOL
+    JUMPIFEQ $INTVAL_BOOL_IS_ZERO LF@$OP bool@false
+    PUSHS int@0                             # false == 0
+    POPFRAME
+    RETURN
+    LABEL $INTVAL_BOOL_IS_ZERO
+    PUSHS int@1
+    POPFRAME                             # true == 1
+    RETURN
+LABEL $INTVAL_END
+    PUSHS LF@$OP
+    POPFRAME
+    RETURN
+####################################################################
+#Vraci hodnotu prevedenou do FLOAT
+LABEL $floatval
+PUSHFRAME
+DEFVAR LF@$OP
+DEFVAR LF@$TYPE_OP
+POPS LF@$OP                                 #Naplni OP
+TYPE LF@$TYPE_OP LF@$OP
+JUMPIFEQ $FLOATVAL_END LF@$TYPE_OP string@int
+JUMPIFEQ $FLOATVAL_OP_IS_INT  LF@$TYPE_OP string@int
+JUMPIFEQ $FLOATVAL_OP_IS_STR  LF@$TYPE_OP string@string
+JUMPIFEQ $FLOATVAL_OP_IS_BOOL LF@$TYPE_OP string@bool
+
+LABEL $FLOATVAL_OP_IS_INT
+    FLOAT2INT LF@$OP LF@$OP
+    JUMP $FLOATVAL_END
+
+LABEL $FLOATVAL_OP_IS_STR
+    PUSHS LF@$OP
+    CALL STR_TO_FLOAT                         #Toto musiš udělat
+
+LABEL $FLOATVAL_OP_IS_BOOL
+    JUMPIFEQ $FLOATVAL_BOOL_ISN_ZERO LF@$OP bool@false      #OP == FALSE
+    PUSHS float@0x1.0p+0
+    POPFRAME                     
+    RETURN
+    LABEL $FLOATVAL_BOOL_IS_ZERO                            #OP != FALSE
+    PUSHS float@0x0.0p+0
+    POPFRAME
+    RETURN
+LABEL $FLOATVAL_END
+    PUSHS LF@$OP
+    POPFRAME
+    RETURN
+
+################################################################
+#Vraci hodnotu prevedenou do STR
+LABEL $strval
+PUSHFRAME
+DEFVAR LF@$OP
+DEFVAR LF@$TYPE_OP
+POPS LF@$OP                                 #Naplni OP
+TYPE LF@$TYPE_OP LF@$OP
+JUMPIFEQ $STRVAL_END LF@$TYPE_OP string@string                  # str to str
+JUMPIFEQ $STRVAL_OP_IS_INT  LF@$TYPE_OP string@int
+JUMPIFEQ $STRVAL_OP_IS_FLOAT  LF@$TYPE_OP string@float
+JUMPIFEQ $STRVAL_OP_IS_BOOL LF@$TYPE_OP string@bool
+
+LABEL $STRVAL_OP_IS_INT
+    CALL INT_TO_STR
+LABEL $STRVAL_OP_IS_STR
+
+LABEL $STRVAL_OP_IS_BOOL
+    JUMPIFEQ $STRVAL_BOOL_ISN_ZERO LF@$OP bool@false 
+    PUSHS string@1
+    POPFRAME
+    RETURN
+    LABEL $STRVAL_BOOL_IS_ZERO                            #OP == FALSE
+    PUSHS string@0  
+    POPFRAME                           
+    RETURN
+
+LABEL $STRVAL_END
+    PUSHS LF@$OP
+    POPFRAME
+    RETURN
+
+##########################################################
+#Vraci hodnotu prevedenou do BOOL
+LABEL $boolval
+PUSHFRAME
+DEFVAR LF@$OP
+DEFVAR LF@$TYPE_OP
+POPS LF@$OP                                 #Naplni OP
+TYPE LF@$TYPE_OP LF@$OP
+
+JUMPIFEQ $BOOLVAL_END LF@$TYPE_OP string@bool                  # str to str
+JUMPIFEQ $BOOLVAL_OP_IS_INT  LF@$TYPE_OP string@int
+JUMPIFEQ $BOOLVAL_OP_IS_FLOAT  LF@$TYPE_OP string@float
+JUMPIFEQ $BOOLVAL_OP_IS_STR LF@$TYPE_OP string@string
+
+LABEL $BOOLVAL_OP_IS_INT
+    JUMPIFEQ $INT_OP_IS_ZERO LF@$OP int@0
+    PUSHS bool@true
+    RETURN
+    LABEL $INT_OP_IS_ZERO
+    PUSHS bool@false
+    POPFRAME
+    RETURN
+
+LABEL $BOOLVAL_OP_IS_FLOAT
+    JUMPIFEQ $FLOAT_OP_IS_ZERO LF@$OP float@0x0.0p+0
+    PUSHS bool@true
+    RETURN
+    LABEL $FLOAT_OP_IS_ZERO
+    PUSHS bool@false
+    POPFRAME
+    RETURN
+
+LABEL $BOOLVAL_OP_IS_STR
+    JUMPIFEQ $STR_OP_IS_EMPTY LF@$OP string@
+    PUSHS bool@true
+    RETURN
+    LABEL $STR_OP_IS_EMPTY
+    PUSHS bool@false
+    RETURN
+
+LABEL $BOOLVAL_END
+    PUSHS LF@$OP
+    POPFRAME
+    RETURN
+
+###############################################################
