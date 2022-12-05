@@ -188,12 +188,11 @@ void generator_print_assignment(ast_node_t* node, __GEN_DREST__)
     generator_print_expression(node->right, __GEN_CREST__);
     if (!node->left->leaf->symbol->variable_is_declared) {
         fprintf(output, "DEFVAR LF@%s\n", node->left->leaf->symbol->str->strval);
+
         node->left->leaf->symbol->variable_is_declared = true;
-        // fprintf(output, "%s", node->left->leaf->symbol->variable_is_declared);
-        fprintf(output, "%d\n", node->left->leaf->symbol->type);
+        node->left->leaf->symbol->variable_has_value = true;
     }
     fprintf(output, "POPS LF@%s\n", node->left->leaf->symbol->str->strval);
-
     return;
 }
 void generator_print_return(ast_node_t* node, __GEN_DREST__)
@@ -216,8 +215,18 @@ void generator_print_operator(symbol_t* op, __GEN_DREST__)
     } else if (op->str == get_singleton("/")) {
         fprintf(output, "CALL $ADD\n");
         data->div_generated = true;
-    } else {
-        fprintf(output, "TODO OPERATOR\n");
+    } else if (op->str == get_singleton("<")) {
+        fprintf(output, "CALL $LT\n");
+    } else if (op->str == get_singleton("<=")) {
+        fprintf(output, "CALL $LTEQ\n");
+    } else if (op->str == get_singleton(">")) {
+        fprintf(output, "CALL $GT\n");
+    } else if (op->str == get_singleton(">=")) {
+        fprintf(output, "CALL $GTEQ\n");
+    } else if (op->str == get_singleton("===")) {
+        fprintf(output, "CALL $EQ\n");
+    } else if (op->str == get_singleton("!=")) {
+        fprintf(output, "CALL $NEQ\n");
     }
     (void)data;
 }
@@ -260,7 +269,7 @@ void generator_print_function_call(ast_leaf_t* function, __GEN_DREST__)
                 generator_print_constant(parameter, __GEN_CREST__);
             } else if (parameter->type == symbol_type_local_variable) {
                 fprintf(output, "call parameter declared=%d\n", parameter->variable_is_declared); // TODO remove
-                if (parameter->variable_is_declared || true) {
+                if (parameter->variable_is_declared) {
                     generator_print_local_variable(parameter, __GEN_CREST__);
                 } else {
                     throw_warning(4, "parameter %s has no value or is not declared", parameter->str->strval);
@@ -274,8 +283,6 @@ void generator_print_expression(ast_node_t* node, __GEN_DREST__)
 {
     if (node->leaf) {
         // when there is constant or var in expression push to stack
-        fprintf(output, "%s\n", node->leaf->symbol->str->strval);
-        fprintf(output, "%d\n", node->leaf->symbol->type);
         if (node->leaf->symbol->type == symbol_type_constant) {
             generator_print_constant(node->leaf->symbol, __GEN_CREST__);
         } else if (node->leaf->symbol->type == symbol_type_local_variable || true) {
@@ -291,38 +298,53 @@ void generator_print_expression(ast_node_t* node, __GEN_DREST__)
 void generator_print_statement(ast_node_t* node, __GEN_DREST__)
 {
     // assignment
-    if (node->op->str == get_singleton("="))
-        generator_print_assignment(node, __GEN_CREST__);
-    // expresion
-    else if (node->op->str != NULL) {
-        generator_print_expression(node, __GEN_CREST__);
-
-    } else if (node->leaf && node->leaf->call_parameters) {
-        generator_print_function_call(node->leaf, __GEN_CREST__);
+    if (node->leaf) {
+        if (node->leaf->call_parameters) {
+            generator_print_function_call(node->leaf, __GEN_CREST__);
+        }
+    } else {
+        if (node->op->str == get_singleton("="))
+            generator_print_assignment(node, __GEN_CREST__);
+        // expresion
+        else if (node->op->str != NULL) {
+            generator_print_expression(node, __GEN_CREST__);
+        }
     }
 }
 
 void generator_print_conditional(ast_conditional_t* conditional, __GEN_DREST__)
 {
-    // TODO generate IF
-
+    generator_print_expression(conditional->condition, __GEN_CREST__);
+    fprintf(output, "PUSHS bool@true\n");
+    fprintf(output, "JUMPIFNEQS $ELSE%s\n", generate_label(conditional->condition)->strval);
     generator_print_block(conditional->true_branch, __GEN_CREST__);
     if (conditional->false_branch) {
-        // TODO generate ELSE
+        fprintf(output, "JUMP ENDIF$%s\n", generate_label(conditional->condition)->strval);
+        fprintf(output, "LABEL $ELSE%s\n", generate_label(conditional->condition)->strval);
         generator_print_block(conditional->false_branch, __GEN_CREST__);
     }
+    fprintf(output, "LABEL $ENDIF%s\n", generate_label(conditional->condition)->strval);
 }
 
 void generator_print_loop(ast_loop_t* loop, __GEN_DREST__)
 {
-    // TODO loop print
     if (loop->initializer) {
+        generator_print_statement(loop->initializer, __GEN_CREST__);
+    }
+    fprintf(output, "LABEL $WHILE$%s \n", generate_label(loop)->strval);
 
-    } else if (loop->condition) {
-
-    } else if (loop->incrementer) {
+    if (loop->condition) {
+        generator_print_expression(loop->condition, __GEN_CREST__);
+        fprintf(output, "PUSHS bool@true\n");
+        fprintf(output, "JUMPIFNEQS $WHILE$END %s bool@true\n", generate_label(loop)->strval);
     }
     generator_print_block(loop->body, __GEN_CREST__);
+    if (loop->incrementer) {
+        generator_print_statement(loop->incrementer, __GEN_CREST__);
+    }
+
+    fprintf(output, "JUMP $WHILE$%s\n", generate_label(loop)->strval);
+    fprintf(output, "LABEL $WHILE_END$%s\n", generate_label(loop)->strval);
 }
 
 void generator_print_block_item(ast_block_item_t* block_item, __GEN_DREST__)
@@ -338,7 +360,7 @@ void generator_print_block_item(ast_block_item_t* block_item, __GEN_DREST__)
         generator_print_return(block_item->item, __GEN_CREST__);
     } else {
         // should not happen
-        throw_warning(99, "Empty block item");
+        throw_warning(99, "Empty block item\n");
     }
 }
 
