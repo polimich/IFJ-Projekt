@@ -39,10 +39,10 @@ int main(const int argc, const char* argv[])
     symtable_init(list);
     semantic_check(list);
 
-    if ((argc > 1) && (strcmp(argv[1], "--generator") == 0)) {
-        generator(list, stdout);
-    } else /*if ((argc > 1) && (strcmp(argv[1], "--parser") == 0)) */ {
+    if ((argc > 1) && (strcmp(argv[1], "fmt") == 0)) {
         formatter(list, "    ", stdout);
+    } else {
+        generator(list, stdout);
     }
 
     mem_clean();
