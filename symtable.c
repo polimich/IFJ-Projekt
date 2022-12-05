@@ -166,6 +166,7 @@ void symtable_generate(__STB_DREST__)
     symtable_insert(get_symbol_by_str(symbol_type_function_identifier, "readf"), table);
     symtable_insert(get_symbol_by_str(symbol_type_function_identifier, "reads"), table);
     symtable_insert(get_symbol_by_str(symbol_type_function_identifier, "write"), table);
+    symtable_insert(get_symbol_by_str(symbol_type_function_identifier, "substring"), table);
 
     for (ast_function_list_t* L = list; L != NULL; L = L->next) {
         ast_function_t* F = L->item;
