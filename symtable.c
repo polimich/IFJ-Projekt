@@ -185,6 +185,8 @@ void symtable_generate(__STB_DREST__)
             }
 
             symtable_insert(F->name, table);
+
+            F->name->fn = F;
         }
     }
 
