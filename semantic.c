@@ -33,8 +33,12 @@ semantic_type_t semantic_constant_type(ast_leaf_t* leaf)
         return semantic_type_null;
     } else {
         if (leaf->symbol->str->strval[0] == '"' && leaf->symbol->str->strval[strlen(leaf->symbol->str->strval) - 1] == '"') {
-            leaf->symbol->type = symbol_type_constant;
-            leaf->symbol->constant_type = get_singleton("string");
+            symbol_t* new_symbol = get_symbol(symbol_type_constant, leaf->symbol->str);
+
+            new_symbol->line_number = leaf->symbol->line_number;
+            leaf->symbol = new_symbol;
+
+            new_symbol->constant_type = get_singleton("string");
             return semantic_type_string;
         } else {
             int float_flag = 0;
@@ -46,14 +50,22 @@ semantic_type_t semantic_constant_type(ast_leaf_t* leaf)
                 }
             }
             if (float_flag) {
-                leaf->symbol->type = symbol_type_constant;
-                leaf->symbol->constant_type = get_singleton("float");
-                leaf->symbol->constant_value_float = atof(leaf->symbol->str->strval);
+                symbol_t* new_symbol = get_symbol(symbol_type_constant, leaf->symbol->str);
+
+                new_symbol->line_number = leaf->symbol->line_number;
+                leaf->symbol = new_symbol;
+
+                new_symbol->constant_type = get_singleton("bool");
+                new_symbol->constant_value_float = atof(leaf->symbol->str->strval);
                 return semantic_type_float;
             } else {
-                leaf->symbol->type = symbol_type_constant;
-                leaf->symbol->constant_type = get_singleton("int");
-                leaf->symbol->constant_value_int = atoi(leaf->symbol->str->strval);
+                symbol_t* new_symbol = get_symbol(symbol_type_constant, leaf->symbol->str);
+
+                new_symbol->line_number = leaf->symbol->line_number;
+                leaf->symbol = new_symbol;
+
+                new_symbol->constant_type = get_singleton("bool");
+                new_symbol->constant_value_int = atoi(leaf->symbol->str->strval);
                 return semantic_type_int;
             }
         }
