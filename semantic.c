@@ -105,9 +105,10 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
             // unmarked variable
             item->leaf->symbol->type = symbol_type_local_variable;
             return semantic_type_dynamic;
-        } else if (item->leaf->symbol->type == symbol_type_function_identifier) {
+        } else if (item->leaf->symbol->type == symbol_type_function_identifier || item->leaf->symbol->type == symbol_type_keyword) {
             // function call
             ast_function_t* function = semantic_check_id(item->leaf, function_list);
+            item->leaf->symbol->type = symbol_type_function_identifier;
             // semantic_check_call_parameters
             size_t min_params = 0;
 
