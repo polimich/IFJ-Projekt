@@ -86,6 +86,10 @@ STB_PROCESS_DECLARE(leaf)
         } else {
             leaf->symbol = symbol;
         }
+    } else if (symbol != NULL) {
+        // symbol is a function identifier
+
+        leaf->symbol = symbol;
     }
 
     if (leaf->call_parameters) {
