@@ -37,9 +37,9 @@ int main(const int argc, const char* argv[])
     ast_function_list_t* list = parser(utf8_stdin);
 
     symtable_init(list);
+    semantic_check(list);
 
     if ((argc > 1) && (strcmp(argv[1], "--generator") == 0)) {
-        semantic_check(list);
         generator(list, stdout);
     } else /*if ((argc > 1) && (strcmp(argv[1], "--parser") == 0)) */ {
         formatter(list, "    ", stdout);
