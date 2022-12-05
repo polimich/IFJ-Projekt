@@ -80,16 +80,10 @@ STB_PROCESS_DECLARE(leaf)
 
     symbol_t* symbol = symtable_get(leaf->symbol->str, table);
 
-    if (leaf->symbol->str->strval[0] == '$') {
-        if (symbol == NULL) {
-            throw_error(5, "Undefined variable %s on line %d", leaf->symbol->str->strval, leaf->symbol->line_number);
-        } else {
-            leaf->symbol = symbol;
-        }
-    } else if (symbol != NULL) {
-        // symbol is a function identifier
-
+    if (symbol != NULL) {
         leaf->symbol = symbol;
+    } else if (leaf->symbol->str->strval[0] == '$') {
+        throw_error(5, "Undefined variable %s on line %d", leaf->symbol->str->strval, leaf->symbol->line_number);
     }
 
     if (leaf->call_parameters) {
