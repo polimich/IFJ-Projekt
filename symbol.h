@@ -43,6 +43,10 @@ typedef struct symbol_t {
     bool variable_is_declared;
     bool variable_has_value;
 
+    // if this symbol is a custom function identifier,
+    // this pointer points to said function
+    struct ast_function_t* fn;
+
     // next entry in global symtable
     struct symbol_t* next;
 } symbol_t;
