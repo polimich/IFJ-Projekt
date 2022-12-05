@@ -87,6 +87,10 @@ STB_PROCESS_DECLARE(leaf)
     }
 
     if (leaf->call_parameters) {
+        if (symbol == NULL) {
+            throw_error(3, "Call to undeclared function %s on line %d", leaf->symbol->str->strval, leaf->symbol->line_number);
+        }
+
         STB_PROCESS_CALL(call_parameter_list, leaf->call_parameters);
     }
 }
