@@ -30,6 +30,7 @@ typedef enum semantic_type {
     semantic_type_string,
     semantic_type_bool,
     semantic_type_dynamic,
+    semantic_type_null,
 } semantic_type_t;
 
 void semantic_check(ast_function_list_t* function_list);
