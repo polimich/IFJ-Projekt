@@ -178,20 +178,9 @@
 \nLABEL $DIV_END\
 \nRETURN\n"
 
-const char* string_to_ifjcode22_string(const char* string)
-{
-    return string;
-}
-
 void generator_print_assignment(ast_node_t* node, __GEN_DREST__)
 {
     generator_print_expression(node->right, __GEN_CREST__);
-    if (!node->left->leaf->symbol->variable_is_declared) {
-        fprintf(output, "DEFVAR LF@%s\n", node->left->leaf->symbol->str->strval);
-
-        node->left->leaf->symbol->variable_is_declared = true;
-        node->left->leaf->symbol->variable_has_value = true;
-    }
     fprintf(output, "POPS LF@%s\n", node->left->leaf->symbol->str->strval);
     return;
 }
@@ -241,6 +230,8 @@ void generator_print_call_parameters(ast_call_parameter_list_t* list, __GEN_DRES
 void generator_print_constant(symbol_t* constant, __GEN_DREST__)
 {
     (void)data;
+    fprintf(output, "%s\n", constant->constant_type->strval);
+
     if (constant->constant_type == get_singleton("int")) {
         fprintf(output, "PUSHS int@%d\n", constant->constant_value_int);
     } else if (constant->constant_type == get_singleton("float")) {
@@ -248,7 +239,7 @@ void generator_print_constant(symbol_t* constant, __GEN_DREST__)
     } else if (constant->constant_type == get_singleton("bool")) {
         fprintf(output, "PUSHS bool@%s\n", constant->str->strval);
     } else if (constant->constant_type == get_singleton("string")) {
-        fprintf(output, "PUSHS string@%s\n", constant->str->strval);
+        fprintf(output, "PUSHS %s\n", encoder_encode_string(decoder_decode_string(constant->str))->strval);
     } else if (constant->constant_type == get_singleton("nil")) {
         fprintf(output, "PUSHS nil@nil\n");
     }
@@ -404,16 +395,46 @@ void generator_print_parameter_list(ast_function_t* function, __GEN_DREST__)
     (void)output;
     (void)function;
 }
+void generator_print_variable_declarations(FILE* output, symtable_t* symtable)
+{
+    if (symtable->lnode) {
+        generator_print_variable_declarations(output, symtable->lnode);
+    }
+    if (symtable->rnode) {
+        generator_print_variable_declarations(output, symtable->rnode);
+    }
+    if (symtable->symbol->type == symbol_type_local_variable)
+        fprintf(output, "DEFVAR LF@%s\n", symtable->symbol->str->strval);
+}
 
 void generator_print_function(ast_function_t* function, __GEN_DREST__)
 {
     (void)data;
     // TODO generate label for function
-    singleton_t* label = generate_label(function->name->str);
-    fprintf(output, "LABEL %s:\n", label->strval);
+    singleton_t* label = generate_label(function);
+    fprintf(output, "LABEL $%s\n", label->strval);
+
+    generator_print_variable_declarations(output, function->symtable);
+
     generator_print_parameter_list(function, __GEN_CREST__);
     //  generator_print_block(function->block, output);
     //   TODO generate retval
+    generator_print_block(function->block, __GEN_CREST__);
+    fprintf(output, "RETURN\n");
+}
+void generator_print_main(ast_function_t* function, __GEN_DREST__)
+{
+    (void)data;
+
+    fprintf(output, "LABEL $$MAIN\n");
+    fprintf(output, "CREATEFRAME\n");
+    fprintf(output, "PUSHFRAME\n");
+    // define
+    generator_print_variable_declarations(output, function->symtable);
+    generator_print_parameter_list(function, __GEN_CREST__);
+    generator_print_block(function->block, __GEN_CREST__);
+    fprintf(output, "POPFRAME\n");
+    fprintf(output, "EXIT int@0\n");
 }
 
 void generator_print_function_list(ast_function_list_t* function_list, __GEN_DREST__)
@@ -465,12 +486,7 @@ void generator(ast_function_list_t* function_list, FILE* output)
     if (function_list->next) {
         generator_print_function_list(function_list->next, &data, output);
     }
-    fprintf(output, "LABEL $$main\n");
-    fprintf(output, "CREATEFRAME\n");
-    fprintf(output, "PUSHFRAME\n");
-    generator_print_block(main->block, &data, output);
-    fprintf(output, "POPFRAME\n");
-    fprintf(output, "EXIT int@0\n");
+    generator_print_main(main, &data, output);
     generator_print_built_in(&data, output);
 }
 
