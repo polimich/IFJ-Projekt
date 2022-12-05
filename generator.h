@@ -15,7 +15,10 @@
 #define __GENERATOR_H__
 
 #include "./ast.h"
+#include "./decoder.h"
+#include "./encoder.h"
 #include "./label.h"
+#include "./symtable.h"
 #include <stdio.h>
 
 #define __GEN_CREST__ data, output
