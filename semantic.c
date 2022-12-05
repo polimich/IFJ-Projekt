@@ -13,6 +13,30 @@
 
 #include "./semantic.h"
 
+int is_buildin_function(ast_leaf_t* leaf)
+{
+    if (leaf->symbol->str->strval == get_symbol_by_str(symbol_type_keyword, "floatval"))
+        return 1;
+    else if (leaf->symbol->str->strval == get_symbol_by_str(symbol_type_keyword, "intval"))
+        return 1;
+    else if (leaf->symbol->str->strval == get_symbol_by_str(symbol_type_keyword, "strval"))
+        return 1;
+    else if (leaf->symbol->str->strval == get_symbol_by_str(symbol_type_keyword, "strlen"))
+        return 1;
+    else if (leaf->symbol->str->strval == get_symbol_by_str(symbol_type_keyword, "substring"))
+        return 1;
+    else if (leaf->symbol->str->strval == get_symbol_by_str(symbol_type_keyword, "readi"))
+        return 1;
+    else if (leaf->symbol->str->strval == get_symbol_by_str(symbol_type_keyword, "reads"))
+        return 1;
+    else if (leaf->symbol->str->strval == get_symbol_by_str(symbol_type_keyword, "readf"))
+        return 1;
+    else if (leaf->symbol->str->strval == get_symbol_by_str(symbol_type_keyword, "write"))
+        return 1;
+    else
+        return 0;
+}
+
 semantic_type_t semantic_constant_type(ast_leaf_t* leaf)
 {
     if (!strcmp(leaf->symbol->str->strval, "true") || !strcmp(leaf->symbol->str->strval, "false")) {
@@ -107,6 +131,9 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
             return semantic_type_dynamic;
         } else if (item->leaf->symbol->type == symbol_type_function_identifier || item->leaf->symbol->type == symbol_type_keyword) {
             // function call
+            if (is_buildin_function(item->leaf)) {
+                return semantic_type_dynamic;
+            }
             ast_function_t* function = semantic_check_id(item->leaf, function_list);
             item->leaf->symbol->type = symbol_type_function_identifier;
             // semantic_check_call_parameters
