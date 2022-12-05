@@ -13,36 +13,24 @@
 
 #include "./semantic.h"
 
-int is_buildin_function(ast_leaf_t* leaf)
-{
-    if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "floatval"))
-        return 1;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "intval"))
-        return 1;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "strval"))
-        return 1;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "strlen"))
-        return 1;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "substring"))
-        return 1;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "readi"))
-        return 1;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "reads"))
-        return 1;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "readf"))
-        return 1;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "write"))
-        return 1;
-    else
-        return 0;
-}
-
 semantic_type_t semantic_constant_type(ast_leaf_t* leaf)
 {
     if (!strcmp(leaf->symbol->str->strval, "true") || !strcmp(leaf->symbol->str->strval, "false")) {
-        leaf->symbol->type = symbol_type_constant;
-        leaf->symbol->constant_type = get_singleton("bool");
+        symbol_t* new_symbol = get_symbol(symbol_type_constant, leaf->symbol->str);
+
+        new_symbol->line_number = leaf->symbol->line_number;
+        leaf->symbol = new_symbol;
+
+        new_symbol->constant_type = get_singleton("bool");
         return semantic_type_bool;
+    } else if (leaf->symbol->str == get_singleton("null")) {
+        symbol_t* new_symbol = get_symbol(symbol_type_constant, leaf->symbol->str);
+
+        new_symbol->line_number = leaf->symbol->line_number;
+        leaf->symbol = new_symbol;
+
+        new_symbol->constant_type = get_singleton("null");
+        return semantic_type_null;
     } else {
         if (leaf->symbol->str->strval[0] == '"' && leaf->symbol->str->strval[strlen(leaf->symbol->str->strval) - 1] == '"') {
             leaf->symbol->type = symbol_type_constant;
@@ -75,7 +63,6 @@ semantic_type_t semantic_constant_type(ast_leaf_t* leaf)
 
 ast_function_t* semantic_check_id(ast_leaf_t* leaf, ast_function_list_t* function_list)
 {
-    // TODO build-in functions
     if (function_list->next == NULL) {
         varstring_t* error_msg = varstring_init();
         varstring_write(error_msg, "function not declared ");
@@ -127,11 +114,12 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
             return semantic_type_dynamic;
         } else if (item->leaf->symbol->str->strval[0] == '$') {
             // unmarked variable
-            item->leaf->symbol->type = symbol_type_local_variable;
-            return semantic_type_dynamic;
-        } else if (item->leaf->symbol->type == symbol_type_function_identifier || item->leaf->symbol->type == symbol_type_keyword) {
+            // this cannot happen
+            throw_error(99, "unmarked variable %s on line %d", item->leaf->symbol->str->strval, item->leaf->symbol->line_number);
+        } else if (item->leaf->symbol->type == symbol_type_function_identifier) {
             // function call
-            if (is_buildin_function(item->leaf)) {
+            if ((item->leaf->symbol->fn == NULL)) {
+                // buid-in function
                 return semantic_type_dynamic;
             }
             ast_function_t* function = semantic_check_id(item->leaf, function_list);
@@ -211,7 +199,8 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
                 formatter_state_t state = { 0 };
                 formatter_print_expression(item, &state, error_msg->stream);
                 varstring_write(error_msg, " on line %d", item->leaf->symbol->line_number);
-                throw_error(4, "%s", varstring_destroy(error_msg)->strval);
+                // throw_error
+                throw_warning(4, "%s", varstring_destroy(error_msg)->strval);
             }
             return const_type;
         }
