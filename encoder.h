@@ -11,8 +11,8 @@
 //                                                      //
 //////////////////////////////////////////////////////////
 
-#ifndef __DECODER_H__
-#define __DECODER_H__
+#ifndef __ENCODER_H__
+#define __ENCODER_H__
 
 #include "./singleton.h"
 
