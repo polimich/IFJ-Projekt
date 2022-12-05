@@ -15,23 +15,23 @@
 
 int is_buildin_function(ast_leaf_t* leaf)
 {
-    if (leaf->symbol->str->strval == get_symbol_by_str(symbol_type_keyword, "floatval"))
+    if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "floatval"))
         return 1;
-    else if (leaf->symbol->str->strval == get_symbol_by_str(symbol_type_keyword, "intval"))
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "intval"))
         return 1;
-    else if (leaf->symbol->str->strval == get_symbol_by_str(symbol_type_keyword, "strval"))
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "strval"))
         return 1;
-    else if (leaf->symbol->str->strval == get_symbol_by_str(symbol_type_keyword, "strlen"))
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "strlen"))
         return 1;
-    else if (leaf->symbol->str->strval == get_symbol_by_str(symbol_type_keyword, "substring"))
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "substring"))
         return 1;
-    else if (leaf->symbol->str->strval == get_symbol_by_str(symbol_type_keyword, "readi"))
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "readi"))
         return 1;
-    else if (leaf->symbol->str->strval == get_symbol_by_str(symbol_type_keyword, "reads"))
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "reads"))
         return 1;
-    else if (leaf->symbol->str->strval == get_symbol_by_str(symbol_type_keyword, "readf"))
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "readf"))
         return 1;
-    else if (leaf->symbol->str->strval == get_symbol_by_str(symbol_type_keyword, "write"))
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "write"))
         return 1;
     else
         return 0;
