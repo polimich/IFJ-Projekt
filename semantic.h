@@ -32,4 +32,11 @@ typedef enum semantic_type {
     semantic_type_dynamic,
 } semantic_type_t;
 
+void semantic_check(ast_function_list_t* function_list);
+void semantic_check_block(ast_block_t* block, ast_function_list_t* function_list);
+semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t* function_list);
+semantic_type_t semantic_return_type(ast_function_t* function);
+ast_function_t* semantic_check_id(ast_leaf_t* leaf, ast_function_list_t* function_list);
+semantic_type_t semantic_constant_type(ast_leaf_t* leaf);
+
 #endif
