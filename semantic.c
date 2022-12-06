@@ -171,7 +171,7 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
                 ast_parameter_t* function_parameter = function->parameters->parameters[i];
 
                 if (parameter_type != semantic_type_dynamic) {
-                    if (!function_parameter->optional && current_parameter->node->leaf->symbol != get_symbol_by_str(symbol_type_keyword, "null")) {
+                    if (!function_parameter->optional && parameter_type != semantic_type_null) {
                         if (parameter_type == semantic_type_int) {
                             if (function_parameter->type == string_symbol) {
                                 varstring_t* error_msg = varstring_init();
