@@ -18,13 +18,14 @@ void generator_print_assignment(ast_node_t* node, __GEN_DREST__)
 {
     generator_print_expression(node->right, __GEN_CREST__);
     fprintf(output, "POPS LF@%s\n", node->left->leaf->symbol->str->strval);
+    node->left->leaf->symbol->variable_is_declared = true;
+    node->left->leaf->symbol->variable_has_value = true;
     return;
 }
 void generator_print_return(ast_node_t* node, __GEN_DREST__)
 {
-    (void)data;
-    (void)output;
-    (void)node;
+    generator_print_expression(node, __GEN_CREST__);
+    fprintf(output, "POPS LF@retval\n");
 }
 void generator_print_operator(symbol_t* op, __GEN_DREST__)
 {
@@ -38,7 +39,7 @@ void generator_print_operator(symbol_t* op, __GEN_DREST__)
         fprintf(output, "CALL $MUL\n");
         data->mul_generated = true;
     } else if (op->str == get_singleton("/")) {
-        fprintf(output, "CALL $ADD\n");
+        fprintf(output, "CALL $DIV\n");
         data->div_generated = true;
     } else if (op->str == get_singleton("<")) {
         fprintf(output, "CALL $LT\n");
@@ -54,13 +55,6 @@ void generator_print_operator(symbol_t* op, __GEN_DREST__)
         fprintf(output, "CALL $NEQ\n");
     }
     (void)data;
-}
-
-void generator_print_call_parameters(ast_call_parameter_list_t* list, __GEN_DREST__)
-{
-    (void)data;
-    (void)output;
-    (void)list;
 }
 
 void generator_print_constant(symbol_t* constant, __GEN_DREST__)
@@ -83,8 +77,8 @@ void generator_print_constant(symbol_t* constant, __GEN_DREST__)
 void generator_print_local_variable(symbol_t* local_variable, __GEN_DREST__)
 {
     (void)data;
-    // TODO if value not declared -> error
-    fprintf(output, "PUSHS LF@%s\n", local_variable->str->strval);
+    if (local_variable->variable_is_declared)
+        fprintf(output, "PUSHS LF@%s\n", local_variable->str->strval);
 }
 void generator_print_function_call(ast_leaf_t* function, __GEN_DREST__)
 {
@@ -202,18 +196,6 @@ void generator_print_call_parameter_list(ast_call_parameter_list_t* call_paramet
     }
 }
 
-void generator_print_parameter(ast_parameter_t* parameter, __GEN_DREST__)
-{
-    (void)data;
-    (void)output;
-    if (parameter->optional) {
-        // TODO generate optional parameter
-    }
-    // TODO check type before print
-    // generator_print_symbol(parameter->type, __GEN_CREST__);
-    // generator_print_symbol(parameter->name, __GEN_CREST__);
-}
-
 void generator_print_parameter_list(ast_function_t* function, __GEN_DREST__)
 {
     (void)data;
@@ -221,16 +203,12 @@ void generator_print_parameter_list(ast_function_t* function, __GEN_DREST__)
 
     for (size_t i = 0; i < function->parameters->count; i++) {
         ast_parameter_t* param = function->parameters->parameters[i];
-        const char* func_name = generate_label(function->name->str)->strval;
+        const char* func_name = generate_label(function->name)->strval;
         fprintf(output, "POPS LF@%s\n", param->name->str->strval);
         fprintf(output, "DEFVAR LF@%s$type\n", param->name->str->strval);
         fprintf(output, "DEFVAR LF@%s$optional\n", param->name->str->strval);
         fprintf(output, "DEFVAR LF@%s$expected_type\n", param->name->str->strval);
-        if (param->optional) {
-            fprintf(output, "MOVE LF@%s$optional bool@true\n", param->name->str->strval);
-        } else {
-            fprintf(output, "MOVE LF@%s$optional bool@false\n", param->name->str->strval);
-        }
+        fprintf(output, "MOVE LF@%s$optional bool@%s\n", param->name->str->strval, param->optional ? "true" : "false");
         if (param->type->str == get_singleton("string"))
             fprintf(output, "MOVE LF@%s$expected_type string@string\n", param->name->str->strval);
         else if (param->type->str == get_singleton("int"))
@@ -242,7 +220,7 @@ void generator_print_parameter_list(ast_function_t* function, __GEN_DREST__)
         fprintf(output, "TYPE LF@%s$type LF@$n\n", param->name->str->strval);
         fprintf(output, "JUMPIFNEQ $WRONG_TYPE$%s LF@%s$type LF@%s$expected_type\n", func_name, param->name->str->strval, param->name->str->strval);
         fprintf(output, "JUMP $BODY$%s\n", func_name);
-        fprintf(output, "LABEL $WRONG$TYPE$%s\n", func_name);
+        fprintf(output, "LABEL $WRONG_TYPE$%s\n", func_name);
         if (param->type->str == get_singleton("string"))
             fprintf(output, "PUSHS string@\n");
         else if (param->type->str == get_singleton("int"))
@@ -271,18 +249,28 @@ void generator_print_variable_declarations(FILE* output, symtable_t* symtable)
 
 void generator_print_function(ast_function_t* function, __GEN_DREST__)
 {
-    (void)data;
     singleton_t* label = generate_label(function->name);
     fprintf(output, "LABEL $FUNCTION$%s\n", label->strval);
     fprintf(output, "PUSHFRAME\n");
     fprintf(output, "CREATEFRAME\n");
+    fprintf(output, "DEFVAR LF@retval\n");
 
     generator_print_variable_declarations(output, function->symtable);
 
     generator_print_parameter_list(function, __GEN_CREST__);
-    fprintf(output, "LABEL $BODY$%s\n", generate_label(function)->strval);
-    //   TODO generate retval
+    fprintf(output, "LABEL $BODY$%s\n", label->strval);
     generator_print_block(function->block, __GEN_CREST__);
+    if (function->returned_type->str == get_singleton("int"))
+        fprintf(output, "PUSHS int@0\n");
+    else if (function->returned_type->str == get_singleton("float"))
+        fprintf(output, "PUSHS float@0x0.0p+0\n");
+    else if (function->returned_type->str == get_singleton("bool"))
+        fprintf(output, "PUSHS bool@false\n");
+    else if (function->returned_type->str == get_singleton("string"))
+        fprintf(output, "PUSHS string@\n");
+    fprintf(output, "PUSHS LF@retval\n");
+    fprintf(output, "CALL $TO_GOOD_TYPE\n");
+    fprintf(output, "POPS LF@retval\n");
     fprintf(output, "POPFRAME\n");
     fprintf(output, "RETURN\n");
 }
@@ -296,6 +284,7 @@ void generator_print_main(ast_function_t* function, __GEN_DREST__)
     // define
     generator_print_variable_declarations(output, function->symtable);
     generator_print_block(function->block, __GEN_CREST__);
+
     fprintf(output, "POPFRAME\n");
     fprintf(output, "EXIT int@0\n");
 }
@@ -344,7 +333,7 @@ void generator(ast_function_list_t* function_list, FILE* output)
     // main function stored for generating later
     ast_function_t* main = function_list->item;
 
-    fprintf(output, ".IFJcode22\nJUMP $$main\n");
+    fprintf(output, ".IFJcode22\nJUMP $$MAIN\n");
     // generate code for all functions
     if (function_list->next) {
         generator_print_function_list(function_list->next, &data, output);
