@@ -354,4 +354,22 @@
 \n#\
 \n###############################################################"
 
+#define CHR "#CHR(op) => prevod int so ascii\
+    \nLABEL $ORD\
+    \nPUSHFRAME\
+    \nINT2CHARS\
+    \nPOPFRAME\
+    \nRETURN"
+
+#define ORD "#ORD(op) => int value of first char in string\
+    \nLABEL $ORD\
+    \nPUSHFRAME\
+    \nPUSHS int@0\
+    \nSTRI2INTS\
+    \nPOPFRAME\
+    \nRETURN"
+
+
+
+
 #endif
