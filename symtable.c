@@ -74,10 +74,6 @@ STB_PROCESS_DECLARE(call_parameter_list)
 
 STB_PROCESS_DECLARE(leaf)
 {
-    (void)fn;
-    (void)list;
-    (void)table;
-
     symbol_t* symbol = symtable_get(leaf->symbol->str, table);
 
     if (symbol != NULL) {
