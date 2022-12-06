@@ -16,6 +16,7 @@
 semantic_type_t semantic_constant_type(ast_leaf_t* leaf)
 {
     if (!strcmp(leaf->symbol->str->strval, "true") || !strcmp(leaf->symbol->str->strval, "false")) {
+        // bool
         symbol_t* new_symbol = get_symbol(symbol_type_constant, leaf->symbol->str);
 
         new_symbol->line_number = leaf->symbol->line_number;
@@ -24,6 +25,7 @@ semantic_type_t semantic_constant_type(ast_leaf_t* leaf)
         new_symbol->constant_type = get_singleton("bool");
         return semantic_type_bool;
     } else if (leaf->symbol->str == get_singleton("null")) {
+        // null
         symbol_t* new_symbol = get_symbol(symbol_type_constant, leaf->symbol->str);
 
         new_symbol->line_number = leaf->symbol->line_number;
@@ -32,7 +34,9 @@ semantic_type_t semantic_constant_type(ast_leaf_t* leaf)
         new_symbol->constant_type = get_singleton("null");
         return semantic_type_null;
     } else {
+        // string or number
         if (leaf->symbol->str->strval[0] == '"' && leaf->symbol->str->strval[strlen(leaf->symbol->str->strval) - 1] == '"') {
+            // string
             symbol_t* new_symbol = get_symbol(symbol_type_constant, leaf->symbol->str);
 
             new_symbol->line_number = leaf->symbol->line_number;
@@ -41,6 +45,7 @@ semantic_type_t semantic_constant_type(ast_leaf_t* leaf)
             new_symbol->constant_type = get_singleton("string");
             return semantic_type_string;
         } else {
+            // number
             int float_flag = 0;
             for (size_t i = 0; i < strlen(leaf->symbol->str->strval); ++i) {
                 if (i > 0 && i < strlen(leaf->symbol->str->strval) && leaf->symbol->str->strval[i] == '.') {
@@ -50,6 +55,7 @@ semantic_type_t semantic_constant_type(ast_leaf_t* leaf)
                 }
             }
             if (float_flag) {
+                // float
                 symbol_t* new_symbol = get_symbol(symbol_type_constant, leaf->symbol->str);
 
                 new_symbol->line_number = leaf->symbol->line_number;
@@ -59,6 +65,7 @@ semantic_type_t semantic_constant_type(ast_leaf_t* leaf)
                 new_symbol->constant_value_float = atof(leaf->symbol->str->strval);
                 return semantic_type_float;
             } else {
+                // int
                 symbol_t* new_symbol = get_symbol(symbol_type_constant, leaf->symbol->str);
 
                 new_symbol->line_number = leaf->symbol->line_number;
@@ -135,7 +142,6 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
                 return semantic_type_dynamic;
             }
             ast_function_t* function = semantic_check_id(item->leaf, function_list);
-            item->leaf->symbol->type = symbol_type_function_identifier;
             // semantic_check_call_parameters
             size_t min_params = 0;
 
@@ -159,7 +165,7 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
                 semantic_type_t parameter_type = semantic_check_expression(current_parameter->node, function_list);
 
                 if (parameter_type != semantic_type_dynamic) {
-                    if (!function->parameters->parameters[i]->optional && current_parameter->node != NULL) {
+                    if (!function->parameters->parameters[i]->optional && current_parameter->node->leaf->symbol != get_symbol_by_str(symbol_type_keyword, "null")) {
                         if (parameter_type == semantic_type_int) {
                             if (function->parameters->parameters[i]->type != get_symbol_by_str(symbol_type_keyword, "int")) {
                                 varstring_t* error_msg = varstring_init();
@@ -211,8 +217,7 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
                 formatter_state_t state = { 0 };
                 formatter_print_expression(item, &state, error_msg->stream);
                 varstring_write(error_msg, " on line %d", item->leaf->symbol->line_number);
-                // throw_error
-                throw_warning(4, "%s", varstring_destroy(error_msg)->strval);
+                throw_error(4, "%s", varstring_destroy(error_msg)->strval);
             }
             return const_type;
         }
@@ -282,7 +287,7 @@ void semantic_check_block(ast_block_t* block, ast_function_list_t* function_list
 
 void semantic_check(ast_function_list_t* function_list)
 {
-    // TODO check jestli se nesnazi deklarovat funkci, ktera uz je deklarovana + keyword ve jmenu funkce
+    // TODO check for keyword in function name?
     ast_function_list_t* main_function = function_list;
     ast_function_list_t* current_function = function_list->next;
 
