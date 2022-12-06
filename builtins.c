@@ -10,8 +10,8 @@
 //    Licence: GNU GPL v3, nebo pozdější                //
 //                                                      //
 //////////////////////////////////////////////////////////
-#ifndef __BUILT_IN_C__
-#define __BUILT_IN_C__
+#ifndef __BUILTINS_C__
+#define __BUILTINS_C__
 
 #include "./builtins.h"
 
