@@ -13,6 +13,15 @@
 
 #include "./semantic.h"
 
+int semantic_get_line_number(ast_node_t* node) {
+    if (node->leaf != NULL){
+        return node->leaf->symbol->line_number;
+    }
+    else{
+        return semantic_get_line_number(node->left);
+    }
+}
+
 semantic_type_t semantic_constant_type(ast_leaf_t* leaf)
 {
     if (!strcmp(leaf->symbol->str->strval, "true") || !strcmp(leaf->symbol->str->strval, "false")) {
@@ -143,15 +152,8 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
             }
             ast_function_t* function = semantic_check_id(item->leaf, function_list);
             // semantic_check_call_parameters
-            size_t min_params = 0;
 
-            for (size_t i = 0; function->parameters->parameters[i]->next != NULL; i++) {
-                if (function->parameters->parameters[i]->optional == false) {
-                    min_params++;
-                }
-            }
-
-            if (item->leaf->call_parameters->size < min_params || item->leaf->call_parameters->size > function->parameters->count) {
+            if (function->parameters->count != item->leaf->call_parameters->size) {
                 varstring_t* error_msg = varstring_init();
                 varstring_write(error_msg, "wrong number of parameters in call of function ");
                 formatter_state_t state = { 0 };
@@ -211,7 +213,7 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
                 varstring_write(error_msg, "constant type expected instead of ");
                 formatter_state_t state = { 0 };
                 formatter_print_expression(item, &state, error_msg->stream);
-                varstring_write(error_msg, " on line %d", item->leaf->symbol->line_number);
+                varstring_write(error_msg, " on line %d", semantic_get_line_number(item));
                 throw_error(4, "%s", varstring_destroy(error_msg)->strval);
             }
             return const_type;
