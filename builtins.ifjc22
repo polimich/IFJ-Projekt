@@ -1,51 +1,54 @@
-#prevod do spravnerho typu
-#POP OP1
-#POP OP2
-# TO_GOOD_TYPE(op1, op2)
 
 LABEL $TO_GOOD_TYPE
 PUSHFRAME
-DEFVAR LF@$VAL_OP1
-DEFVAR LF@$VAL_OP2
-DEFVAR LF@$CONVERT_OP2
-POPS LF@$VAL_OP2
-POPS LF@$VAL_OP1
-DEFVAR LF@$OP1_TYPE
-DEFVAR LF@$OP2_TYPE
-TYPE LF@$OP1_TYPE LF@$VAL_OP1
-TYPE LF@$OP2_TYPE LF@$VAL_OP2
-PUSHS LF@$VAL_OP2                                        #OP2 na zasobnik aby to pak nemusel delat pod kazdym labelem
-JUMPIFEQ $SAME_TYPES LF@$OP1_TYPE LF@$OP2_TYPE           #Když jsou typy stejné
-JUMPIFEQ $OP1_IS_INT LF@$OP1_TYPE string@int                                                
-JUMPIFEQ $OP1_IS_FLOAT LF@$OP1_TYPE string@float
-JUMPIFEQ $OP1_IS_STR LF@$OP1_TYPE string@string
-JUMPIFEQ $OP1_IS_BOOL LF@$OP1_TYPE string@bool                                                
+CREATEFRAME
+DEFVAR TF@$VAL_OP1
+DEFVAR TF@$VAL_OP2
+DEFVAR TF@$CONVERT_OP2
+POPS TF@$VAL_OP2
+POPS TF@$VAL_OP1
+DEFVAR TF@$OP1_TYPE
+DEFVAR TF@$OP2_TYPE
+TYPE TF@$OP1_TYPE TF@$VAL_OP1
+TYPE TF@$OP2_TYPE TF@$VAL_OP2
+PUSHS TF@$VAL_OP1
+PUSHS TF@$VAL_OP2
+JUMPIFEQ $SAME_TYPES TF@$OP1_TYPE TF@$OP2_TYPE
+JUMPIFEQ $OP1_IS_INT TF@$OP1_TYPE string@int                                                
+JUMPIFEQ $OP1_IS_FLOAT TF@$OP1_TYPE string@float
+JUMPIFEQ $OP1_IS_STR TF@$OP1_TYPE string@string
+JUMPIFEQ $OP1_IS_BOOL TF@$OP1_TYPE string@bool                                                
 LABEL $OP1_IS_INT                               
-    CALL intval               
+    CALL $intval
+    JUMP $SAME_TYPES              
 LABEL $OP1_IS_FLOAT
-    CALL floatval 
+    CALL $floatval 
+    JUMP $SAME_TYPES
 LABEL $OP1_IS_STR
-    CALL strval    
+    CALL $strval    
+    JUMP $SAME_TYPES
 LABEL $OP1_IS_BOOL
-    CALL boolval
+    CALL $boolval
 LABEL $SAME_TYPES
     POPFRAME
     RETURN
+
 ###################################################################
 #Vraci hodnotu prevedenou do INT
 LABEL $intval
 PUSHFRAME
-DEFVAR LF@$OP
-DEFVAR LF@$TYPE_OP
-POPS LF@$OP                                 #Naplni OP
-TYPE LF@$TYPE_OP LF@$OP
-JUMPIFEQ $INTVAL_END LF@$TYPE_OP string@int              #INT se na INT nemeni
-JUMPIFEQ $INTVAL_OP_IS_FLOAT LF@$TYPE_OP string@float
-JUMPIFEQ $INTVAL_OP_IS_STR LF@$TYPE_OP string@string
-JUMPIFEQ $INTVAL_OP_IS_BOOL LF@$TYPE_OP string@bool
+CREATEFRAME
+DEFVAR TF@$OP
+DEFVAR TF@$TYPE_OP
+POPS TF@$OP                                 #Naplni OP
+TYPE TF@$TYPE_OP TF@$OP
+JUMPIFEQ $INTVAL_END TF@$TYPE_OP string@int              #INT se na INT nemeni
+JUMPIFEQ $INTVAL_OP_IS_FLOAT TF@$TYPE_OP string@float
+JUMPIFEQ $INTVAL_OP_IS_STR TF@$TYPE_OP string@string
+JUMPIFEQ $INTVAL_OP_IS_BOOL TF@$TYPE_OP string@bool
 
 LABEL $INTVAL_OP_IS_FLOAT
-    INT2FLOAT LF@$OP LF@$OP
+    FLOAT2INT TF@$OP TF@$OP
     JUMP $INTVAL_END
 
 LABEL $INTVAL_OP_IS_STR
@@ -53,39 +56,42 @@ LABEL $INTVAL_OP_IS_STR
     EXIT int@4      
     
 LABEL $INTVAL_OP_IS_BOOL
-    JUMPIFEQ $INTVAL_BOOL_IS_ZERO LF@$OP bool@false
-    PUSHS int@0                             # false == 0
+    JUMPIFNEQ $INTVAL_BOOL_IS_ZERO TF@$OP bool@false
+    PUSHS int@0
     POPFRAME
     RETURN
     LABEL $INTVAL_BOOL_IS_ZERO
     PUSHS int@1
-    POPFRAME                             # true == 1
+    POPFRAME
     RETURN
 
 LABEL $INTVAL_END
-    PUSHS LF@$OP
+    PUSHS TF@$OP
     POPFRAME
     RETURN
 ####################################################################
 #Return value converted to FLOAT
+#Return value converted to FLOAT
 LABEL $floatval
+
 PUSHFRAME
-DEFVAR LF@$OP
-DEFVAR LF@$TYPE_OP
-POPS LF@$OP
-TYPE LF@$TYPE_OP LF@$OP
-JUMPIFEQ $FLOATVAL_END LF@$TYPE_OP string@int
-JUMPIFEQ $FLOATVAL_OP_IS_INT  LF@$TYPE_OP string@int
-JUMPIFEQ $FLOATVAL_OP_IS_STR  LF@$TYPE_OP string@string
-JUMPIFEQ $FLOATVAL_OP_IS_BOOL LF@$TYPE_OP string@bool
-JUMPIFEQ $FLOATVAL_OP_IS_NULL LF@$TYPE_OP string@null
+CREATEFRAME
+DEFVAR TF@$OP
+DEFVAR TF@$TYPE_OP
+POPS TF@$OP
+TYPE TF@$TYPE_OP TF@$OP
+JUMPIFEQ $FLOATVAL_END TF@$TYPE_OP string@float
+JUMPIFEQ $FLOATVAL_OP_IS_INT  TF@$TYPE_OP string@int
+JUMPIFEQ $FLOATVAL_OP_IS_STR  TF@$TYPE_OP string@string
+JUMPIFEQ $FLOATVAL_OP_IS_BOOL TF@$TYPE_OP string@bool
+JUMPIFEQ $FLOATVAL_OP_IS_NULL TF@$TYPE_OP string@null
 
 LABEL $FLOATVAL_OP_IS_INT
-    FLOAT2INT LF@$OP LF@$OP
+    INT2FLOAT TF@$OP TF@$OP
     JUMP $FLOATVAL_END
 
 LABEL $FLOATVAL_OP_IS_BOOL
-    JUMPIFEQ $FLOATVAL_BOOL_ISN_ZERO LF@$OP bool@false      #OP == FALSE
+    JUMPIFEQ $FLOATVAL_BOOL_IS_ZERO TF@$OP bool@false      #OP == FALSE
     PUSHS float@0x1.0p+0
     POPFRAME                     
     RETURN
@@ -103,25 +109,26 @@ LABEL $FLOATVAL_OP_IS_NULL
     POPFRAME
     RETURN
 
-
 LABEL $FLOATVAL_END
-    PUSHS LF@$OP
+    PUSHS TF@$OP
     POPFRAME
     RETURN
-
 ################################################################
 #Vraci hodnotu prevedenou do STR
 LABEL $strval
+
 PUSHFRAME
-DEFVAR LF@$OP
-DEFVAR LF@$TYPE_OP
-POPS LF@$OP                                 #Naplni OP
-TYPE LF@$TYPE_OP LF@$OP
-JUMPIFEQ $STRVAL_END LF@$TYPE_OP string@string                  # str to str
-JUMPIFEQ $STRVAL_OP_IS_INT  LF@$TYPE_OP string@int
-JUMPIFEQ $STRVAL_OP_IS_FLOAT  LF@$TYPE_OP string@float
-JUMPIFEQ $STRVAL_OP_IS_BOOL LF@$TYPE_OP string@bool
-JUMPIFEQ $STRVAL_OP_IS_NULL LF@$TYPE_OP string@null
+CREATEFRAME
+
+DEFVAR TF@$OP
+DEFVAR TF@$TYPE_OP
+POPS TF@$OP
+TYPE TF@$TYPE_OP TF@$OP
+JUMPIFEQ $STRVAL_END TF@$TYPE_OP string@string
+JUMPIFEQ $STRVAL_OP_IS_INT  TF@$TYPE_OP string@int
+JUMPIFEQ $STRVAL_OP_IS_FLOAT  TF@$TYPE_OP string@float
+JUMPIFEQ $STRVAL_OP_IS_BOOL TF@$TYPE_OP string@bool
+JUMPIFEQ $STRVAL_OP_IS_NULL TF@$TYPE_OP string@null
 
 LABEL $STRVAL_OP_IS_FLOAT
 LABEL $STRVAL_OP_IS_INT
@@ -130,12 +137,12 @@ LABEL $STRVAL_OP_IS_INT
 
 
 LABEL $STRVAL_OP_IS_BOOL
-    JUMPIFEQ $STRVAL_BOOL_ISN_ZERO LF@$OP bool@false 
-    PUSHS string@1
+    JUMPIFEQ $STRVAL_BOOL_IS_ZERO TF@$OP bool@false 
+    PUSHS string@true
     POPFRAME
     RETURN
-    LABEL $STRVAL_BOOL_IS_ZERO                            #OP == FALSE
-    PUSHS string@0  
+    LABEL $STRVAL_BOOL_IS_ZERO
+    PUSHS string@false  
     POPFRAME                           
     RETURN
 
@@ -144,7 +151,7 @@ LABEL $STRVAL_OP_IS_NULL
     RETURN
 
 LABEL $STRVAL_END
-    PUSHS LF@$OP
+    PUSHS TF@$OP
     POPFRAME
     RETURN
 
@@ -152,19 +159,20 @@ LABEL $STRVAL_END
 #Vraci hodnotu prevedenou do BOOL
 LABEL $boolval
 PUSHFRAME
-DEFVAR LF@$OP
-DEFVAR LF@$TYPE_OP
-POPS LF@$OP                                 #Naplni OP
-TYPE LF@$TYPE_OP LF@$OP
+CREATEFRAME
+DEFVAR TF@$OP
+DEFVAR TF@$TYPE_OP
+POPS TF@$OP
+TYPE TF@$TYPE_OP TF@$OP
 
-JUMPIFEQ $BOOLVAL_END LF@$TYPE_OP string@bool                  # str to str
-JUMPIFEQ $BOOLVAL_OP_IS_INT  LF@$TYPE_OP string@int
-JUMPIFEQ $BOOLVAL_OP_IS_FLOAT  LF@$TYPE_OP string@float
-JUMPIFEQ $BOOLVAL_OP_IS_STR LF@$TYPE_OP string@string
-JUMPIFEQ &BOOLVAL_OP_IN_NULL LF@$TYPE_OP string@null
+JUMPIFEQ $BOOLVAL_END TF@$TYPE_OP string@bool
+JUMPIFEQ $BOOLVAL_OP_IS_INT  TF@$TYPE_OP string@int
+JUMPIFEQ $BOOLVAL_OP_IS_FLOAT  TF@$TYPE_OP string@float
+JUMPIFEQ $BOOLVAL_OP_IS_STR TF@$TYPE_OP string@string
+JUMPIFEQ &BOOLVAL_OP_IN_NULL TF@$TYPE_OP string@null
 
 LABEL $BOOLVAL_OP_IS_INT
-    JUMPIFEQ $INT_OP_IS_ZERO LF@$OP int@0
+    JUMPIFEQ $INT_OP_IS_ZERO TF@$OP int@0
     PUSHS bool@true
     POPFRAME
     RETURN
@@ -174,7 +182,7 @@ LABEL $BOOLVAL_OP_IS_INT
     RETURN
 
 LABEL $BOOLVAL_OP_IS_FLOAT
-    JUMPIFEQ $FLOAT_OP_IS_ZERO LF@$OP float@0x0.0p+0
+    JUMPIFEQ $FLOAT_OP_IS_ZERO TF@$OP float@0x0.0p+0
     PUSHS bool@true
     POPFRAME
     RETURN
@@ -184,7 +192,7 @@ LABEL $BOOLVAL_OP_IS_FLOAT
     RETURN
 
 LABEL $BOOLVAL_OP_IS_STR    
-    JUMPIFEQ $STR_OP_IS_EMPTY LF@$OP string@
+    JUMPIFEQ $STR_OP_IS_EMPTY TF@$OP string@
     PUSHS bool@true
     POPFRAME
     RETURN
@@ -199,7 +207,7 @@ LABEL &BOOLAVL_OP_IN_NULL
     RETURN
 
 LABEL $BOOLVAL_END
-    PUSHS LF@$OP
+    PUSHS TF@$OP
     POPFRAME
     RETURN
 ###############################################################
@@ -207,17 +215,13 @@ LABEL $BOOLVAL_END
 ###############################################################
 #ORD(op) => int hodnota op
 LABEL $ORD
-PUSHFRAME
 PUSHS int@0
 STRI2INTS
-POPFRAME
 RETURN
 ###############################################################
 #CHR(op) => prevod int so ascii
 LABEL $CHR
-PUSHFRAME
 INT2CHARS
-POPFRAME
 RETURN
 ###############################################################
 #COMPARE
@@ -225,65 +229,61 @@ RETURN
 #LT(op1, op2)  <
 #Vrací true/false na stack
 LABEL $LT
-PUSHFRAME
 CALL $TO_GOOD_TYPE
 LTS
-POPFRAME
 RETURN
 ###############################################################
 #GT(op1, op2)  >
 #Vrací true/false na stack
 LABEL $GT
-PUSHFRAME
 CALL $TO_GOOD_TYPE
 GTS
-POPFRAME
 RETURN
 ################################################################
 #EQ(op1, op2)   ==
 #Vrací true/false na stack
 LABEL $EQ
-PUSHFRAME
 CALL $TO_GOOD_TYPE
 EQS
-POPFRAME
 RETURN
 ###############################################################
 #LTEQ(op1, op2)  LT || EQ
 #Vrací true/false na stack
 LABEL $LTEQ
-PUSHFRAME
 CALL $TO_GOOD_TYPE
-DEFVAR LF@$OP1
-DEFVAR LF@$OP2
-DEFVAR LF@$LT_RES
-DEFVAR LF@$EQ_RES
-DEFVAR LF@$OR_RES
-POPS LF@$OP1
-POPS LF@$OP2
-LT LF@$LT_RES LF@$OP1 LF@$OP2
-EQ LF@$EQ_RES LF@$OP1 LF@$OP2
-OR LF@$OR_RES LF@$LT_RES LF@$EQ_RES
-PUSHS LF@$OR_RES
+PUSHFRAME
+CREATEFRAME
+DEFVAR TF@$OP1
+DEFVAR TF@$OP2
+DEFVAR TF@$LT_RES
+DEFVAR TF@$EQ_RES
+DEFVAR TF@$OR_RES
+POPS TF@$OP1
+POPS TF@$OP2
+LT TF@$LT_RES TF@$OP1 TF@$OP2
+EQ TF@$EQ_RES TF@$OP1 TF@$OP2
+OR TF@$OR_RES TF@$LT_RES TF@$EQ_RES
+PUSHS TF@$OR_RES
 POPFRAME
 RETURN
 ###############################################################
 #GTEQ(op1, op2)  GT || EQ
 #Vrací true/false na stack
 LABEL $GTEQ
-PUSHFRAME
 CALL $TO_GOOD_TYPE
-DEFVAR LF@$OP1
-DEFVAR LF@$OP2
-DEFVAR LF@$GT_RES
-DEFVAR LF@$EQ_RES
-DEFVAR LF@$OR_RES
-POPS LF@$OP1
-POPS LF@$OP2
-GT LF@$GT_RES LF@$OP1 LF@$OP2
-EQ LF@$EQ_RES LF@$OP1 LF@$OP2
-OR LF@$OR_RES LF@$GT_RES LF@$EQ_RES
-PUSHS LF@$OR_RES
+PUSHFRAME
+CREATEFRAME
+DEFVAR TF@$OP1
+DEFVAR TF@$OP2
+DEFVAR TF@$GT_RES
+DEFVAR TF@$EQ_RES
+DEFVAR TF@$OR_RES
+POPS TF@$OP1
+POPS TF@$OP2
+GT TF@$GT_RES TF@$OP1 TF@$OP2
+EQ TF@$EQ_RES TF@$OP1 TF@$OP2
+OR TF@$OR_RES TF@$GT_RES TF@$EQ_RES
+PUSHS TF@$OR_RES
 POPFRAME
 RETURN
 ###############################################################
@@ -297,82 +297,104 @@ RETURN
 
 #Povolené INT, FLOAT a BOOL
 LABEL $ARITMETICT_TYPE  
+
 PUSHFRAME
 CREATEFRAME
-DEFVAR TF@$op1
+
 DEFVAR TF@$op2
 DEFVAR TF@op1$type
+DEFVAR TF@$op1
 DEFVAR TF@op2$type
 
 POPS TF@$op1
 POPS TF@$op2
 TYPE TF@op1$type TF@$op1
 TYPE TF@op2$type TF@$op2
-
-JUMPIFNEQ $ART_NOT_EQL_TYPES TF@op1$type TF@op2$type
-PUSHS TF@$op1
-PUSHS TF@$op2
-JUMP $ART_END
+JUMPIFEQ $ATR_STR TF@op1$type string@string
+JUMPIFNEQ $ART_NOT_EQL_TYPES TF@op2$type string@string
+LABEL $ATR_STR
+    EXIT int@4
 
 LABEL $ART_NOT_EQL_TYPES
-JUMPIFEQ $ATR_CONVERT_OP2_TO_FLOAT TF@op1$type string@float
-JUMPIFEQ $ATR_CONVERT_OP1_TO_FLOAT TF@op2$type string@float
-JUMPIFEQ $ATR_CONVERT_OP1_FROM_BOOL TF@op1$type string@bool
-JUMPIFEQ $ATR_CONVERT_OP2_FROM_BOOL TF@op2$type string@bool
+JUMPIFEQ $ART_CONVERT_OP2_TO_FLOAT TF@op1$type string@float
+JUMPIFEQ $ART_CONVERT_OP1_TO_FLOAT TF@op2$type string@float
+JUMPIFEQ $ART_CONVERT_OP1_FROM_BOOL TF@op1$type string@bool
+JUMPIFEQ $ART_CONVERT_OP2_FROM_BOOL TF@op2$type string@bool
+PUSHS TF@$op2
+PUSHS TF@$op1
+JUMP $ART_END
 
-LABEL $ATR_CONVERT_OP1_TO_FLOAT
-    PUSHS TF@$op1
-    PUSHS TF@$op2
-    CALL $TO_GOOD_TYPE
-    JUMP $ART_END
-
-LABEL $ATR_CONVERT_OP2_TO_FLOAT
+LABEL $ART_CONVERT_OP1_TO_FLOAT
     PUSHS TF@$op2
     PUSHS TF@$op1
     CALL $TO_GOOD_TYPE
     JUMP $ART_END
 
-LABEL $ATR_CONVERT_OP1_FROM_BOOL
+LABEL $ART_CONVERT_OP2_TO_FLOAT
     PUSHS TF@$op1
     PUSHS TF@$op2
+    CALL $TO_GOOD_TYPE
+    CALL $SWITCH_IN_STACK
+    JUMP $ART_END
+
+LABEL $ART_CONVERT_OP1_FROM_BOOL
+    JUMPIFEQ $ART_BOTH_BOOL TF@op1$type TF@op2$type
+    PUSHS TF@$op2
+    PUSHS TF@$op1
     CALL $TO_GOOD_TYPE
     JUMP $ART_END
 
-LABEL $ATR_CONVERT_OP2_FROM_BOOL
-    PUSHS TF@$op2
+LABEL $ART_CONVERT_OP2_FROM_BOOL
     PUSHS TF@$op1
+    PUSHS TF@$op2
     CALL $TO_GOOD_TYPE
+    CALL $SWITCH_IN_STACK
+    JUMP $ART_END
+
+LABEL $ART_BOTH_BOOL
+    PUSHS TF@$op2
+    CALL $intval
+    PUSHS TF@$op1
+    CALL $intval
     JUMP $ART_END
 
 LABEL $ART_END
 POPFRAME
 RETURN
-
+#####################################################################
+LABEL $SWITCH_IN_STACK
+PUSHFRAME
+CREATEFRAME
+DEFVAR TF@$op1
+DEFVAR TF@$op2
+POPS TF@$op1
+POPS TF@$op2
+PUSHS TF@$op1
+PUSHS TF@$op2
+POPFRAME
+RETURN
 #####################################################################
 LABEL $MUL
-PUSHFRAME
 CALL $ARITMETICT_TYPE
 MULS
-POPFRAME
 RETURN
 #####################################################################
 LABEL $DIV
 PUSHFRAME
-CALL $ARITMETICT_TYPE
+CREATEFRAME
+CALL $floatval
+CALL $SWITCH_IN_STACK
+CALL $floatval
+CALL $SWITCH_IN_STACK
 DIVS
-POPFRAME
 RETURN
 #####################################################################
 LABEL $ADD
-PUSHFRAME
 CALL $ARITMETICT_TYPE
 ADDS
-POPFRAME
 RETURN
 #####################################################################
 LABEL $SUB
-PUSHFRAME
 CALL $ARITMETICT_TYPE
 SUBS
-POPFRAME
 RETURN
