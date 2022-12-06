@@ -15,7 +15,7 @@
 #define __GENERATOR_H__
 
 #include "./ast.h"
-#include "./built_in.h"
+#include "./builtins.h"
 #include "./decoder.h"
 #include "./encoder.h"
 #include "./label.h"
