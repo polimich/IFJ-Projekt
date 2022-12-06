@@ -11,8 +11,8 @@
 //                                                      //
 //////////////////////////////////////////////////////////
 
-#ifndef __BUILT_IN_H__
-#define __BUILT_IN_H__
+#ifndef __BUILTINS_H__
+#define __BUILTINS_H__
 
 #define GENERATOR_ADD "LABEL $ADD\
 \nCREATEFRAME\
