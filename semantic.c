@@ -55,7 +55,7 @@ semantic_type_t semantic_constant_type(ast_leaf_t* leaf)
                 new_symbol->line_number = leaf->symbol->line_number;
                 leaf->symbol = new_symbol;
 
-                new_symbol->constant_type = get_singleton("bool");
+                new_symbol->constant_type = get_singleton("float");
                 new_symbol->constant_value_float = atof(leaf->symbol->str->strval);
                 return semantic_type_float;
             } else {
@@ -64,7 +64,7 @@ semantic_type_t semantic_constant_type(ast_leaf_t* leaf)
                 new_symbol->line_number = leaf->symbol->line_number;
                 leaf->symbol = new_symbol;
 
-                new_symbol->constant_type = get_singleton("bool");
+                new_symbol->constant_type = get_singleton("int");
                 new_symbol->constant_value_int = atoi(leaf->symbol->str->strval);
                 return semantic_type_int;
             }
