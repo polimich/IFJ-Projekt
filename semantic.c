@@ -13,6 +13,15 @@
 
 #include "./semantic.h"
 
+int semantic_get_line_number(ast_node_t* node) {
+    if (node->leaf != NULL){
+        return node->leaf->symbol->line_number;
+    }
+    else{
+        return semantic_get_line_number(node->left);
+    }
+}
+
 semantic_type_t semantic_constant_type(ast_leaf_t* leaf)
 {
     if (!strcmp(leaf->symbol->str->strval, "true") || !strcmp(leaf->symbol->str->strval, "false")) {
@@ -143,15 +152,8 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
             }
             ast_function_t* function = semantic_check_id(item->leaf, function_list);
             // semantic_check_call_parameters
-            size_t min_params = 0;
 
-            for (size_t i = 0; function->parameters->parameters[i]->next != NULL; i++) {
-                if (function->parameters->parameters[i]->optional == false) {
-                    min_params++;
-                }
-            }
-
-            if (item->leaf->call_parameters->size < min_params || item->leaf->call_parameters->size > function->parameters->count) {
+            if (function->parameters->count != item->leaf->call_parameters->size) {
                 varstring_t* error_msg = varstring_init();
                 varstring_write(error_msg, "wrong number of parameters in call of function ");
                 formatter_state_t state = { 0 };
@@ -160,46 +162,41 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
                 throw_error(4, "%s", varstring_destroy(error_msg)->strval);
             }
 
+            symbol_t* string_symbol = get_symbol_by_str(symbol_type_keyword, "string");
+            symbol_t* bool_symbol = get_symbol_by_str(symbol_type_keyword, "bool");
+
             for (size_t i = 0; i < item->leaf->call_parameters->size; i++) {
                 ast_call_parameter_t* current_parameter = item->leaf->call_parameters->parameters[i];
                 semantic_type_t parameter_type = semantic_check_expression(current_parameter->node, function_list);
+                ast_parameter_t* function_parameter = function->parameters->parameters[i];
 
                 if (parameter_type != semantic_type_dynamic) {
-                    if (!function->parameters->parameters[i]->optional && current_parameter->node->leaf->symbol != get_symbol_by_str(symbol_type_keyword, "null")) {
+                    if (!function_parameter->optional && parameter_type != semantic_type_null) {
                         if (parameter_type == semantic_type_int) {
-                            if (function->parameters->parameters[i]->type != get_symbol_by_str(symbol_type_keyword, "int")) {
+                            if (function_parameter->type == string_symbol) {
                                 varstring_t* error_msg = varstring_init();
-                                varstring_write(error_msg, "int parameter type expected ");
+                                varstring_write(error_msg, "int parameter type given instead of %s ", function_parameter->type->str->strval);
                                 formatter_state_t state = { 0 };
                                 formatter_print_expression(item, &state, error_msg->stream);
-                                varstring_write(error_msg, " on line %d", item->leaf->symbol->line_number);
+                                varstring_write(error_msg, " on line %d", current_parameter->node->leaf->symbol->line_number);
                                 throw_error(4, "%s", varstring_destroy(error_msg)->strval);
                             }
                         } else if (parameter_type == semantic_type_float) {
-                            if (function->parameters->parameters[i]->type != get_symbol_by_str(symbol_type_keyword, "float")) {
+                            if (function_parameter->type == string_symbol) {
                                 varstring_t* error_msg = varstring_init();
-                                varstring_write(error_msg, "float parameter type expected ");
+                                varstring_write(error_msg, "float parameter type given instead of %s ", function_parameter->type->str->strval);
                                 formatter_state_t state = { 0 };
                                 formatter_print_expression(item, &state, error_msg->stream);
-                                varstring_write(error_msg, " on line %d", item->leaf->symbol->line_number);
+                                varstring_write(error_msg, " on line %d", current_parameter->node->leaf->symbol->line_number);
                                 throw_error(4, "%s", varstring_destroy(error_msg)->strval);
                             }
                         } else if (parameter_type == semantic_type_string) {
-                            if (function->parameters->parameters[i]->type != get_symbol_by_str(symbol_type_keyword, "string")) {
+                            if (function_parameter->type != string_symbol || function_parameter->type != bool_symbol) {
                                 varstring_t* error_msg = varstring_init();
-                                varstring_write(error_msg, "string parameter type expected ");
+                                varstring_write(error_msg, "string parameter type given instead of %s type ", function_parameter->type->str->strval);
                                 formatter_state_t state = { 0 };
                                 formatter_print_expression(item, &state, error_msg->stream);
-                                varstring_write(error_msg, " on line %d", item->leaf->symbol->line_number);
-                                throw_error(4, "%s", varstring_destroy(error_msg)->strval);
-                            }
-                        } else if (parameter_type == semantic_type_bool) {
-                            if (function->parameters->parameters[i]->type != get_symbol_by_str(symbol_type_keyword, "bool")) {
-                                varstring_t* error_msg = varstring_init();
-                                varstring_write(error_msg, "bool parameter type expected ");
-                                formatter_state_t state = { 0 };
-                                formatter_print_expression(item, &state, error_msg->stream);
-                                varstring_write(error_msg, " on line %d", item->leaf->symbol->line_number);
+                                varstring_write(error_msg, " on line %d", current_parameter->node->leaf->symbol->line_number);
                                 throw_error(4, "%s", varstring_destroy(error_msg)->strval);
                             }
                         }
@@ -216,7 +213,7 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
                 varstring_write(error_msg, "constant type expected instead of ");
                 formatter_state_t state = { 0 };
                 formatter_print_expression(item, &state, error_msg->stream);
-                varstring_write(error_msg, " on line %d", item->leaf->symbol->line_number);
+                varstring_write(error_msg, " on line %d", semantic_get_line_number(item));
                 throw_error(4, "%s", varstring_destroy(error_msg)->strval);
             }
             return const_type;

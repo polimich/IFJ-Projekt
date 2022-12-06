@@ -66,7 +66,6 @@ void generator_print_call_parameters(ast_call_parameter_list_t* list, __GEN_DRES
 void generator_print_constant(symbol_t* constant, __GEN_DREST__)
 {
     (void)data;
-    fprintf(output, "%s\n", constant->constant_type->strval);
 
     if (constant->constant_type == get_singleton("int")) {
         fprintf(output, "PUSHS int@%d\n", constant->constant_value_int);
@@ -91,20 +90,11 @@ void generator_print_function_call(ast_leaf_t* function, __GEN_DREST__)
 {
     if (function->call_parameters) {
         for (size_t i = 0; i < function->call_parameters->size; i++) {
-            symbol_t* parameter = function->call_parameters->parameters[i]->node->leaf->symbol;
-            if (parameter->type == symbol_type_constant) {
-                generator_print_constant(parameter, __GEN_CREST__);
-            } else if (parameter->type == symbol_type_local_variable) {
-                fprintf(output, "call parameter declared=%d\n", parameter->variable_is_declared); // TODO remove
-                if (parameter->variable_is_declared) {
-                    generator_print_local_variable(parameter, __GEN_CREST__);
-                } else {
-                    throw_warning(4, "parameter %s has no value or is not declared", parameter->str->strval);
-                }
-            }
+            ast_node_t* parameter = function->call_parameters->parameters[i]->node;
+            generator_print_expression(parameter, __GEN_CREST__);
         }
     }
-    fprintf(output, "CALL %s\n", generate_label(function->symbol)->strval);
+    fprintf(output, "CALL $FUNCTION$%s\n", generate_label(function->symbol)->strval);
 }
 void generator_print_expression(ast_node_t* node, __GEN_DREST__)
 {
@@ -176,7 +166,6 @@ void generator_print_loop(ast_loop_t* loop, __GEN_DREST__)
 
 void generator_print_block_item(ast_block_item_t* block_item, __GEN_DREST__)
 {
-
     if (block_item->item) {
         generator_print_statement(block_item->item, __GEN_CREST__);
     } else if (block_item->conditional) {
@@ -229,7 +218,44 @@ void generator_print_parameter_list(ast_function_t* function, __GEN_DREST__)
 {
     (void)data;
     (void)output;
-    (void)function;
+
+    for (size_t i = 0; i < function->parameters->count; i++) {
+        ast_parameter_t* param = function->parameters->parameters[i];
+        const char* func_name = generate_label(function->name->str)->strval;
+        fprintf(output, "POPS LF@%s\n", param->name->str->strval);
+        fprintf(output, "DEFVAR LF@%s$type\n", param->name->str->strval);
+        fprintf(output, "DEFVAR LF@%s$optional\n", param->name->str->strval);
+        fprintf(output, "DEFVAR LF@%s$expected_type\n", param->name->str->strval);
+        if (param->optional) {
+            fprintf(output, "MOVE LF@%s$optional bool@true\n", param->name->str->strval);
+        } else {
+            fprintf(output, "MOVE LF@%s$optional bool@false\n", param->name->str->strval);
+        }
+        if (param->type->str == get_singleton("string"))
+            fprintf(output, "MOVE LF@%s$expected_type string@string\n", param->name->str->strval);
+        else if (param->type->str == get_singleton("int"))
+            fprintf(output, "MOVE LF@%s$expected_type string@int\n", param->name->str->strval);
+        else if (param->type->str == get_singleton("float"))
+            fprintf(output, "MOVE LF@%s$expected_type string@float\n", param->name->str->strval);
+        else if (param->type->str == get_singleton("bool"))
+            fprintf(output, "MOVE LF@%s$expected_type string@bool\n", param->name->str->strval);
+        fprintf(output, "TYPE LF@%s$type LF@$n\n", param->name->str->strval);
+        fprintf(output, "JUMPIFNEQ $WRONG_TYPE$%s LF@%s$type LF@%s$expected_type\n", func_name, param->name->str->strval, param->name->str->strval);
+        fprintf(output, "JUMP $BODY$%s\n", func_name);
+        fprintf(output, "LABEL $WRONG$TYPE$%s\n", func_name);
+        if (param->type->str == get_singleton("string"))
+            fprintf(output, "PUSHS string@\n");
+        else if (param->type->str == get_singleton("int"))
+            fprintf(output, "PUSHS int@0\n");
+        else if (param->type->str == get_singleton("float"))
+            fprintf(output, "PUSHS float@0x0.0p+0\n");
+        else if (param->type->str == get_singleton("bool"))
+            fprintf(output, "PUSHS bool@false\n");
+        fprintf(output, "PUSHS LF@%s\n", param->name->str->strval);
+        fprintf(output, "CALL $TO_GOOD_TYPE\n");
+        fprintf(output, "POPS LF@%s\n", param->name->str->strval);
+        fprintf(output, "POPS LF@%s\n", param->name->str->strval);
+    }
 }
 void generator_print_variable_declarations(FILE* output, symtable_t* symtable)
 {
@@ -246,16 +272,18 @@ void generator_print_variable_declarations(FILE* output, symtable_t* symtable)
 void generator_print_function(ast_function_t* function, __GEN_DREST__)
 {
     (void)data;
-    // TODO generate label for function
-    singleton_t* label = generate_label(function);
-    fprintf(output, "LABEL $%s\n", label->strval);
+    singleton_t* label = generate_label(function->name);
+    fprintf(output, "LABEL $FUNCTION$%s\n", label->strval);
+    fprintf(output, "PUSHFRAME\n");
+    fprintf(output, "CREATEFRAME\n");
 
     generator_print_variable_declarations(output, function->symtable);
 
     generator_print_parameter_list(function, __GEN_CREST__);
-    //  generator_print_block(function->block, output);
+    fprintf(output, "LABEL $BODY$%s\n", generate_label(function)->strval);
     //   TODO generate retval
     generator_print_block(function->block, __GEN_CREST__);
+    fprintf(output, "POPFRAME\n");
     fprintf(output, "RETURN\n");
 }
 void generator_print_main(ast_function_t* function, __GEN_DREST__)
@@ -267,7 +295,6 @@ void generator_print_main(ast_function_t* function, __GEN_DREST__)
     fprintf(output, "PUSHFRAME\n");
     // define
     generator_print_variable_declarations(output, function->symtable);
-    generator_print_parameter_list(function, __GEN_CREST__);
     generator_print_block(function->block, __GEN_CREST__);
     fprintf(output, "POPFRAME\n");
     fprintf(output, "EXIT int@0\n");
@@ -325,88 +352,3 @@ void generator(ast_function_list_t* function_list, FILE* output)
     generator_print_main(main, &data, output);
     generator_print_built_in(&data, output);
 }
-
-/*
-void generate_block(ast_block_t* block)
-{
-    ast_block_item_t* statement = block->first;
-    while (statement != NULL) {
-        if (statement->item != NULL) {
-            generate_node(statement->item);
-        } else if (statement->conditional != NULL) {
-            generate_conditional(statement->conditional);
-        } else if (statement->loop != NULL) {
-            generate_loop(statement->loop);
-        } else {
-            throw_warning(10, "function empty should not happen");
-        }
-        statement = statement->next;
-    }
-    return;
-}
-
-void generate_node(ast_node_t* node)
-{
-
-    if (node->op->type == symbol_type_operator) {
-        if (node->op->str == get_singleton("+")) {
-            generate_node(node->left);
-            generate_node(node->right);
-            // TODO print code add
-
-        } else if (node->op->str == get_singleton("-")) {
-            generate_node(node->left);
-            generate_node(node->right);
-            // TODO print code sub
-        } else if (node->op->str == get_singleton("*")) {
-            generate_node(node->left);
-            generate_node(node->right);
-            // TODO print code mul
-        } else if (node->op->str == get_singleton("/")) {
-            generate_node(node->left);
-            generate_node(node->right);
-            // TODO print code div
-        } else if (node->op->str == get_singleton("<")) {
-            generate_node(node->left);
-            generate_node(node->right);
-            // TODO print code less
-        } else if (node->op->str == get_singleton(">")) {
-            generate_node(node->left);
-            generate_node(node->right);
-            // TODO print code greater
-        } else if (node->op->str == get_singleton("<=")) {
-            generate_node(node->left);
-            generate_node(node->right);
-            // TODO print code less or equal
-        } else if (node->op->str == get_singleton(">=")) {
-            generate_node(node->left);
-            generate_node(node->right);
-            // TODO print code greater or equal
-
-        } else if (node->op->str == get_singleton("==")) {
-            generate_node(node->left);
-            generate_node(node->right);
-            // TODO print code equals
-        } else if (node->op->str == get_singleton("!=")) {
-            generate_node(node->left);
-            generate_node(node->right);
-            // TODO print code not equals
-        } else if (node->op->str == get_singleton("=")) {
-            // TODO print code assign
-        } else {
-            throw_warning(10, "unknown operator, should not happen");
-        }
-        return;
-    } else if (node->op == NULL) {
-        if (node->leaf->symbol->type == symbol_type_constant) {
-            // TODO print code constant
-        } else if (node->leaf->symbol->type == symbol_type_local_variable) {
-            // TODO print code local variable
-        } else {
-            throw_warning(10, "unknown symbol, should not happen");
-        }
-    }
-}
-
-
-*/
