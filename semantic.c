@@ -182,9 +182,6 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
                     if (item->leaf->call_parameters->size != semantic_buildin_parameter_count(item->leaf)){
                         // function has wrong number of parameters
                         varstring_t* error_msg = varstring_init();
-                        // debug
-                        varstring_write(error_msg, "parameters: %zu , wanted number of parameters: %zu", item->leaf->call_parameters->size, semantic_buildin_parameter_count(item->leaf));
-                        // debug
                         varstring_write(error_msg, "wrong number of parameters in call of function ");
                         formatter_state_t state = { 0 };
                         formatter_print_leaf(item->leaf, &state, error_msg->stream);
@@ -279,16 +276,7 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
         } else if (right_type == semantic_type_dynamic) {
             return left_type;
         } else if (left_type == semantic_type_string || right_type == semantic_type_string) {
-            if (left_type == semantic_type_dynamic && right_type == semantic_type_string) {
                 return semantic_type_string;
-            } else {
-                varstring_t* error_msg = varstring_init();
-                varstring_write(error_msg, "cannot operate string with non-string  ");
-                formatter_state_t state = { 0 };
-                formatter_print_expression(item, &state, error_msg->stream);
-                varstring_write(error_msg, " on line %d", semantic_get_line_number(item));
-                throw_error(7, "%s", varstring_destroy(error_msg)->strval);
-            }
         } else if (left_type == semantic_type_int && right_type == semantic_type_float) {
             return semantic_type_float;
         } else if (left_type == semantic_type_float && right_type == semantic_type_int) {
