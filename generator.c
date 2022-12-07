@@ -71,7 +71,7 @@ void generator_print_constant(symbol_t* constant, __GEN_DREST__)
         fprintf(output, "PUSHS bool@%s\n", constant->str->strval);
     } else if (constant->constant_type == get_singleton("string")) {
         fprintf(output, "PUSHS %s\n", encoder_encode_string(decoder_decode_string(constant->str))->strval);
-    } else if (constant->constant_type == get_singleton("nil")) {
+    } else if (constant->constant_type == get_singleton("null")) {
         fprintf(output, "PUSHS nil@nil\n");
     }
 }
