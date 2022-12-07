@@ -51,7 +51,11 @@ void generator_print_return(ast_node_t* node, __GEN_DREST__)
         fprintf(output, "POPS LF@retval\n");
         fprintf(output, "PUSHS LF@retval\n");
     }
-    fprintf(output, "RETURN\n");
+    if (data->function->name == NULL) {
+        fprintf(output, "EXIT int@0\n");
+    } else {
+        fprintf(output, "RETURN\n");
+    }
 }
 void generator_print_operator(symbol_t* op, __GEN_DREST__)
 {
@@ -267,9 +271,9 @@ void generator_print_parameter_list(ast_function_t* function, __GEN_DREST__)
         else if (param->type->str == get_singleton("bool"))
             fprintf(output, "MOVE LF@%s$expected_type string@bool\n", param->name->str->strval);
         fprintf(output, "TYPE LF@%s$type LF@%s\n", param->name->str->strval, param->name->str->strval);
-        fprintf(output, "JUMPIFNEQ $WRONG_TYPE$%s LF@%s$type LF@%s$expected_type\n", func_name, param->name->str->strval, param->name->str->strval);
+        fprintf(output, "JUMPIFNEQ $WRONG_TYPE$%s$%s LF@%s$type LF@%s$expected_type\n", generate_label(param->name)->strval, func_name, param->name->str->strval, param->name->str->strval);
         fprintf(output, "JUMP $BODY$%s\n", func_name);
-        fprintf(output, "LABEL $WRONG_TYPE$%s\n", func_name);
+        fprintf(output, "LABEL $WRONG_TYPE$%s$%s\n", generate_label(param->name)->strval, func_name);
         if (param->type->str == get_singleton("string"))
             fprintf(output, "PUSHS string@\n");
         else if (param->type->str == get_singleton("int"))
