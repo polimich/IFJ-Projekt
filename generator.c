@@ -113,11 +113,14 @@ void generator_print_function_call(ast_leaf_t* function, __GEN_DREST__)
             fprintf(output, "CALL $STRLEN\n");
         } else if (function->symbol->str == get_singleton("substr")) {
             fprintf(output, "CALL $SUBSTRING\n");
-        }
-    } else
-        fprintf(output, "CALL $FUNCTION$%s\n", generate_label(function->symbol)->strval);
+        } else if (function->symbol->str == get_singleton("chr")) {
+            fprintf(output, "CALL $CHR\n");
+        } else if (function->symbol->str == get_singleton("ord")) {
+            fprintf(output, "CALL $ORD\n");
+        } else
+            fprintf(output, "CALL $FUNCTION$%s\n", generate_label(function->symbol)->strval);
+    }
 }
-
 void generator_print_expression(ast_node_t* node, __GEN_DREST__)
 {
     if (node->leaf) {
