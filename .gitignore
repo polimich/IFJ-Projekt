@@ -16,6 +16,7 @@ dkms.conf
 *.i*86
 *.idb
 *.ilk
+is_it_ok.sh
 *.ko
 *.la
 *.lib
