@@ -24,9 +24,14 @@ void generator_print_assignment(ast_node_t* node, __GEN_DREST__)
 }
 void generator_print_return(ast_node_t* node, __GEN_DREST__)
 {
-    generator_print_expression(node, __GEN_CREST__);
     ast_function_t* function = data->function;
-    if (function->returned_type) {
+    generator_print_expression(node, __GEN_CREST__);
+    if ((node->leaf->symbol->str == get_singleton("null")) && !(function->returned_type->str == get_singleton("void")) && !function->returned_type_optional) {
+        throw_error(6, "Returned null from non void function");
+    }
+    if (function->returned_type && !(function->returned_type->str == get_singleton("void")) && (node->leaf->symbol->str == get_singleton("null")) && !(function->returned_type_optional)) {
+        throw_error(6, "Returned value from void function");
+    } else if (function->returned_type) {
         fprintf(output, "POPS LF@retval\n");
         fprintf(output, "TYPE LF@retval$type LF@retval\n");
         if (function->returned_type_optional) {
@@ -298,9 +303,9 @@ void generator_print_variable_declarations(FILE* output, symtable_t* symtable)
     if (symtable->rnode) {
         generator_print_variable_declarations(output, symtable->rnode);
     }
-    if (symtable->symbol->type == symbol_type_local_variable)
-        fprintf(stderr, "%s\n", symtable->symbol->str->strval);
-    fprintf(output, "DEFVAR LF@%s\n", symtable->symbol->str->strval);
+    if (symtable->symbol->type == symbol_type_local_variable) {
+        fprintf(output, "DEFVAR LF@%s\n", symtable->symbol->str->strval);
+    }
 }
 
 void generator_print_function(ast_function_t* function, __GEN_DREST__)
