@@ -56,11 +56,11 @@ semantic_type_t semantic_constant_type(ast_leaf_t* leaf)
         } else {
             // number
             int float_flag = 0;
-            for (size_t i = 0; i < strlen(leaf->symbol->str->strval); ++i) {
-                if (i > 0 && i < strlen(leaf->symbol->str->strval) && leaf->symbol->str->strval[i] == '.') {
-                    float_flag = 1;
-                } else if (!isdigit(leaf->symbol->str->strval[i])) {
-                    return semantic_type_dynamic;
+            for (size_t i = 0; i < strlen(leaf->symbol->str->strval); i++) {
+                if (i > 0) {
+                    if (leaf->symbol->str->strval[i] == '.' || leaf->symbol->str->strval[i] == 'e' || leaf->symbol->str->strval[i] == 'E') {
+                        float_flag = 1;
+                    }
                 }
             }
             if (float_flag) {
@@ -69,7 +69,7 @@ semantic_type_t semantic_constant_type(ast_leaf_t* leaf)
 
                 new_symbol->line_number = leaf->symbol->line_number;
                 leaf->symbol = new_symbol;
-
+                
                 new_symbol->constant_type = get_singleton("float");
                 new_symbol->constant_value_float = atof(leaf->symbol->str->strval);
                 return semantic_type_float;
@@ -238,7 +238,7 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
                 varstring_write(error_msg, "cannot operate string with non-string  ");
                 formatter_state_t state = { 0 };
                 formatter_print_expression(item, &state, error_msg->stream);
-                varstring_write(error_msg, " on line %d", item->leaf->symbol->line_number);
+                varstring_write(error_msg, " on line %d", semantic_get_line_number(item));
                 throw_error(7, "%s", varstring_destroy(error_msg)->strval);
             }
         } else if (left_type == semantic_type_int && right_type == semantic_type_float) {
@@ -284,7 +284,6 @@ void semantic_check_block(ast_block_t* block, ast_function_list_t* function_list
 
 void semantic_check(ast_function_list_t* function_list)
 {
-    // TODO check for keyword in function name?
     ast_function_list_t* main_function = function_list;
     ast_function_list_t* current_function = function_list->next;
 
