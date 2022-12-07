@@ -26,6 +26,8 @@ void generator_print_return(ast_node_t* node, __GEN_DREST__)
 {
     generator_print_expression(node, __GEN_CREST__);
     fprintf(output, "POPS LF@retval\n");
+    fprintf(output, "PUSHS LF@retval\n");
+    fprintf(output, "RETURN\n");
 }
 void generator_print_operator(symbol_t* op, __GEN_DREST__)
 {
@@ -82,24 +84,36 @@ void generator_print_local_variable(symbol_t* local_variable, __GEN_DREST__)
 }
 void generator_print_function_call(ast_leaf_t* function, __GEN_DREST__)
 {
+
     if (function->call_parameters) {
+
         for (size_t i = 0; i < function->call_parameters->size; i++) {
             ast_node_t* parameter = function->call_parameters->parameters[i]->node;
             generator_print_expression(parameter, __GEN_CREST__);
         }
     }
-    fprintf(output, "CALL $FUNCTION$%s\n", generate_label(function->symbol)->strval);
+    // built in check
+    if (function->symbol->str == get_singleton("write")) {
+        for (size_t i = 0; i < function->call_parameters->size; i++)
+            fprintf(output, "CALL $WRITE\n");
+    } else
+        fprintf(output, "CALL $FUNCTION$%s\n", generate_label(function->symbol)->strval);
 }
 void generator_print_expression(ast_node_t* node, __GEN_DREST__)
 {
     if (node->leaf) {
-        // when there is constant or var in expression push to stack
-        if (node->leaf->symbol->type == symbol_type_constant) {
-            generator_print_constant(node->leaf->symbol, __GEN_CREST__);
-        } else if (node->leaf->symbol->type == symbol_type_local_variable || true) {
-            generator_print_local_variable(node->leaf->symbol, __GEN_CREST__);
+        if (node->leaf->call_parameters) {
+            // when there is constant or var in expression push to stack
+            // fprintf(stderr, "%d", node->leaf->symbol->type); // TODO
+
+            if (node->leaf->symbol->type == symbol_type_constant) {
+                generator_print_constant(node->leaf->symbol, __GEN_CREST__);
+            } else if (node->leaf->symbol->type == symbol_type_local_variable || true) {
+                generator_print_local_variable(node->leaf->symbol, __GEN_CREST__);
+            }
         }
     } else {
+
         generator_print_expression(node->left, __GEN_CREST__);
         generator_print_expression(node->right, __GEN_CREST__);
         generator_print_operator(node->op, __GEN_CREST__);
@@ -181,21 +195,6 @@ void generator_print_block(ast_block_t* block, __GEN_DREST__)
     }
 }
 
-void generator_print_call_parameter(ast_call_parameter_t* parameter, __GEN_DREST__)
-{
-    (void)data;
-    (void)output;
-    (void)parameter;
-    // TODO - call parameter - add to stack
-}
-
-void generator_print_call_parameter_list(ast_call_parameter_list_t* call_parameter_list, __GEN_DREST__)
-{
-    for (size_t i = 0; i < call_parameter_list->size; ++i) {
-        generator_print_call_parameter(call_parameter_list->parameters[i], __GEN_CREST__);
-    }
-}
-
 void generator_print_parameter_list(ast_function_t* function, __GEN_DREST__)
 {
     (void)data;
@@ -251,8 +250,9 @@ void generator_print_function(ast_function_t* function, __GEN_DREST__)
 {
     singleton_t* label = generate_label(function->name);
     fprintf(output, "LABEL $FUNCTION$%s\n", label->strval);
-    fprintf(output, "PUSHFRAME\n");
     fprintf(output, "CREATEFRAME\n");
+    fprintf(output, "PUSHFRAME\n");
+
     fprintf(output, "DEFVAR LF@retval\n");
 
     generator_print_variable_declarations(output, function->symtable);
@@ -270,8 +270,8 @@ void generator_print_function(ast_function_t* function, __GEN_DREST__)
         fprintf(output, "PUSHS string@\n");
     fprintf(output, "PUSHS LF@retval\n");
     fprintf(output, "CALL $TO_GOOD_TYPE\n");
-    fprintf(output, "POPS LF@retval\n");
     fprintf(output, "POPFRAME\n");
+    fprintf(output, "CREATEFRAME\n");
     fprintf(output, "RETURN\n");
 }
 void generator_print_main(ast_function_t* function, __GEN_DREST__)
@@ -300,21 +300,20 @@ void generator_print_function_list(ast_function_list_t* function_list, __GEN_DRE
     }
 }
 
-void generator_print_built_in(__GEN_DREST__)
+void generator_print_mandatory_functions(__GEN_DREST__)
 {
     (void)data;
-    if (data->add_generated) {
-        fprintf(output, GENERATOR_ADD);
-    }
-    if (data->sub_generated) {
-        fprintf(output, GENERATOR_SUB);
-    }
-    if (data->mul_generated) {
-        fprintf(output, GENERATOR_MUL);
-    }
-    if (data->div_generated) {
-        fprintf(output, GENERATOR_DIV);
-    }
+    fprintf(output, GEN_ARIT_CHECK);
+    fprintf(output, GEN_ARIT_FUNC);
+    fprintf(output, GEN_ASCII_FUN);
+    fprintf(output, GEN_BOOLVAL);
+    fprintf(output, GEN_FLOATVAL);
+    fprintf(output, GEN_INTVAL);
+    fprintf(output, GEN_LOGIC_FUN);
+    fprintf(output, GEN_STACK_SWITCH);
+    fprintf(output, GEN_STRVAL);
+    fprintf(output, GEN_TO_GOOD_TYPE);
+    fprintf(output, GEN_WRITE);
 }
 
 void generator(ast_function_list_t* function_list, FILE* output)
@@ -339,5 +338,5 @@ void generator(ast_function_list_t* function_list, FILE* output)
         generator_print_function_list(function_list->next, &data, output);
     }
     generator_print_main(main, &data, output);
-    generator_print_built_in(&data, output);
+    generator_print_mandatory_functions(&data, output);
 }

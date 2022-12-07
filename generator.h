@@ -49,10 +49,11 @@ void generator_print_block_item(ast_block_item_t* item, __GEN_DREST__);
 void generator_print_block(ast_block_t* block, __GEN_DREST__);
 void generator_print_call_parameter(ast_call_parameter_t* param, __GEN_DREST__);
 void generator_print_call_parameter_list(ast_call_parameter_list_t* list, __GEN_DREST__);
-void generator_print_parameter(ast_parameter_t* param, __GEN_DREST__);
 void generator_print_parameter_list(ast_function_t* function, __GEN_DREST__);
 void generator_print_function(ast_function_t* fn, __GEN_DREST__);
 void generator_print_function_list(ast_function_list_t* list, __GEN_DREST__);
+void generator_print_main(ast_function_t* function, __GEN_DREST__);
+void generator_print_mandatory_functions(__GEN_DREST__);
 
 void generator(ast_function_list_t* list, FILE* output);
 
