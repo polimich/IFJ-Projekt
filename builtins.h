@@ -336,6 +336,26 @@
 \n    EXIT int@4\
 \n\
 \nLABEL $ART_NOT_EQL_TYPES\
+\n\
+\nJUMPIFNEQ $IS_op2_NULL TF@op1$type string@nil\
+\n    PUSHS TF@$op1\
+\n    PUSHFRAME\
+\n    CALL $intval\
+\n    POPFRAME\
+\n    POPS TF@$op1\
+\n    TYPE TF@op1$type TF@$op1\
+\n\
+\nLABEL $IS_op2_NULL\
+\nJUMPIFNEQ $OP2_NON_NULL TF@op2$type string@ni\
+\nLABEL $op2_to_int\
+\n    PUSHS TF@$op2\
+\n    PUSHFRAME\
+\n    CALL $intval\
+\n    POPFRAME\
+\n    POPS TF@$op2\
+\n    TYPE TF@op2$type TF@$op2\
+\nLABEL $OP2_NON_NULL\
+\n\
 \nJUMPIFEQ $ART_CONVERT_OP2_TO_FLOAT TF@op1$type string@float\
 \nJUMPIFEQ $ART_CONVERT_OP1_TO_FLOAT TF@op2$type string@float\
 \nJUMPIFEQ $ART_CONVERT_OP1_FROM_BOOL TF@op1$type string@bool\
