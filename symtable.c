@@ -171,6 +171,8 @@ void symtable_generate(__STB_DREST__)
     symtable_insert(get_symbol_by_str(symbol_type_function_identifier, "write"), table);
     symtable_insert(get_symbol_by_str(symbol_type_function_identifier, "strlen"), table);
     symtable_insert(get_symbol_by_str(symbol_type_function_identifier, "substring"), table);
+    symtable_insert(get_symbol_by_str(symbol_type_function_identifier, "ord"), table);
+    symtable_insert(get_symbol_by_str(symbol_type_function_identifier, "chr"), table);
 
     for (ast_function_list_t* L = list; L != NULL; L = L->next) {
         ast_function_t* F = L->item;
