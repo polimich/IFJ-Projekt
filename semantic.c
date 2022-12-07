@@ -180,8 +180,8 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
                 // buid-in function
                 size_t parameter_count = item->leaf->call_parameters->size;
                 size_t write_value = -1;
-                if (item->leaf->call_parameters->size != semantic_buildin_parameter_count(item->leaf)){
-                    if (semantic_buildin_parameter_count(item->leaf) != write_value){
+                if (semantic_buildin_parameter_count(item->leaf) != write_value){
+                    if (item->leaf->call_parameters->size != semantic_buildin_parameter_count(item->leaf)){
                         // function has wrong number of parameters
                         varstring_t* error_msg = varstring_init();
                         varstring_write(error_msg, "wrong number of parameters in call of function ");
