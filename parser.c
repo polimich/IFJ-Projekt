@@ -743,6 +743,8 @@ ast_function_t* parser_read_function(utf8_readstream_t* input)
         fn->returned_type = parser_read_type(input);
     } else {
         throw_warning(2, "The function %s should specify a return type.", fn->name->str->strval);
+
+        fn->returned_type = reserved.keyword_void;
     }
 
     fn->block = parser_read_block(input);
