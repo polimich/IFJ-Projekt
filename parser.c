@@ -638,6 +638,10 @@ symbol_t* parser_read_type(utf8_readstream_t* input)
         parser_read_next_singleton(input);
 
         return reserved.keyword_string;
+    } else if (parser_next_singleton == reserved.keyword_void->str) {
+        parser_read_next_singleton(input);
+
+        return reserved.keyword_void;
     } else {
         throw_warning(2, "Invalid type: '%s'", parser_next_singleton->strval);
 
