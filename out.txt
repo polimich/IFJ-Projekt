@@ -1,0 +1,20 @@
+.IFJcode22
+JUMP $$main
+LABEL label_102577350:
+PUSHFRAME
+DEFVAR LF@retval
+MOVE LF@retval string@nil
+DEFVAR LF@retval_type
+MOVE LF@retval_type string@int
+DEFVAR LF@retval_tmp
+DEFVAR LF@$n
+MOVE  LF@$n LF@0
+DEFVAR LF@$n$type
+DEFVAR LF@$n$tmp
+TYPE LF@$n$type LF@$n
+JUMPIFEQ $notint LF@$n$type string@int
+MOVE LF@$n$tmp int@0x0p+0
+JUMP $endtypecheck$n
+LABEL $notint$nfactorial
+
+LABEL $$main

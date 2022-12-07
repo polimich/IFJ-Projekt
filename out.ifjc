@@ -1,0 +1,10 @@
+LABEL $READS
+CREATEFRAME
+DEFVAR TF@%retval
+DEFVAR TF@%type
+POPS TF@%type
+READ TF@%retval TF@%type
+PUSHS TF@%retval
+CREATEFRAME
+RETURN
+

@@ -289,7 +289,7 @@
 \nJUMPIFEQ $FLOATVAL_OP_IS_INT  TF@$TYPE_OP string@int\
 \nJUMPIFEQ $FLOATVAL_OP_IS_STR  TF@$TYPE_OP string@string\
 \nJUMPIFEQ $FLOATVAL_OP_IS_BOOL TF@$TYPE_OP string@bool\
-\nJUMPIFEQ $FLOATVAL_OP_IS_NULL TF@$TYPE_OP string@null\
+\nJUMPIFEQ $FLOATVAL_OP_IS_NULL TF@$TYPE_OP string@nil\
 \n\
 \nLABEL $FLOATVAL_OP_IS_INT\
 \n    INT2FLOAT TF@$OP TF@$OP\
@@ -334,7 +334,7 @@
 \nJUMPIFEQ $STRVAL_OP_IS_INT  TF@$TYPE_OP string@int\
 \nJUMPIFEQ $STRVAL_OP_IS_FLOAT  TF@$TYPE_OP string@float\
 \nJUMPIFEQ $STRVAL_OP_IS_BOOL TF@$TYPE_OP string@bool\
-\nJUMPIFEQ $STRVAL_OP_IS_NULL TF@$TYPE_OP string@null\
+\nJUMPIFEQ $STRVAL_OP_IS_NULL TF@$TYPE_OP string@nil\
 \n\
 \nLABEL $STRVAL_OP_IS_FLOAT\
 \nLABEL $STRVAL_OP_IS_INT\
@@ -375,7 +375,7 @@
 \nJUMPIFEQ $BOOLVAL_OP_IS_INT  TF@$TYPE_OP string@int\
 \nJUMPIFEQ $BOOLVAL_OP_IS_FLOAT  TF@$TYPE_OP string@float\
 \nJUMPIFEQ $BOOLVAL_OP_IS_STR TF@$TYPE_OP string@string\
-\nJUMPIFEQ $BOOLVAL_OP_IN_NULL TF@$TYPE_OP string@null\
+\nJUMPIFEQ $BOOLVAL_OP_IN_NULL TF@$TYPE_OP string@nil\
 \n\
 \nLABEL $BOOLVAL_OP_IS_INT\
 \n    JUMPIFEQ $INT_OP_IS_ZERO TF@$OP int@0\
@@ -618,4 +618,78 @@
 \nCREATEFRAME\
 \nRETURN\n"
 
+#define GEN_READS "LABEL $READS\
+\nCREATEFRAME\
+\nDEFVAR TF@retval\
+\nREAD TF@retval string@string\
+\nPUSHS TF@retval\
+\nCREATEFRAME\
+\nRETURN\n"
+
+#define GEN_READI "LABEL $READI\
+\nCREATEFRAME\
+\nDEFVAR TF@retval\
+\nREAD TF@retval string@int\
+\nPUSHS TF@retval\
+\nCREATEFRAME\
+\nRETURN\n"
+
+#define GEN_READF "LABEL $READF\
+\nCREATEFRAME\
+\nDEFVAR TF@retval\
+\nREAD TF@retval string@float\
+\nPUSHS TF@retval\
+\nCREATEFRAME\
+\nRETURN\n"
+
+#define GEN_SUBSTR "LABEL $SUBSTRING\
+\nCREATEFRAME\
+\nDEFVAR TF@$full_string\
+\nPOPS TF@$full_string\
+\nDEFVAR TF@$first_idx\
+\nPOPS TF@$first_idx\
+\nDEFVAR TF@$last_idx\
+\nPOPS TF@$last_idx\
+\nDEFVAR TF@$test\
+\nDEFVAR TF@$SUB_STR\
+\nGT TF@$test TF@$first_idx int@0\
+\nJUMPIFEQ $BAD_END_SUBSTR TF@$test bool@false\
+\nGT TF@$test TF@$last_idx TF@$first_idx\
+\nJUMPIFEQ $BAD_END_SUBSTR TF@$test bool@false\
+\nDEFVAR TF@$len\
+\nSUB TF@$len TF@$last_idx TF@$first_idx\
+\nGT TF@$test TF@$len int@0\
+\nJUMPIFEQ $BAD_END_SUBSTR TF@$test bool@false\
+\n    PUSHS TF@$full_string\
+\n    CALL $STRLEN\
+\n    DEFVAR TF@$STR_LEN\
+\n    POPS TF@$STR_LEN\
+\n    GT TF@$test TF@$STR_LEN TF@$len\
+\n    JUMPIFEQ $BAD_END_SUBSTR TF@$test bool@false\
+\n        GT TF@$test TF@$STR_LEN TF@$last_idx\
+\n     JUMPIFEQ $BAD_END_SUBSTR TF@$test bool@false\
+\nMOVE TF@$SUB_STR string@\
+\nDEFVAR TF@$char\
+\nLABEL $STR_FOR\
+\n    GETCHAR  TF@$char TF@$full_string TF@$first_idx\
+\n    CONCAT TF@$SUB_STR TF@$SUB_STR TF@$char\
+\n    ADD TF@$first_idx TF@$first_idx int@1\
+\n    JUMPIFNEQ $STR_FOR TF@$first_idx TF@$last_idx\
+\nPUSHS TF@$SUB_STR\
+\nCREATEFRAME\
+\nRETURN\
+\nLABEL $BAD_END_SUBSTR\
+\nMOVE TF@$SUB_STR nil@nil\
+\nPUSHS TF@$SUB_STR\
+\nCREATEFRAME\
+\nRETURN\n"
+
+#define GEN_STRLEN "LABEL $STRLEN\
+\nCREATEFRAME\
+\nDEFVAR TF@$LEN_OF_STR\
+\nPOPS TF@$LEN_OF_STR\
+\nSTRLEN TF@$LEN_OF_STR TF@$LEN_OF_STR\
+\nPUSHS TF@$LEN_OF_STR\
+\nCREATEFRAME\
+\nRETURN\n"
 #endif
