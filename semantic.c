@@ -13,42 +13,67 @@
 
 #include "./semantic.h"
 
-int semantic_get_line_number(ast_node_t* node) {
-    if (node->leaf != NULL){
+int semantic_get_line_number(ast_node_t* node)
+{
+    if (node->leaf != NULL) {
         return node->leaf->symbol->line_number;
-    }
-    else{
+    } else {
         return semantic_get_line_number(node->left);
     }
 }
 
-size_t semantic_buildin_parameter_count(ast_leaf_t* leaf){
-    if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "reads")) return 0; 
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "readf")) return 0;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "readi")) return 0;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "strval")) return 1;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "floatval")) return 1;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "intval")) return 1;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "strlen")) return 1;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "ord")) return 1;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "chr")) return 1;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "substring")) return 3;
-    else return 10;  // can not happen
+size_t semantic_buildin_parameter_count(ast_leaf_t* leaf)
+{
+    if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "reads"))
+        return 0;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "readf"))
+        return 0;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "readi"))
+        return 0;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "strval"))
+        return 1;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "floatval"))
+        return 1;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "intval"))
+        return 1;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "strlen"))
+        return 1;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "ord"))
+        return 1;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "chr"))
+        return 1;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "substring"))
+        return 3;
+    else
+        return 10; // can not happen
 }
 
-semantic_type_t semantic_buildin_return_type (ast_leaf_t* leaf){
-    if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "write")) return semantic_type_null;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "reads")) return semantic_type_string;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "readf")) return semantic_type_float;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "readi")) return semantic_type_int;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "strval")) return semantic_type_string;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "floatval")) return semantic_type_float;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "intval")) return semantic_type_int;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "strlen")) return semantic_type_int;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "ord")) return semantic_type_int;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "chr")) return semantic_type_string;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "substring")) return semantic_type_string;
-    else return semantic_type_dynamic;  // can not happen
+semantic_type_t semantic_buildin_return_type(ast_leaf_t* leaf)
+{
+    if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "write"))
+        return semantic_type_null;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "reads"))
+        return semantic_type_string;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "readf"))
+        return semantic_type_float;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "readi"))
+        return semantic_type_int;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "strval"))
+        return semantic_type_string;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "floatval"))
+        return semantic_type_float;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "intval"))
+        return semantic_type_int;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "strlen"))
+        return semantic_type_int;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "ord"))
+        return semantic_type_int;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "chr"))
+        return semantic_type_string;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "substring"))
+        return semantic_type_string;
+    else
+        return semantic_type_dynamic; // can not happen
 }
 
 semantic_type_t semantic_constant_type(ast_leaf_t* leaf)
@@ -98,7 +123,7 @@ semantic_type_t semantic_constant_type(ast_leaf_t* leaf)
 
                 new_symbol->line_number = leaf->symbol->line_number;
                 leaf->symbol = new_symbol;
-                
+
                 new_symbol->constant_type = get_singleton("float");
                 new_symbol->constant_value_float = atof(leaf->symbol->str->strval);
                 return semantic_type_float;
@@ -179,7 +204,7 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
                 // buid-in function
                 size_t parameter_count = item->leaf->call_parameters->size;
                 if (item->leaf->symbol != get_symbol_by_str(symbol_type_function_identifier, "write")) {
-                    if (item->leaf->call_parameters->size != semantic_buildin_parameter_count(item->leaf)){
+                    if (item->leaf->call_parameters->size != semantic_buildin_parameter_count(item->leaf)) {
                         // function has wrong number of parameters
                         varstring_t* error_msg = varstring_init();
                         varstring_write(error_msg, "wrong number of parameters in call of function ");
@@ -190,7 +215,7 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
                     }
                 }
 
-                for (size_t i = 0; i < parameter_count; i++){
+                for (size_t i = 0; i < parameter_count; i++) {
                     semantic_check_expression(item->leaf->call_parameters->parameters[i]->node, function_list);
                 }
                 return semantic_buildin_return_type(item->leaf);
@@ -276,7 +301,7 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
         } else if (right_type == semantic_type_dynamic) {
             return left_type;
         } else if (left_type == semantic_type_string || right_type == semantic_type_string) {
-                return semantic_type_string;
+            return semantic_type_string;
         } else if (left_type == semantic_type_int && right_type == semantic_type_float) {
             return semantic_type_float;
         } else if (left_type == semantic_type_float && right_type == semantic_type_int) {
