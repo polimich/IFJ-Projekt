@@ -30,6 +30,7 @@ modules.order
 *.o
 *.obj
 *.out
+out.*
 output
 *.pch
 *.pdb
