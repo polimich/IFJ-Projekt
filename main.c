@@ -13,6 +13,21 @@
 
 #include "./main.h"
 
+void dump_symtable(symtable_t* t)
+{
+    if (t->lnode) {
+        dump_symtable(t->lnode);
+    }
+
+    if (t->symbol) {
+        fprintf(stderr, "\t%s\n", t->symbol->str->strval);
+    }
+
+    if (t->rnode) {
+        dump_symtable(t->rnode);
+    }
+}
+
 int main(const int argc, const char* argv[])
 {
     mem_init();
@@ -41,6 +56,12 @@ int main(const int argc, const char* argv[])
 
     if ((argc > 1) && (strcmp(argv[1], "fmt") == 0)) {
         formatter(list, "    ", stdout);
+    } else if ((argc > 1) && (strcmp(argv[1], "dumplst") == 0)) {
+        for (ast_function_list_t* l = list; l != NULL; l = l->next) {
+            fprintf(stderr, "%s:\n", l->item->name ? l->item->name->str->strval : "main");
+
+            dump_symtable(l->item->symtable);
+        }
     } else {
         generator(list, stdout);
     }
