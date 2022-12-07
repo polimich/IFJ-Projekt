@@ -29,6 +29,7 @@ modules.order
 *.o
 *.obj
 *.out
+output
 *.pch
 *.pdb
 scanner
@@ -36,6 +37,8 @@ scanner
 *.so.*
 *.su
 test.php
+test/
+testcode
 .tmp_versions/
 .vscode/
 *.x86_64
