@@ -251,12 +251,9 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
                 utf8_putc(c, identifier->stream);
                 lexer_state = lexer_state_number_exponent_sign;
                 continue;
-            } else if (c == 32) {
-                throw_error(1, "Bad float format");
-                continue;
             } else {
-                putback(c);
-                return varstring_destroy(identifier);
+                throw_error(1, "Invalid float %s on line %d", varstring_destroy(identifier)->strval, line_counter);
+                continue;
             }
         case lexer_state_number_exponent_sign:
             if (utf8_isdigit(c)) {
