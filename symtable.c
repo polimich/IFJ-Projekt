@@ -80,8 +80,6 @@ symbol_t* symtable_get(singleton_t* str, symtable_t* table)
             if (table->lookup[index]->str == str) {
                 return table->lookup[index]->symbol;
             }
-        } else {
-            return NULL;
         }
 
         if (table->str == str) {
