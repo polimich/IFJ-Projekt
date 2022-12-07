@@ -4,12 +4,12 @@
 //                                                      //
 //    Autoři: xlukas18, xmedri01, xpoliv07, xschie03    //
 //                                                      //
-//    Implementace ast.h: xpoliv07, xmedri01            //
-//    Datum: 26. 11. 2022 - x. 11. 2022                 // TODleaO
+//    Implementace generator.h: xpoliv07, xmedri01      //
+//    Datum: 26. 11. 2022 - 7. 12. 2022                 //
 //                                                      //
 //    Licence: GNU GPL v3, nebo pozdější                //
 //                                                      //
-/////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
 
 #ifndef __GENERATOR_H__
 #define __GENERATOR_H__
