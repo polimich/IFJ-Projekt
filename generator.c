@@ -92,13 +92,32 @@ void generator_print_function_call(ast_leaf_t* function, __GEN_DREST__)
             generator_print_expression(parameter, __GEN_CREST__);
         }
     }
-    // built in check
-    if (function->symbol->str == get_singleton("write")) {
-        for (size_t i = 0; i < function->call_parameters->size; i++)
-            fprintf(output, "CALL $WRITE\n");
+
+    if (function->symbol->fn == NULL) {
+        if (function->symbol->str == get_singleton("write")) {
+            for (size_t i = 0; i < function->call_parameters->size; i++)
+                fprintf(output, "CALL $WRITE\n");
+        } else if (function->symbol->str == get_singleton("reads")) {
+            fprintf(output, "CALL $READS\n");
+        } else if (function->symbol->str == get_singleton("readi")) {
+            fprintf(output, "CALL $READI\n");
+        } else if (function->symbol->str == get_singleton("readf")) {
+            fprintf(output, "CALL $READF\n");
+        } else if (function->symbol->str == get_singleton("floatval")) {
+            fprintf(output, "CALL $floatval\n");
+        } else if (function->symbol->str == get_singleton("intval")) {
+            fprintf(output, "CALL $intval\n");
+        } else if (function->symbol->str == get_singleton("strval")) {
+            fprintf(output, "CALL $strval\n");
+        } else if (function->symbol->str == get_singleton("strlen")) {
+            fprintf(output, "CALL $STRLEN\n");
+        } else if (function->symbol->str == get_singleton("substr")) {
+            fprintf(output, "CALL $SUBSTRING\n");
+        }
     } else
         fprintf(output, "CALL $FUNCTION$%s\n", generate_label(function->symbol)->strval);
 }
+
 void generator_print_expression(ast_node_t* node, __GEN_DREST__)
 {
     if (node->leaf) {
