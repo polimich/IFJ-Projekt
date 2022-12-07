@@ -23,32 +23,31 @@ int semantic_get_line_number(ast_node_t* node) {
 }
 
 size_t semantic_buildin_parameter_count(ast_leaf_t* leaf){
-    if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "write")) return -1;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "reads")) return 0; 
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "readf")) return 0;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "readi")) return 0;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "strval")) return 1;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "floatval")) return 1;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "intval")) return 1;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "strlen")) return 1;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "ord")) return 1;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "chr")) return 1;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "substring")) return 3;
-    else return 0;  // can not happen
+    if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "reads")) return 0; 
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "readf")) return 0;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "readi")) return 0;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "strval")) return 1;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "floatval")) return 1;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "intval")) return 1;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "strlen")) return 1;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "ord")) return 1;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "chr")) return 1;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "substring")) return 3;
+    else return 10;  // can not happen
 }
 
 semantic_type_t semantic_buildin_return_type (ast_leaf_t* leaf){
-    if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "write")) return semantic_type_null;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "reads")) return semantic_type_string;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "readf")) return semantic_type_float;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "readi")) return semantic_type_int;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "strval")) return semantic_type_string;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "floatval")) return semantic_type_float;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "intval")) return semantic_type_int;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "strlen")) return semantic_type_int;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "ord")) return semantic_type_int;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "chr")) return semantic_type_string;
-    else if (leaf->symbol == get_symbol_by_str(symbol_type_keyword, "substring")) return semantic_type_string;
+    if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "write")) return semantic_type_null;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "reads")) return semantic_type_string;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "readf")) return semantic_type_float;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "readi")) return semantic_type_int;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "strval")) return semantic_type_string;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "floatval")) return semantic_type_float;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "intval")) return semantic_type_int;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "strlen")) return semantic_type_int;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "ord")) return semantic_type_int;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "chr")) return semantic_type_string;
+    else if (leaf->symbol == get_symbol_by_str(symbol_type_function_identifier, "substring")) return semantic_type_string;
     else return semantic_type_dynamic;  // can not happen
 }
 
@@ -183,6 +182,9 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
                     if (item->leaf->call_parameters->size != semantic_buildin_parameter_count(item->leaf)){
                         // function has wrong number of parameters
                         varstring_t* error_msg = varstring_init();
+                        // debug
+                        varstring_write(error_msg, "parameters: %zu , wanted number of parameters: %zu", item->leaf->call_parameters->size, semantic_buildin_parameter_count(item->leaf));
+                        // debug
                         varstring_write(error_msg, "wrong number of parameters in call of function ");
                         formatter_state_t state = { 0 };
                         formatter_print_leaf(item->leaf, &state, error_msg->stream);
