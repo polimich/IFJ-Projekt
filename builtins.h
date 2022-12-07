@@ -530,7 +530,6 @@
 
 #define GEN_CONCAT "#Concatenation of two strings\
 \nLABEL $CONCAT\
-\nPUSHFRAME\
 \nCREATEFRAME\
 \nDEFVAR TF@$op1\
 \nDEFVAR TF@$op2\
@@ -547,5 +546,4 @@
 \nCONCAT TF@$op1 TF@$op1 TF@$op2\
 \nPUSHS TF@$op1\
 \nCREATEFRAME\
-\nPOPFRAME\
 \nRETURN\n"
