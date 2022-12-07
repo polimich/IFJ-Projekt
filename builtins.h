@@ -14,170 +14,6 @@
 #ifndef __BUILTINS_H__
 #define __BUILTINS_H__
 
-#define GENERATOR_ADD "LABEL $ADD\
-\nCREATEFRAME\
-\nDEFVAR TF@op1\
-\nDEFVAR TF@op2\
-\nDEFVAR TF@op1$type\
-\nDEFVAR TF@op2$type\
-\nDEFVAR TF@op1$tmp\
-\nDEFVAR TF@op2$tmp\
-\nPOPS TF@op1\
-\nPOPS TF@op2\
-\nTYPE TF@op1$type TF@op1\
-\nTYPE TF@op2$type TF@op2\
-\nJUMPIFNEQ $ADD_NOT_EQL_TYPES TF@op1$type TF@op2$type\
-\nLABEL $ADD_OK\
-\nPUSHS TF@op1\
-\nPUSHS TF@op2\
-\nADDS\
-\nJUMP $ADD_END\
-\nLABEL $ADD_NOT_EQL_TYPES\
-\nJUMPIFEQ $ADD_OP1_FLOAT TF@op1$type string@float\
-\nJUMPIFEQ $ADD_OP1_INT TF@op1$type string@int\
-\nJUMP $ADD_ERROR\
-\nLABEL $ADD_OP1_FLOAT\
-\nJUMPIFEQ $ADD_CONVERT_OP2_2_FLOAT TF@op2$type string@int\
-\nJUMP $ADD_ERROR\
-\nLABEL $ADD_OP1_INT\
-\nJUMPIFEQ $ADD_CONVERT_OP2_2_INT TF@op2$type string@float\
-\nJUMP $ADD_ERROR\
-\nLABEL $ADD_CONVERT_OP2_2_FLOAT\
-\nINT2FLOAT TF@op2$tmp TF@op2\
-\nMOVE TF@op2 TF@op2$tmp\
-\nJUMP $ADD_OK\
-\nLABEL $ADD_CONVERT_OP2_2_INT\
-\nINT2FLOAT TF@op1$tmp TF@op1\
-\nMOVE TF@op1 TF@op1$tmp\
-\nJUMP $ADD_OK\
-\nLABEL $ADD_ERROR\
-\nEXIT int@4\
-\nLABEL $ADD_END\
-\nRETURN\n"
-
-#define GENERATOR_SUB "LABEL $SUB\
-\nCREATEFRAME\
-\nDEFVAR TF@op1\
-\nDEFVAR TF@op2\
-\nDEFVAR TF@op1$type\
-\nDEFVAR TF@op2$type\
-\nDEFVAR TF@op1$tmp\
-\nDEFVAR TF@op2$tmp\
-\nPOPS TF@op1\
-\nPOPS TF@op2\
-\nTYPE TF@op1$type TF@op1\
-\nTYPE TF@op2$type TF@op2\
-\nJUMPIFNEQ $SUB_NOT_EQL_TYPES TF@op1$type TF@op2$type\
-\nLABEL $SUB_OK\
-\nPUSHS TF@op1\
-\nPUSHS TF@op2\
-\nSUBS\
-\nJUMP $SUB_END\
-\nLABEL $SUB_NOT_EQL_TYPES\
-\nJUMPIFEQ $SUB_OP1_FLOAT TF@op1$type string@float\
-\nJUMPIFEQ $SUB_OP1_INT TF@op1$type string@int\
-\nJUMP $SUB_ERROR\
-\nLABEL $SUB_OP1_FLOAT\
-\nJUMPIFEQ $SUB_CONVERT_OP2_2_FLOAT TF@op2$type string@int\
-\nJUMP $SUB_ERROR\
-\nLABEL $SUB_OP1_INT\
-\nJUMPIFEQ $SUB_CONVERT_OP2_2_INT TF@op2$type string@float\
-\nJUMP $SUB_ERROR\
-\nLABEL $SUB_CONVERT_OP2_2_FLOAT\
-\nINT2FLOAT TF@op2$tmp TF@op2\
-\nMOVE TF@op2 TF@op2$tmp\
-\nJUMP $SUB_OK\
-\nLABEL $SUB_CONVERT_OP2_2_INT\
-\nINT2FLOAT TF@op1$tmp TF@op1\
-\nMOVE TF@op1 TF@op1$tmp\
-\nJUMP $SUB_OK\
-\nLABEL $SUB_ERROR\
-\nEXIT int@4\
-\nLABEL $SUB_END\
-\nRETURN\n"
-
-#define GENERATOR_MUL "LABEL $MUL\
-\nCREATEFRAME\
-\nDEFVAR TF@op1\
-\nDEFVAR TF@op2\
-\nDEFVAR TF@op1$type\
-\nDEFVAR TF@op2$type\
-\nDEFVAR TF@op1$tmp\
-\nDEFVAR TF@op2$tmp\
-\nPOPS TF@op1\
-\nPOPS TF@op2\
-\nTYPE TF@op1$type TF@op1\
-\nTYPE TF@op2$type TF@op2\
-\nJUMPIFNEQ $MUL_NOT_EQL_TYPES TF@op1$type TF@op2$type\
-\nLABEL $MUL_OK\
-\nPUSHS TF@op1\
-\nPUSHS TF@op2\
-\nMULS\
-\nJUMP $MUL_END\
-\nLABEL $MUL_NOT_EQL_TYPES\
-\nJUMPIFEQ $MUL_OP1_FLOAT TF@op1$type string@float\
-\nJUMPIFEQ $MUL_OP1_INT TF@op1$type string@int\
-\nJUMP $MUL_ERROR\
-\nLABEL $MUL_OP1_FLOAT\
-\nJUMPIFEQ $MUL_CONVERT_OP2_2_FLOAT TF@op2$type string@int\
-\nJUMP $MUL_ERROR\
-\nLABEL $MUL_OP1_INT\
-\nJUMPIFEQ $MUL_CONVERT_OP2_2_INT TF@op2$type string@float\
-\nJUMP $MUL_ERROR\
-\nLABEL $MUL_CONVERT_OP2_2_FLOAT\
-\nINT2FLOAT TF@op2$tmp TF@op2\
-\nMOVE TF@op2 TF@op2$tmp\
-\nJUMP $MUL_OK\
-\nLABEL $MUL_CONVERT_OP2_2_INT\
-\nINT2FLOAT TF@op1$tmp TF@op1\
-\nMOVE TF@op1 TF@op1$tmp\
-\nJUMP $MUL_OK\
-\nLABEL $MUL_ERROR\
-\nEXIT int@4\
-\nLABEL $MUL_END\
-\nRETURN\n"
-
-#define GENERATOR_DIV "LABEL $DIV\
-\nCREATEFRAME\
-\nDEFVAR TF@op1\
-\nDEFVAR TF@op2\
-\nDEFVAR TF@op1$type\
-\nDEFVAR TF@op2$type\
-\nDEFVAR TF@op1$tmp\
-\nDEFVAR TF@op2$tmp\
-\nPOPS TF@op1\
-\nPOPS TF@op2\
-\nTYPE TF@op1$type TF@op1\
-\nTYPE TF@op2$type TF@op2\
-\nJUMPIFNEQ $DIV_NOT_EQL_TYPES TF@op1$type TF@op2$type\
-\nLABEL $DIV_OK\
-\nPUSHS TF@op1\
-\nPUSHS TF@op2\
-\nDIVS\
-\nJUMP $DIV_END\
-\nLABEL $DIV_NOT_EQL_TYPES\
-\nJUMPIFEQ $DIV_OP1_FLOAT TF@op1$type string@float\
-\nJUMPIFEQ $DIV_OP1_INT TF@op1$type string@int\
-\nJUMP $DIV_ERROR\
-\nLABEL $DIV_OP1_FLOAT\
-\nJUMPIFEQ $DIV_CONVERT_OP2_2_FLOAT TF@op2$type string@int\
-\nJUMP $DIV_ERROR\
-\nLABEL $DIV_OP1_INT\
-\nJUMPIFEQ $DIV_CONVERT_OP2_2_INT TF@op2$type string@float\
-\nJUMP $DIV_ERROR\
-\nLABEL $DIV_CONVERT_OP2_2_FLOAT\
-\nINT2FLOAT TF@op2$tmp TF@op2\
-\nMOVE TF@op2 TF@op2$tmp\
-\nJUMP $DIV_OK\
-\nLABEL $DIV_CONVERT_OP2_2_INT\
-\nINT2FLOAT TF@op1$tmp TF@op1\
-\nMOVE TF@op1 TF@op1$tmp\
-\nJUMP $DIV_OK\
-\nLABEL $DIV_ERROR\
-\nEXIT int@4\
-\nLABEL $DIV_END\
-\nRETURN\n"
-
 #define GENERATOR_TO_GOOD_TYPE "LABEL $TO_GOOD_TYPE\
 \nPUSHFRAME\
 \nDEFVAR LF@$VAL_OP1\
@@ -368,5 +204,418 @@
     \nSTRI2INTS\
     \nPOPFRAME\
     \nRETURN"
+
+#define GEN_TO_GOOD_TYPE "LABEL $TO_GOOD_TYPE\
+\nCREATEFRAME\
+\nDEFVAR TF@$VAL_OP1\
+\nDEFVAR TF@$VAL_OP2\
+\nDEFVAR TF@$CONVERT_OP2\
+\nPOPS TF@$VAL_OP2\
+\nPOPS TF@$VAL_OP1\
+\nDEFVAR TF@$OP1_TYPE\
+\nDEFVAR TF@$OP2_TYPE\
+\nTYPE TF@$OP1_TYPE TF@$VAL_OP1\
+\nTYPE TF@$OP2_TYPE TF@$VAL_OP2\
+\nPUSHS TF@$VAL_OP1\
+\nPUSHS TF@$VAL_OP2\
+\nJUMPIFEQ $SAME_TYPES TF@$OP1_TYPE TF@$OP2_TYPE\
+\nJUMPIFEQ $OP1_IS_INT TF@$OP1_TYPE string@int\
+\nJUMPIFEQ $OP1_IS_FLOAT TF@$OP1_TYPE string@float\
+\nJUMPIFEQ $OP1_IS_STR TF@$OP1_TYPE string@string\
+\nJUMPIFEQ $OP1_IS_BOOL TF@$OP1_TYPE string@bool\
+\nLABEL $OP1_IS_INT\
+\n    CALL $intval\
+\n    JUMP $SAME_TYPES\
+\nLABEL $OP1_IS_FLOAT\
+\n    CALL $floatval\
+\n    JUMP $SAME_TYPES\
+\nLABEL $OP1_IS_STR\
+\n    CALL $strval\
+\n    JUMP $SAME_TYPES\
+\nLABEL $OP1_IS_BOOL\
+\n    CALL $boolval\
+\nLABEL $SAME_TYPES\
+\n    CREATEFRAME\
+\n    RETURN\n"
+#define GEN_INTVAL "################################################################## #\
+\n #Vraci hodnotu prevedenou do INT\
+\nLABEL $intval\
+\n\
+\nCREATEFRAME\
+\nDEFVAR TF @$OP\
+\nDEFVAR TF @$TYPE_OP\
+\nPOPS TF @$OP #Naplni OP\
+\nTYPE TF @$TYPE_OP TF @$OP\
+\nJUMPIFEQ $INTVAL_END TF @$TYPE_OP string @ int #INT se na INT nemeni\
+\nJUMPIFEQ $INTVAL_OP_IS_FLOAT TF @$TYPE_OP string @ float\
+\nJUMPIFEQ $INTVAL_OP_IS_STR TF @$TYPE_OP string @string\
+\nJUMPIFEQ $INTVAL_OP_IS_BOOL TF @$TYPE_OP string @ bool\
+\n\
+\nLABEL $INTVAL_OP_IS_FLOAT\
+\n FLOAT2INT TF @$OP TF @$OP\
+\n JUMP $INTVAL_END\
+\n\
+\nLABEL $INTVAL_OP_IS_STR\
+\n #UNSUPPORT TYPE\
+\n EXIT int @4      \
+\n    \
+\nLABEL $INTVAL_OP_IS_BOOL\
+\n JUMPIFNEQ $INTVAL_BOOL_IS_ZERO TF @$OP bool @false\
+\n PUSHS int @0\
+\n CREATEFRAME\
+\n RETURN\
+\n LABEL $INTVAL_BOOL_IS_ZERO\
+\n PUSHS int @1\
+\n CREATEFRAME\
+\n RETURN\
+\n\
+\nLABEL $INTVAL_END\
+\n PUSHS TF @$OP\
+\n CREATEFRAME\
+\n RETURN \n"
+
+#define GEN_FLOATVAL "####################################################################\
+\n#Return value converted to FLOAT\
+\n#Return value converted to FLOAT\
+\nLABEL $floatval\
+\n\
+\n\
+\nCREATEFRAME\
+\nDEFVAR TF@$OP\
+\nDEFVAR TF@$TYPE_OP\
+\nPOPS TF@$OP\
+\nTYPE TF@$TYPE_OP TF@$OP\
+\nJUMPIFEQ $FLOATVAL_END TF@$TYPE_OP string@float\
+\nJUMPIFEQ $FLOATVAL_OP_IS_INT  TF@$TYPE_OP string@int\
+\nJUMPIFEQ $FLOATVAL_OP_IS_STR  TF@$TYPE_OP string@string\
+\nJUMPIFEQ $FLOATVAL_OP_IS_BOOL TF@$TYPE_OP string@bool\
+\nJUMPIFEQ $FLOATVAL_OP_IS_NULL TF@$TYPE_OP string@null\
+\n\
+\nLABEL $FLOATVAL_OP_IS_INT\
+\n    INT2FLOAT TF@$OP TF@$OP\
+\n    JUMP $FLOATVAL_END\
+\n\
+\nLABEL $FLOATVAL_OP_IS_BOOL\
+\n    JUMPIFEQ $FLOATVAL_BOOL_IS_ZERO TF@$OP bool@false      #OP == FALSE\
+\n    PUSHS float@0x1.0p+0\
+\n    CREATEFRAME                     \
+\n    RETURN\
+\n    LABEL $FLOATVAL_BOOL_IS_ZERO                            #OP != FALSE\
+\n    PUSHS float@0x0.0p+0\
+\n    CREATEFRAME\
+\n    RETURN\
+\n\
+\nLABEL $FLOATVAL_OP_IS_STR      \
+\n#Unsupport type\
+\n    EXIT int@4\
+\n\
+\nLABEL $FLOATVAL_OP_IS_NULL\
+\n    PUSHS float@0x0.0p+0\
+\n    CREATEFRAME\
+\n    RETURN\
+\n\
+\nLABEL $FLOATVAL_END\
+\n    PUSHS TF@$OP\
+\n    CREATEFRAME\
+\n    RETURN\n"
+
+#define GEN_STRVAL "################################################################\
+\n#Vraci hodnotu prevedenou do STR\
+\nLABEL $strval\
+\n\
+\n\
+\nCREATEFRAME\
+\n\
+\nDEFVAR TF@$OP\
+\nDEFVAR TF@$TYPE_OP\
+\nPOPS TF@$OP\
+\nTYPE TF@$TYPE_OP TF@$OP\
+\nJUMPIFEQ $STRVAL_END TF@$TYPE_OP string@string\
+\nJUMPIFEQ $STRVAL_OP_IS_INT  TF@$TYPE_OP string@int\
+\nJUMPIFEQ $STRVAL_OP_IS_FLOAT  TF@$TYPE_OP string@float\
+\nJUMPIFEQ $STRVAL_OP_IS_BOOL TF@$TYPE_OP string@bool\
+\nJUMPIFEQ $STRVAL_OP_IS_NULL TF@$TYPE_OP string@null\
+\n\
+\nLABEL $STRVAL_OP_IS_FLOAT\
+\nLABEL $STRVAL_OP_IS_INT\
+\n#UNSUPPORT TYPE\
+\n    EXIT int@4\
+\n\
+\n\
+\nLABEL $STRVAL_OP_IS_BOOL\
+\n    JUMPIFEQ $STRVAL_BOOL_IS_ZERO TF@$OP bool@false \
+\n    PUSHS string@true\
+\n    CREATEFRAME\
+\n    RETURN\
+\n    LABEL $STRVAL_BOOL_IS_ZERO\
+\n    PUSHS string@false  \
+\n    CREATEFRAME                           \
+\n    RETURN\
+\n\
+\nLABEL $STRVAL_OP_IS_NULL\
+\n    PUSHS string@\
+\n    RETURN\
+\n\
+\nLABEL $STRVAL_END\
+\n    PUSHS TF@$OP\
+\n    CREATEFRAME\
+\n    RETURN\n"
+
+#define GEN_BOOLVAL "##########################################################\
+\n#Vraci hodnotu prevedenou do BOOL\
+\nLABEL $boolval\
+\n\
+\nCREATEFRAME\
+\nDEFVAR TF@$OP\
+\nDEFVAR TF@$TYPE_OP\
+\nPOPS TF@$OP\
+\nTYPE TF@$TYPE_OP TF@$OP\
+\n\
+\nJUMPIFEQ $BOOLVAL_END TF@$TYPE_OP string@bool\
+\nJUMPIFEQ $BOOLVAL_OP_IS_INT  TF@$TYPE_OP string@int\
+\nJUMPIFEQ $BOOLVAL_OP_IS_FLOAT  TF@$TYPE_OP string@float\
+\nJUMPIFEQ $BOOLVAL_OP_IS_STR TF@$TYPE_OP string@string\
+\nJUMPIFEQ $BOOLVAL_OP_IN_NULL TF@$TYPE_OP string@null\
+\n\
+\nLABEL $BOOLVAL_OP_IS_INT\
+\n    JUMPIFEQ $INT_OP_IS_ZERO TF@$OP int@0\
+\n    PUSHS bool@true\
+\n    CREATEFRAME\
+\n    RETURN\
+\n    LABEL $INT_OP_IS_ZERO\
+\n    PUSHS bool@false\
+\n    CREATEFRAME\
+\n    RETURN\
+\n\
+\nLABEL $BOOLVAL_OP_IS_FLOAT\
+\n    JUMPIFEQ $FLOAT_OP_IS_ZERO TF@$OP float@0x0.0p+0\
+\n    PUSHS bool@true\
+\n    CREATEFRAME\
+\n    RETURN\
+\n    LABEL $FLOAT_OP_IS_ZERO\
+\n    PUSHS bool@false\
+\n    CREATEFRAME\
+\n    RETURN\
+\n\
+\nLABEL $BOOLVAL_OP_IS_STR    \
+\n    JUMPIFEQ $STR_OP_IS_EMPTY TF@$OP string@\
+\n    PUSHS bool@true\
+\n    CREATEFRAME\
+\n    RETURN\
+\n    LABEL $STR_OP_IS_EMPTY\
+\n    PUSHS bool@false\
+\n    CREATEFRAME\
+\n    RETURN\
+\n\
+\nLABEL $BOOLVAL_OP_IN_NULL\
+\n    PUSHS bool@false\
+\n    CREATEFRAME\
+\n    RETURN\
+\n\
+\nLABEL $BOOLVAL_END\
+\n    PUSHS TF@$OP\
+\n    CREATEFRAME\
+\n    RETURN\n"
+
+#define GEN_ASCII_FUN "\n###############################################################\
+\n#ORD & CHR\
+\n###############################################################\
+\n#ORD(op) => char to ascii int \
+\nLABEL $ORD\
+\nPUSHS int@0\
+\nSTRI2INTS\
+\nRETURN\
+\n###############################################################\
+\n#CHR(op) => ascii int to chr\
+\nLABEL $CHR\
+\nINT2CHARS\
+\nRETURN\n"
+
+#define GEN_LOGIC_FUN "###############################################################\
+\n#COMPARE\
+\n###############################################################\
+\n#LT(op1, op2)  <\
+\n#Vrací true/false na stack\
+\nLABEL $LT\
+\nCALL $TO_GOOD_TYPE\
+\nLTS\
+\nRETURN\
+\n###############################################################\
+\n#GT(op1, op2)  >\
+\n#Vrací true/false na stack\
+\nLABEL $GT\
+\nCALL $TO_GOOD_TYPE\
+\nGTS\
+\nRETURN\
+\n################################################################\
+\n#EQ(op1, op2)   ==\
+\n#Vrací true/false na stack\
+\nLABEL $EQ\
+\nCALL $TO_GOOD_TYPE\
+\nEQS\
+\nRETURN\
+\n###############################################################\
+\n#LTEQ(op1, op2)  LT || EQ\
+\n#Vrací true/false na stack\
+\nLABEL $LTEQ\
+\nCALL $TO_GOOD_TYPE\
+\n\
+\nCREATEFRAME\
+\nDEFVAR TF@$OP1\
+\nDEFVAR TF@$OP2\
+\nDEFVAR TF@$LT_RES\
+\nDEFVAR TF@$EQ_RES\
+\nDEFVAR TF@$OR_RES\
+\nPOPS TF@$OP1\
+\nPOPS TF@$OP2\
+\nLT TF@$LT_RES TF@$OP1 TF@$OP2\
+\nEQ TF@$EQ_RES TF@$OP1 TF@$OP2\
+\nOR TF@$OR_RES TF@$LT_RES TF@$EQ_RES\
+\nPUSHS TF@$OR_RES\
+\nCREATEFRAME\
+\nRETURN\
+\n###############################################################\
+\n#GTEQ(op1, op2)  GT || EQ\
+\n#Vrací true/false na stack\
+\nLABEL $GTEQ\
+\nCALL $TO_GOOD_TYPE\
+\n\
+\nCREATEFRAME\
+\nDEFVAR TF@$OP1\
+\nDEFVAR TF@$OP2\
+\nDEFVAR TF@$GT_RES\
+\nDEFVAR TF@$EQ_RES\
+\nDEFVAR TF@$OR_RES\
+\nPOPS TF@$OP1\
+\nPOPS TF@$OP2\
+\nGT TF@$GT_RES TF@$OP1 TF@$OP2\
+\nEQ TF@$EQ_RES TF@$OP1 TF@$OP2\
+\nOR TF@$OR_RES TF@$GT_RES TF@$EQ_RES\
+\nPUSHS TF@$OR_RES\
+\nCREATEFRAME\
+\nRETURN\n"
+
+#define GEN_ARIT_CHECK "\n###############################################################\
+\n#ARITMETIC\
+\n###############################################################\
+\n\
+\n#funkce kontroluje a pripadne nastavuje typy tak \
+\n#aby se s nimi dali provézt aritemtické operace\
+\n#ARITMETICT_TYPE(op1, op2)\
+\n#op1, op2 mohou být typ int, float, bool\
+\n\
+\n#Povolené INT, FLOAT a BOOL\
+\nLABEL $ARITMETICT_TYPE  \
+\n\
+\n\
+\nCREATEFRAME\
+\n\
+\nDEFVAR TF@$op2\
+\nDEFVAR TF@op1$type\
+\nDEFVAR TF@$op1\
+\nDEFVAR TF@op2$type\
+\n\
+\nPOPS TF@$op1\
+\nPOPS TF@$op2\
+\nTYPE TF@op1$type TF@$op1\
+\nTYPE TF@op2$type TF@$op2\
+\nJUMPIFEQ $ATR_STR TF@op1$type string@string\
+\nJUMPIFNEQ $ART_NOT_EQL_TYPES TF@op2$type string@string\
+\nLABEL $ATR_STR\
+\n    EXIT int@4\
+\n\
+\nLABEL $ART_NOT_EQL_TYPES\
+\nJUMPIFEQ $ART_CONVERT_OP2_TO_FLOAT TF@op1$type string@float\
+\nJUMPIFEQ $ART_CONVERT_OP1_TO_FLOAT TF@op2$type string@float\
+\nJUMPIFEQ $ART_CONVERT_OP1_FROM_BOOL TF@op1$type string@bool\
+\nJUMPIFEQ $ART_CONVERT_OP2_FROM_BOOL TF@op2$type string@bool\
+\nPUSHS TF@$op2\
+\nPUSHS TF@$op1\
+\nJUMP $ART_END\
+\n\
+\nLABEL $ART_CONVERT_OP1_TO_FLOAT\
+\n    PUSHS TF@$op2\
+\n    PUSHS TF@$op1\
+\n    CALL $TO_GOOD_TYPE\
+\n    JUMP $ART_END\
+\n\
+\nLABEL $ART_CONVERT_OP2_TO_FLOAT\
+\n    PUSHS TF@$op1\
+\n    PUSHS TF@$op2\
+\n    CALL $TO_GOOD_TYPE\
+\n    CALL $SWITCH_IN_STACK\
+\n    JUMP $ART_END\
+\n\
+\nLABEL $ART_CONVERT_OP1_FROM_BOOL\
+\n    JUMPIFEQ $ART_BOTH_BOOL TF@op1$type TF@op2$type\
+\n    PUSHS TF@$op2\
+\n    PUSHS TF@$op1\
+\n    CALL $TO_GOOD_TYPE\
+\n    JUMP $ART_END\
+\n\
+\nLABEL $ART_CONVERT_OP2_FROM_BOOL\
+\n    PUSHS TF@$op1\
+\n    PUSHS TF@$op2\
+\n    CALL $TO_GOOD_TYPE\
+\n    CALL $SWITCH_IN_STACK\
+\n    JUMP $ART_END\
+\n\
+\nLABEL $ART_BOTH_BOOL\
+\n    PUSHS TF@$op2\
+\n    CALL $intval\
+\n    PUSHS TF@$op1\
+\n    CALL $intval\
+\n    JUMP $ART_END\
+\n\
+\nLABEL $ART_END\
+\nCREATEFRAME\
+\nRETURN\n"
+
+#define GEN_STACK_SWITCH "\n#####################################################################\
+\nLABEL $SWITCH_IN_STACK\
+\n\
+\nCREATEFRAME\
+\nDEFVAR TF@$op1\
+\nDEFVAR TF@$op2\
+\nPOPS TF@$op1\
+\nPOPS TF@$op2\
+\nPUSHS TF@$op1\
+\nPUSHS TF@$op2\
+\nCREATEFRAME\
+\nRETURN"
+
+#define GEN_ARIT_FUNC "#####################################################################\
+\nLABEL $MUL\
+\nCALL $ARITMETICT_TYPE\
+\nMULS\
+\nRETURN\
+\n#####################################################################\
+\nLABEL $DIV\
+\n\
+\nCREATEFRAME\
+\nCALL $floatval\
+\nCALL $SWITCH_IN_STACK\
+\nCALL $floatval\
+\nCALL $SWITCH_IN_STACK\
+\nDIVS\
+\nRETURN\
+\n#####################################################################\
+\nLABEL $ADD\
+\nCALL $ARITMETICT_TYPE\
+\nADDS\
+\nRETURN\
+\n#####################################################################\
+\nLABEL $SUB\
+\nCALL $ARITMETICT_TYPE\
+\nSUBS\
+\nRETURN\n"
+
+#define GEN_WRITE "LABEL $WRITE\
+\nCREATEFRAME\
+\nDEFVAR TF@wr\
+\nPOPS TF@wr\
+\nWRITE TF@wr\
+\nCREATEFRAME\
+\nRETURN\n"
 
 #endif
