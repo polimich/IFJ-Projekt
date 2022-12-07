@@ -30,6 +30,7 @@ typedef struct generator_data_t {
     bool sub_generated;
     bool mul_generated;
     bool div_generated;
+    ast_function_t* function;
 } generator_data_t;
 
 void generator_print_constant(symbol_t* constant, __GEN_DREST__);
