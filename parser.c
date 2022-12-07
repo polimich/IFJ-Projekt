@@ -551,6 +551,10 @@ ast_block_item_t* parser_read_block_item(utf8_readstream_t* input)
     if (parser_next_singleton == reserved.keyword_return->str) {
         parser_read_next_singleton(input); // discard 'return'
         item->is_return_statement = true;
+
+        if (parser_next_singleton == operators.semicolon->str) {
+            parser_stash_singleton(get_singleton("null"));
+        }
     }
 
     if (parser_next_singleton == reserved.keyword_if->str) {
