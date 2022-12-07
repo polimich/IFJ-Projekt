@@ -84,7 +84,7 @@ JUMPIFEQ $FLOATVAL_END TF@$TYPE_OP string@float
 JUMPIFEQ $FLOATVAL_OP_IS_INT  TF@$TYPE_OP string@int
 JUMPIFEQ $FLOATVAL_OP_IS_STR  TF@$TYPE_OP string@string
 JUMPIFEQ $FLOATVAL_OP_IS_BOOL TF@$TYPE_OP string@bool
-JUMPIFEQ $FLOATVAL_OP_IS_NULL TF@$TYPE_OP string@null
+JUMPIFEQ $FLOATVAL_OP_IS_NULL TF@$TYPE_OP string@nil
 
 LABEL $FLOATVAL_OP_IS_INT
     INT2FLOAT TF@$OP TF@$OP
@@ -128,7 +128,7 @@ JUMPIFEQ $STRVAL_END TF@$TYPE_OP string@string
 JUMPIFEQ $STRVAL_OP_IS_INT  TF@$TYPE_OP string@int
 JUMPIFEQ $STRVAL_OP_IS_FLOAT  TF@$TYPE_OP string@float
 JUMPIFEQ $STRVAL_OP_IS_BOOL TF@$TYPE_OP string@bool
-JUMPIFEQ $STRVAL_OP_IS_NULL TF@$TYPE_OP string@null
+JUMPIFEQ $STRVAL_OP_IS_NULL TF@$TYPE_OP string@nil
 
 LABEL $STRVAL_OP_IS_FLOAT
 LABEL $STRVAL_OP_IS_INT
@@ -169,7 +169,7 @@ JUMPIFEQ $BOOLVAL_END TF@$TYPE_OP string@bool
 JUMPIFEQ $BOOLVAL_OP_IS_INT  TF@$TYPE_OP string@int
 JUMPIFEQ $BOOLVAL_OP_IS_FLOAT  TF@$TYPE_OP string@float
 JUMPIFEQ $BOOLVAL_OP_IS_STR TF@$TYPE_OP string@string
-JUMPIFEQ &BOOLVAL_OP_IN_NULL TF@$TYPE_OP string@null
+JUMPIFEQ &BOOLVAL_OP_IN_NULL TF@$TYPE_OP string@nil
 
 LABEL $BOOLVAL_OP_IS_INT
     JUMPIFEQ $INT_OP_IS_ZERO TF@$OP int@0
@@ -397,4 +397,50 @@ RETURN
 LABEL $SUB
 CALL $ARITMETICT_TYPE
 SUBS
+RETURN
+#####################################################################
+#SUBSTRING(str, idx, ldx)
+#idx - index zacatku substr
+#ldx - posledni index substr
+LABEL $SUBSTRING
+PUSHFRAME
+CREATEFRAME
+DEFVAR TF@$full_string
+POPS TF@$full_string
+DEFVAR TF@$first_idx
+POPS TF@$first_idx
+DEFVAR TF@$last_idx
+POPS TF@$last_idx
+DEFVAR TF@$test
+DEFVAR TF@$SUB_STR
+GT TF@$test TF@$first_idx int@0
+JUMPIFEQ $BAD_END_SUBSTR TF@$test bool@false
+GT TF@$test TF@$last_idx TF@$first_idx
+JUMPIFEQ $BAD_END_SUBSTR TF@$test bool@false
+DEFVAR TF@$len
+SUB TF@$len TF@$last_idx TF@$first_idx
+GT TF@$test TF@$len int@0
+JUMPIFEQ $BAD_END_SUBSTR TF@$test bool@false
+    PUSHS TF@$full_string
+    CALL $STRLEN
+    DEFVAR TF@$STR_LEN
+    POPS TF@$STR_LEN
+    GT TF@$test TF@$STR_LEN TF@$len
+    JUMPIFEQ $BAD_END_SUBSTR TF@$test bool@false
+        GT TF@$test TF@$STR_LEN TF@$last_idx
+     JUMPIFEQ $BAD_END_SUBSTR TF@$test bool@false
+MOVE TF@$SUB_STR string@
+DEFVAR TF@$char
+LABEL $STR_FOR
+    GETCHAR  TF@$char TF@$full_string TF@$first_idx
+    CONCAT TF@$SUB_STR TF@$SUB_STR TF@$char
+    ADD TF@$first_idx TF@$first_idx int@1
+    JUMPIFNEQ $STR_FOR TF@$first_idx TF@$last_idx
+PUSHS TF@$SUB_STR
+POPFRAME
+RETURN
+LABEL $BAD_END_SUBSTR
+MOVE TF@$SUB_STR nil@nil
+PUSHS TF@$SUB_STR
+POPFRAME
 RETURN
