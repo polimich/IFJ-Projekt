@@ -39,5 +39,8 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
 semantic_type_t semantic_return_type(ast_function_t* function);
 ast_function_t* semantic_check_id(ast_leaf_t* leaf, ast_function_list_t* function_list);
 semantic_type_t semantic_constant_type(ast_leaf_t* leaf);
+semantic_type_t semantic_buildin_return_type(ast_leaf_t* leaf);
+size_t semantic_buildin_parameter_count(ast_leaf_t* leaf);
+int semantic_get_line_number(ast_node_t* node);
 
 #endif
