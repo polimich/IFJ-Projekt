@@ -284,14 +284,16 @@ void generator_print_function(ast_function_t* function, __GEN_DREST__)
     generator_print_parameter_list(function, __GEN_CREST__);
     fprintf(output, "LABEL $BODY$%s\n", label->strval);
     generator_print_block(function->block, __GEN_CREST__);
-    if (function->returned_type->str == get_singleton("int"))
-        fprintf(output, "PUSHS int@0\n");
-    else if (function->returned_type->str == get_singleton("float"))
-        fprintf(output, "PUSHS float@0x0.0p+0\n");
-    else if (function->returned_type->str == get_singleton("bool"))
-        fprintf(output, "PUSHS bool@false\n");
-    else if (function->returned_type->str == get_singleton("string"))
-        fprintf(output, "PUSHS string@\n");
+    if (function->returned_type) {
+        if (function->returned_type->str == get_singleton("int"))
+            fprintf(output, "PUSHS int@0\n");
+        else if (function->returned_type->str == get_singleton("float"))
+            fprintf(output, "PUSHS float@0x0.0p+0\n");
+        else if (function->returned_type->str == get_singleton("bool"))
+            fprintf(output, "PUSHS bool@false\n");
+        else if (function->returned_type->str == get_singleton("string"))
+            fprintf(output, "PUSHS string@\n");
+    }
     fprintf(output, "PUSHS LF@retval\n");
     fprintf(output, "CALL $TO_GOOD_TYPE\n");
     fprintf(output, "POPFRAME\n");
