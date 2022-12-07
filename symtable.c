@@ -162,6 +162,8 @@ STB_PROCESS_DECLARE(block)
 void symtable_generate(__STB_DREST__)
 {
     // add builting functions
+    symtable_insert(get_symbol_by_str(symbol_type_function_identifier, "chr"), table);
+    symtable_insert(get_symbol_by_str(symbol_type_function_identifier, "ord"), table);
     symtable_insert(get_symbol_by_str(symbol_type_function_identifier, "floatval"), table);
     symtable_insert(get_symbol_by_str(symbol_type_function_identifier, "intval"), table);
     symtable_insert(get_symbol_by_str(symbol_type_function_identifier, "strval"), table);
