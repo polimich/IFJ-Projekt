@@ -320,7 +320,7 @@ void generator_print_function(ast_function_t* function, __GEN_DREST__)
 void generator_print_main(ast_function_t* function, __GEN_DREST__)
 {
     (void)data;
-
+    data->function = function;
     fprintf(output, "LABEL $$MAIN\n");
     fprintf(output, "CREATEFRAME\n");
     fprintf(output, "PUSHFRAME\n");
