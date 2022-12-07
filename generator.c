@@ -25,8 +25,31 @@ void generator_print_assignment(ast_node_t* node, __GEN_DREST__)
 void generator_print_return(ast_node_t* node, __GEN_DREST__)
 {
     generator_print_expression(node, __GEN_CREST__);
-    fprintf(output, "POPS LF@retval\n");
-    fprintf(output, "PUSHS LF@retval\n");
+    ast_function_t* function = data->function;
+    if (function->returned_type) {
+        if (function->returned_type->str == get_singleton("int"))
+            fprintf(output, "PUSHS int@0\n");
+        else if (function->returned_type->str == get_singleton("float"))
+            fprintf(output, "PUSHS float@0x0.0p+0\n");
+        else if (function->returned_type->str == get_singleton("bool"))
+            fprintf(output, "PUSHS bool@false\n");
+        else if (function->returned_type->str == get_singleton("string"))
+            fprintf(output, "PUSHS string@\n");
+        fprintf(output, "PUSHS LF@retval\n");
+        fprintf(output, "CALL $TO_GOOD_TYPE\n");
+        fprintf(output, "POPS LF@retval\n");
+        fprintf(output, "POPS LF@retval\n");
+        /*
+        if (returnedtype == optional)
+            if (retval_nul)
+                TYPE LF @retval$type LF @retval if LF @retval$type == null
+
+                        fprintf(output, "JUMPIFEQ \n");*/
+        fprintf(output, "CALL $TO_GOOD_TYPE\n");
+        fprintf(output, "POPS LF@retval\n");
+        fprintf(output, "PUSHS LF@retval\n");
+    }
+
     fprintf(output, "RETURN\n");
 }
 void generator_print_operator(symbol_t* op, __GEN_DREST__)
@@ -55,6 +78,8 @@ void generator_print_operator(symbol_t* op, __GEN_DREST__)
         fprintf(output, "CALL $EQ\n");
     } else if (op->str == get_singleton("!=")) {
         fprintf(output, "CALL $NEQ\n");
+    } else if (op->str == get_singleton(".")) {
+        fprintf(output, "CALL $CONCAT\n");
     }
     (void)data;
 }
@@ -125,12 +150,9 @@ void generator_print_expression(ast_node_t* node, __GEN_DREST__)
 {
     if (node->leaf) {
         if (node->leaf->call_parameters) {
-            // when there is constant or var in expression push to stack
-            fprintf(stderr, "%d\n", node->leaf->symbol->type); // TODO
+            generator_print_function_call(node->leaf, __GEN_CREST__);
         }
         if (node->leaf->symbol->type == symbol_type_constant) {
-            fprintf(stderr, "%d\n", node->leaf->symbol->type);
-
             generator_print_constant(node->leaf->symbol, __GEN_CREST__);
         } else if (node->leaf->symbol->type == symbol_type_local_variable || true) {
             generator_print_local_variable(node->leaf->symbol, __GEN_CREST__);
@@ -272,30 +294,21 @@ void generator_print_variable_declarations(FILE* output, symtable_t* symtable)
 
 void generator_print_function(ast_function_t* function, __GEN_DREST__)
 {
+    data->function = function;
     singleton_t* label = generate_label(function->name);
     fprintf(output, "LABEL $FUNCTION$%s\n", label->strval);
     fprintf(output, "CREATEFRAME\n");
     fprintf(output, "PUSHFRAME\n");
 
     fprintf(output, "DEFVAR LF@retval\n");
+    fprintf(output, "DEFVAR LF@retval$type\n");
 
     generator_print_variable_declarations(output, function->symtable);
 
     generator_print_parameter_list(function, __GEN_CREST__);
     fprintf(output, "LABEL $BODY$%s\n", label->strval);
     generator_print_block(function->block, __GEN_CREST__);
-    if (function->returned_type) {
-        if (function->returned_type->str == get_singleton("int"))
-            fprintf(output, "PUSHS int@0\n");
-        else if (function->returned_type->str == get_singleton("float"))
-            fprintf(output, "PUSHS float@0x0.0p+0\n");
-        else if (function->returned_type->str == get_singleton("bool"))
-            fprintf(output, "PUSHS bool@false\n");
-        else if (function->returned_type->str == get_singleton("string"))
-            fprintf(output, "PUSHS string@\n");
-    }
-    fprintf(output, "PUSHS LF@retval\n");
-    fprintf(output, "CALL $TO_GOOD_TYPE\n");
+
     fprintf(output, "POPFRAME\n");
     fprintf(output, "CREATEFRAME\n");
     fprintf(output, "RETURN\n");
@@ -340,6 +353,7 @@ void generator_print_mandatory_functions(__GEN_DREST__)
     fprintf(output, GEN_STRVAL);
     fprintf(output, GEN_TO_GOOD_TYPE);
     fprintf(output, GEN_WRITE);
+    fprintf(output, GEN_CONCAT);
 }
 
 void generator(ast_function_list_t* function_list, FILE* output)
