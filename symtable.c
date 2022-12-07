@@ -95,7 +95,7 @@ STB_PROCESS_DECLARE(node)
 {
     if (node->leaf) {
         STB_PROCESS_CALL(leaf, node->leaf);
-    } else if (node->op->str->strval[0] == '=') {
+    } else if (node->op->str == get_singleton("=")) {
         // call rvalue first
         STB_PROCESS_CALL(node, node->right);
 
