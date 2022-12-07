@@ -87,7 +87,7 @@ void generator_print_function_call(ast_leaf_t* function, __GEN_DREST__)
 
     if (function->call_parameters) {
 
-        for (size_t i = 0; i < function->call_parameters->size; i++) {
+        for (int i = function->call_parameters->size - 1; i >= 0; i--) {
             ast_node_t* parameter = function->call_parameters->parameters[i]->node;
             generator_print_expression(parameter, __GEN_CREST__);
         }
@@ -126,14 +126,16 @@ void generator_print_expression(ast_node_t* node, __GEN_DREST__)
     if (node->leaf) {
         if (node->leaf->call_parameters) {
             // when there is constant or var in expression push to stack
-            // fprintf(stderr, "%d", node->leaf->symbol->type); // TODO
-
-            if (node->leaf->symbol->type == symbol_type_constant) {
-                generator_print_constant(node->leaf->symbol, __GEN_CREST__);
-            } else if (node->leaf->symbol->type == symbol_type_local_variable || true) {
-                generator_print_local_variable(node->leaf->symbol, __GEN_CREST__);
-            }
+            fprintf(stderr, "%d\n", node->leaf->symbol->type); // TODO
         }
+        if (node->leaf->symbol->type == symbol_type_constant) {
+            fprintf(stderr, "%d\n", node->leaf->symbol->type);
+
+            generator_print_constant(node->leaf->symbol, __GEN_CREST__);
+        } else if (node->leaf->symbol->type == symbol_type_local_variable || true) {
+            generator_print_local_variable(node->leaf->symbol, __GEN_CREST__);
+        }
+
     } else {
 
         generator_print_expression(node->left, __GEN_CREST__);
