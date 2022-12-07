@@ -1,5 +1,10 @@
 ll grammar for IFJ22 compiler
 
+<prog> -> <head> <main> <end>
+<main> -> <fnc_dec> <main>
+<main> -> code <main>
+<main> -> epsilon
+
 <head> -> <?php declare(strict_types=1);
 <end> -> ?>
 <end> -> "EOF"
@@ -11,32 +16,31 @@ ll grammar for IFJ22 compiler
 <expression> -> <expression> operator <expression>
 
 <fnc_dec> -> function id(<fnc_params>) type { <code> <return> <code> }
-<fnc_params> -> "epsilon"
+<fnc_params> -> epsilon
 <fnc_params> -> type $ id <fnc_params2>
-<fnc_params2> -> "epsilon"
+<fnc_params2> -> epsilon
 <fnc_params2> -> , type $ id <fnc_params2>
 <return> -> return <expression>;
 
 <void_fnc_dec> -> function id(<fnc_params>) void {<code> <void_return> <code>}
-<void_return> -> "epsilon"
+<void_return> -> epsilon
 <void_return> -> return;
 
 <fnc_call> -> id(<fnc_arguments>)
-<fnc_arguments> -> "epsilon"
+<fnc_arguments> -> epsilon
 <fnc_arguments> -> <expression> <fnc_arguments2>
-<fnc_arguments2> -> "epsilon"
+<fnc_arguments2> -> epsilon
 <fnc_arguments2> -> , <expression> <fnc_arguments2>
 
 <if_statement> -> if (<expression>) { <code> } <else>
 <else> -> "epsolon"
 <else> -> else { <code> }
 
-<while_loop> -> while (<expression>) { <code> } 
+<loop> -> while (<expression>) { <code> }
+<loop> -> for ( ; ; ) { <code> } 
 
-<code> -> "epsilon"
+<code> -> epsilon
 <code> -> <assignment> <code>
 <code> -> <fnc_call> <code>
 <code> -> <if_statement> <code>
-<code> -> <while_loop> <code>
-
-// type = int, string, float, ...
+<code> -> <loop> <code>
