@@ -2,12 +2,12 @@ ll grammar for IFJ22 compiler
 
 <prog> -> <head> <main> <end>
 <main> -> <fnc_dec> <main>
-<main> -> code <main>
+<main> -> <code> <main>
 <main> -> epsilon
 
 <head> -> <?php declare(strict_types=1);
 <end> -> ?>
-<end> -> "EOF"
+<end> -> EOF
 
 <assignment> -> $ id = <expression>;
 <expression> -> $ id
