@@ -694,6 +694,8 @@ ast_parameter_list_t* parser_read_parameter_list(utf8_readstream_t* input)
             if (parser_next_singleton == operators.paren_close->str) {
                 throw_warning(2, "Trailing commas are not allowed! (line %d)", parser_last_line_number);
             }
+        } else if (parser_next_singleton != operators.paren_close->str) {
+            throw_warning(2, "Missing comma between '%s' and '%s' on line %d", parser_last_singleton->strval, parser_next_singleton->strval, parser_next_line_number);
         }
 
         if (parser_next_singleton == reserved.ending_tag->str) {
