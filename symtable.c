@@ -15,16 +15,30 @@
 #include "./ast.h"
 #include "./error.h"
 
+static inline size_t symtable_get_index(singleton_t* str)
+{
+    size_t index = (size_t)str;
+
+    while (index >= SYMTABLE_LOOKUP_SIZE) {
+        index = (index & SYMTABLE_INDEX_MASK) ^ (index >> 4);
+    }
+
+    return index;
+}
+
 void symtable_insert(symbol_t* symbol, symtable_t* table)
 {
+    symtable_t* rtable = table;
+    size_t index = symtable_get_index(symbol->str);
+
     do {
         if (table->str == NULL) {
             table->str = symbol->str;
             table->symbol = symbol;
-            return;
+            break;
         } else if (symbol->str == table->str) {
             throw_warning(0, "Double symtable insert (%s)", symbol->str->strval);
-            return;
+            break;
         } else if (symbol->str < table->str) {
             if (table->lnode == NULL) {
                 salloc(symtable_t, lnode);
@@ -43,11 +57,33 @@ void symtable_insert(symbol_t* symbol, symtable_t* table)
             throw_error(99, "symtable_insert impossible condition met");
         }
     } while (table->symbol != symbol);
+
+    while (rtable != NULL) {
+        rtable->lookup[index] = table;
+
+        if (symbol->str < rtable->str) {
+            rtable = rtable->lnode;
+        } else if (symbol->str > table->str) {
+            rtable = rtable->rnode;
+        } else {
+            break;
+        }
+    }
 }
 
 symbol_t* symtable_get(singleton_t* str, symtable_t* table)
 {
+    size_t index = symtable_get_index(str);
+
     while (table != NULL) {
+        if (table->lookup[index]) {
+            if (table->lookup[index]->str == str) {
+                return table->lookup[index]->symbol;
+            }
+        } else {
+            return NULL;
+        }
+
         if (table->str == str) {
             return table->symbol;
         } else if (table->str > str) {
@@ -57,7 +93,7 @@ symbol_t* symtable_get(singleton_t* str, symtable_t* table)
         }
     }
 
-    return false;
+    return NULL;
 }
 
 STB_PROCESS_DECLARE(call_parameter)

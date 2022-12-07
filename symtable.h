@@ -23,6 +23,9 @@
 #include "./ast.h"
 #include "./symbol.h"
 
+#define SYMTABLE_LOOKUP_SIZE 0x10
+#define SYMTABLE_INDEX_MASK 0x0F
+
 STB_PROCESS_DECLARE(node);
 STB_PROCESS_DECLARE(block);
 
@@ -31,6 +34,8 @@ typedef struct symtable_t {
     struct symbol_t* symbol;
     struct symtable_t* lnode;
     struct symtable_t* rnode;
+
+    struct symtable_t* lookup[SYMTABLE_LOOKUP_SIZE];
 } symtable_t;
 
 void symtable_init(ast_function_list_t* list);
