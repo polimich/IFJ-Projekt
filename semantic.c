@@ -179,8 +179,7 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
             if ((item->leaf->symbol->fn == NULL)) {
                 // buid-in function
                 size_t parameter_count = item->leaf->call_parameters->size;
-                size_t write_value = -1;
-                if (semantic_buildin_parameter_count(item->leaf) != write_value){
+                if (item->leaf->symbol != get_symbol_by_str(symbol_type_function_identifier, "write")) {
                     if (item->leaf->call_parameters->size != semantic_buildin_parameter_count(item->leaf)){
                         // function has wrong number of parameters
                         varstring_t* error_msg = varstring_init();
@@ -192,18 +191,8 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
                     }
                 }
 
-                if (parameter_count != 0){
-                    for (size_t i = 0; i < item->leaf->call_parameters->size; i++) {
-                        semantic_check_expression(item->leaf->call_parameters->parameters[i]->node, function_list);
-                    }
-                }
-                else if (parameter_count == 3){
-                    semantic_check_expression(item->leaf->call_parameters->parameters[0]->node, function_list);
-                    semantic_check_expression(item->leaf->call_parameters->parameters[1]->node, function_list);
-                    semantic_check_expression(item->leaf->call_parameters->parameters[2]->node, function_list);
-                }
-                else if (parameter_count == 1){
-                    semantic_check_expression(item->leaf->call_parameters->parameters[0]->node, function_list);
+                for (size_t i = 0; i < parameter_count; i++){
+                    semantic_check_expression(item->leaf->call_parameters->parameters[i]->node, function_list);
                 }
                 return semantic_buildin_return_type(item->leaf);
             }
