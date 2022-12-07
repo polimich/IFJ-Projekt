@@ -5,7 +5,7 @@
 //    Autoři: xlukas18, xmedri01, xpoliv07, xschie03    //
 //                                                      //
 //    Implementace symtable.c: xschie03                 //
-//    Datum: 02. 12. 2022 - 03. 12. 2022                //
+//    Datum: 02. 12. 2022 - 06. 12. 2022                //
 //                                                      //
 //    Licence: GNU GPL v3, nebo pozdější                //
 //                                                      //
