@@ -27,6 +27,16 @@ void generator_print_return(ast_node_t* node, __GEN_DREST__)
     generator_print_expression(node, __GEN_CREST__);
     ast_function_t* function = data->function;
     if (function->returned_type) {
+        fprintf(output, "POPS LF@retval\n");
+        fprintf(output, "TYPE LF@retval$type LF@retval\n");
+        if (function->returned_type_optional) {
+            fprintf(output, "JUMPIFNEQ $FUNCTION$CHECK_RET_TYPE$%s LF@retval$type string@nil\n", generate_label(function->name)->strval);
+            fprintf(output, "PUSHS LF@retval\n");
+            fprintf(output, "POPFRAME\n");
+            fprintf(output, "CREATEFRAME\n");
+            fprintf(output, "RETURN\n");
+            fprintf(output, "LABEL $FUNCTION$CHECK_RET_TYPE$%s\n", generate_label(function->name)->strval);
+        }
         if (function->returned_type->str == get_singleton("int"))
             fprintf(output, "PUSHS int@0\n");
         else if (function->returned_type->str == get_singleton("float"))
@@ -39,17 +49,8 @@ void generator_print_return(ast_node_t* node, __GEN_DREST__)
         fprintf(output, "CALL $TO_GOOD_TYPE\n");
         fprintf(output, "POPS LF@retval\n");
         fprintf(output, "POPS LF@retval\n");
-        /*
-        if (returnedtype == optional)
-            if (retval_nul)
-                TYPE LF @retval$type LF @retval if LF @retval$type == null
-
-                        fprintf(output, "JUMPIFEQ \n");*/
-        fprintf(output, "CALL $TO_GOOD_TYPE\n");
-        fprintf(output, "POPS LF@retval\n");
         fprintf(output, "PUSHS LF@retval\n");
     }
-
     fprintf(output, "RETURN\n");
 }
 void generator_print_operator(symbol_t* op, __GEN_DREST__)
@@ -104,14 +105,13 @@ void generator_print_constant(symbol_t* constant, __GEN_DREST__)
 void generator_print_local_variable(symbol_t* local_variable, __GEN_DREST__)
 {
     (void)data;
-    if (local_variable->variable_is_declared)
-        fprintf(output, "PUSHS LF@%s\n", local_variable->str->strval);
+
+    fprintf(output, "PUSHS LF@%s\n", local_variable->str->strval);
 }
 void generator_print_function_call(ast_leaf_t* function, __GEN_DREST__)
 {
 
     if (function->call_parameters) {
-
         for (int i = function->call_parameters->size - 1; i >= 0; i--) {
             ast_node_t* parameter = function->call_parameters->parameters[i]->node;
             generator_print_expression(parameter, __GEN_CREST__);
@@ -142,24 +142,23 @@ void generator_print_function_call(ast_leaf_t* function, __GEN_DREST__)
             fprintf(output, "CALL $CHR\n");
         } else if (function->symbol->str == get_singleton("ord")) {
             fprintf(output, "CALL $ORD\n");
-        } else
-            fprintf(output, "CALL $FUNCTION$%s\n", generate_label(function->symbol)->strval);
-    }
+        }
+    } else
+        fprintf(output, "CALL $FUNCTION$%s\n", generate_label(function->symbol)->strval);
 }
 void generator_print_expression(ast_node_t* node, __GEN_DREST__)
 {
     if (node->leaf) {
         if (node->leaf->call_parameters) {
+
             generator_print_function_call(node->leaf, __GEN_CREST__);
         }
         if (node->leaf->symbol->type == symbol_type_constant) {
             generator_print_constant(node->leaf->symbol, __GEN_CREST__);
-        } else if (node->leaf->symbol->type == symbol_type_local_variable || true) {
+        } else if (node->leaf->symbol->type == symbol_type_local_variable) {
             generator_print_local_variable(node->leaf->symbol, __GEN_CREST__);
         }
-
     } else {
-
         generator_print_expression(node->left, __GEN_CREST__);
         generator_print_expression(node->right, __GEN_CREST__);
         generator_print_operator(node->op, __GEN_CREST__);
@@ -170,7 +169,10 @@ void generator_print_statement(ast_node_t* node, __GEN_DREST__)
 {
     // assignment
     if (node->leaf) {
+
         if (node->leaf->call_parameters) {
+            fprintf(stderr, "%s", node->leaf->symbol->str->strval);
+
             generator_print_function_call(node->leaf, __GEN_CREST__);
         }
     } else {
@@ -221,13 +223,15 @@ void generator_print_loop(ast_loop_t* loop, __GEN_DREST__)
 void generator_print_block_item(ast_block_item_t* block_item, __GEN_DREST__)
 {
     if (block_item->item) {
-        generator_print_statement(block_item->item, __GEN_CREST__);
+        if (block_item->is_return_statement) {
+            generator_print_return(block_item->item, __GEN_CREST__);
+        } else {
+            generator_print_statement(block_item->item, __GEN_CREST__);
+        }
     } else if (block_item->conditional) {
         generator_print_conditional(block_item->conditional, __GEN_CREST__);
     } else if (block_item->loop) {
         generator_print_loop(block_item->loop, __GEN_CREST__);
-    } else if (block_item->is_return_statement) {
-        generator_print_return(block_item->item, __GEN_CREST__);
     } else {
         // should not happen
         throw_warning(99, "Empty block item\n");
@@ -262,7 +266,7 @@ void generator_print_parameter_list(ast_function_t* function, __GEN_DREST__)
             fprintf(output, "MOVE LF@%s$expected_type string@float\n", param->name->str->strval);
         else if (param->type->str == get_singleton("bool"))
             fprintf(output, "MOVE LF@%s$expected_type string@bool\n", param->name->str->strval);
-        fprintf(output, "TYPE LF@%s$type LF@$n\n", param->name->str->strval);
+        fprintf(output, "TYPE LF@%s$type LF@%s\n", param->name->str->strval, param->name->str->strval);
         fprintf(output, "JUMPIFNEQ $WRONG_TYPE$%s LF@%s$type LF@%s$expected_type\n", func_name, param->name->str->strval, param->name->str->strval);
         fprintf(output, "JUMP $BODY$%s\n", func_name);
         fprintf(output, "LABEL $WRONG_TYPE$%s\n", func_name);
