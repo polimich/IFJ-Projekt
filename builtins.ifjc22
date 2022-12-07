@@ -452,3 +452,25 @@ STRLEN TF@$LEN_OF_STR TF@$LEN_OF_STR
 PUSHS TF@$LEN_OF_STR
 CREATEFRAME
 RETURN
+##########################################################################
+#Concatenation of two strings
+LABEL $CONCAT
+PUSHFRAME
+CREATEFRAME
+DEFVAR TF@$op1
+DEFVAR TF@$op2
+POPS TF@$op2
+PUSHFRAME
+CALL $strval
+POPFRAME
+POPS TF@$op1
+PUSHS TF@$op2
+PUSHFRAME
+CALL $strval
+POPFRAME
+POPS TF@$op2
+CONCAT TF@$op1 TF@$op1 TF@$op2  
+PUSHS TF@$op1
+CREATEFRAME
+POPFRAME
+RETURN

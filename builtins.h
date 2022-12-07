@@ -423,7 +423,6 @@
 \n#####################################################################\
 \nLABEL $DIV\
 \n\
-\nCREATEFRAME\
 \nCALL $floatval\
 \nCALL $SWITCH_IN_STACK\
 \nCALL $floatval\
@@ -528,3 +527,25 @@
 \nCREATEFRAME\
 \nRETURN\n"
 #endif
+
+#define GEN_CONCAT "#Concatenation of two strings\
+\nLABEL $CONCAT\
+\nPUSHFRAME\
+\nCREATEFRAME\
+\nDEFVAR TF@$op1\
+\nDEFVAR TF@$op2\
+\nPOPS TF@$op2\
+\nPUSHFRAME\
+\nCALL $strval\
+\nPOPFRAME\
+\nPOPS TF@$op1\
+\nPUSHS TF@$op2\
+\nPUSHFRAME\
+\nCALL $strval\
+\nPOPFRAME\
+\nPOPS TF@$op2\
+\nCONCAT TF@$op1 TF@$op1 TF@$op2\
+\nPUSHS TF@$op1\
+\nCREATEFRAME\
+\nPOPFRAME\
+\nRETURN\n"
