@@ -301,7 +301,9 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
         } else if (right_type == semantic_type_dynamic) {
             return left_type;
         } else if (left_type == semantic_type_string || right_type == semantic_type_string) {
-            return semantic_type_string;
+            if (left_type == semantic_type_dynamic && right_type == semantic_type_string) {
+                return semantic_type_string;
+            }
         } else if (left_type == semantic_type_int && right_type == semantic_type_float) {
             return semantic_type_float;
         } else if (left_type == semantic_type_float && right_type == semantic_type_int) {
