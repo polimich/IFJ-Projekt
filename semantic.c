@@ -194,21 +194,16 @@ semantic_type_t semantic_check_expression(ast_node_t* item, ast_function_list_t*
 
                 if (parameter_count != 0){
                     for (size_t i = 0; i < item->leaf->call_parameters->size; i++) {
-                        ast_node_t* parameter = item->leaf->call_parameters->parameters[i]->node;
-                        if (semantic_buildin_parameter_type(item->leaf, i) != semantic_type_dynamic){
-                            if (semantic_buildin_return_type(item->leaf) != semantic_check_expression(parameter, function_list)){
-                                if (parameter_count != write_value){
-                                    // function is not write and has wrong number of parameters
-                                    varstring_t* error_msg = varstring_init();
-                                    varstring_write(error_msg, "wrong type of parameters in call of function ");
-                                    formatter_state_t state = { 0 };
-                                    formatter_print_leaf(item->leaf, &state, error_msg->stream);
-                                    varstring_write(error_msg, " on line %d", semantic_get_line_number(item));
-                                    throw_error(4, "%s", varstring_destroy(error_msg)->strval);
-                                }
-                            }
-                        }
+                        semantic_check_expression(item->leaf->call_parameters->parameters[i]->node, function_list);
                     }
+                }
+                else if (parameter_count == 3){
+                    semantic_check_expression(item->leaf->call_parameters->parameters[0]->node, function_list);
+                    semantic_check_expression(item->leaf->call_parameters->parameters[1]->node, function_list);
+                    semantic_check_expression(item->leaf->call_parameters->parameters[2]->node, function_list);
+                }
+                else if (parameter_count == 1){
+                    semantic_check_expression(item->leaf->call_parameters->parameters[0]->node, function_list);
                 }
                 return semantic_buildin_return_type(item->leaf);
             }
