@@ -253,6 +253,7 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
                 continue;
             } else if (c == 32) {
                 throw_error(1, "Bad float format");
+                continue;
             } else {
                 putback(c);
                 return varstring_destroy(identifier);
