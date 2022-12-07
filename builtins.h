@@ -25,18 +25,18 @@
 \nDEFVAR LF@$OP2_TYPE\
 \nTYPE LF@$OP1_TYPE LF@$VAL_OP1\
 \nTYPE LF@$OP2_TYPE LF@$VAL_OP2\
-\nPUSHS LF@$VAL_OP2                                        #OP2 na zasobnik aby to pak nemusel delat pod kazdym labelem\
-\nJUMPIFEQ $SAME_TYPES LF@$OP1_TYPE LF@$OP2_TYPE           #Když jsou typy stejné\
-\nJUMPIFEQ $OP1_IS_INT LF@$OP1_TYPE string@int                                                \
+\nPUSHS LF@$VAL_OP2\
+\nJUMPIFEQ $SAME_TYPES LF@$OP1_TYPE LF@$OP2_TYPE\
+\nJUMPIFEQ $OP1_IS_INT LF@$OP1_TYPE string@int\
 \nJUMPIFEQ $OP1_IS_FLOAT LF@$OP1_TYPE string@float\
 \nJUMPIFEQ $OP1_IS_STR LF@$OP1_TYPE string@string\
-\nJUMPIFEQ $OP1_IS_BOOL LF@$OP1_TYPE string@bool                                                \
-\nLABEL $OP1_IS_INT                               \
-\n    CALL intval               \
+\nJUMPIFEQ $OP1_IS_BOOL LF@$OP1_TYPE string@bool\
+\nLABEL $OP1_IS_INT\
+\n    CALL intval\
 \nLABEL $OP1_IS_FLOAT\
-\n    CALL floatval \
+\n    CALL floatval\
 \nLABEL $OP1_IS_STR\
-\n    CALL strval    \
+\n    CALL strval\
 \nLABEL $OP1_IS_BOOL\
 \n    CALL boolval\
 \nLABEL $SAME_TYPES\
@@ -48,9 +48,9 @@
 \nPUSHFRAME\
 \nDEFVAR LF@$OP\
 \nDEFVAR LF@$TYPE_OP\
-\nPOPS LF@$OP                                 #Naplni OP\
+\nPOPS LF@$OP\
 \nTYPE LF@$TYPE_OP LF@$OP\
-\nJUMPIFEQ $INTVAL_END LF@$TYPE_OP string@int              #INT se na INT nemeni\
+\nJUMPIFEQ $INTVAL_END LF@$TYPE_OP string@int\
 \nJUMPIFEQ $INTVAL_OP_IS_FLOAT LF@$TYPE_OP string@float\
 \nJUMPIFEQ $INTVAL_OP_IS_STR LF@$TYPE_OP string@string\
 \nJUMPIFEQ $INTVAL_OP_IS_BOOL LF@$TYPE_OP string@bool\
@@ -61,15 +61,15 @@
 \n\
 \nLABEL $INTVAL_OP_IS_STR\
 \n    PUSHS LF@$OP\
-\n    CALL STR_TO_INT                         #Toto musiš udělat\
+\n    CALL STR_TO_INT\
 \nLABEL $INTVAL_OP_IS_BOOL\
 \n    JUMPIFEQ $INTVAL_BOOL_IS_ZERO LF@$OP bool@false\
-\n    PUSHS int@0                             # false == 0\
+\n    PUSHS int@0\
 \n    POPFRAME\
 \n    RETURN\
 \n    LABEL $INTVAL_BOOL_IS_ZERO\
 \n    PUSHS int@1\
-\n    POPFRAME                             # true == 1\
+\n    POPFRAME\
 \n    RETURN\
 \nLABEL $INTVAL_END\
 \n    PUSHS LF@$OP\
@@ -82,7 +82,7 @@
 \nPUSHFRAME\
 \nDEFVAR LF@$OP\
 \nDEFVAR LF@$TYPE_OP\
-\nPOPS LF@$OP                                 #Naplni OP\
+\nPOPS LF@$OP\
 \nTYPE LF@$TYPE_OP LF@$OP\
 \nJUMPIFEQ $FLOATVAL_END LF@$TYPE_OP string@int\
 \nJUMPIFEQ $FLOATVAL_OP_IS_INT  LF@$TYPE_OP string@int\
@@ -95,14 +95,14 @@
 \n\
 \nLABEL $FLOATVAL_OP_IS_STR\
 \n    PUSHS LF@$OP\
-\n    CALL STR_TO_FLOAT                         #Toto musiš udělat\
+\n    CALL STR_TO_FLOAT\
 \n\
 \nLABEL $FLOATVAL_OP_IS_BOOL\
-\n    JUMPIFEQ $FLOATVAL_BOOL_ISN_ZERO LF@$OP bool@false      #OP == FALSE\
+\n    JUMPIFEQ $FLOATVAL_BOOL_ISN_ZERO LF@$OP bool@false\
 \n    PUSHS float@0x1.0p+0\
-\n    POPFRAME                     \
+\n    POPFRAME\
 \n    RETURN\
-\n    LABEL $FLOATVAL_BOOL_IS_ZERO                            #OP != FALSE\
+\n    LABEL $FLOATVAL_BOOL_IS_ZERO\
 \n    PUSHS float@0x0.0p+0\
 \n    POPFRAME\
 \n    RETURN\
@@ -117,9 +117,9 @@
 \nPUSHFRAME\
 \nDEFVAR LF@$OP\
 \nDEFVAR LF@$TYPE_OP\
-\nPOPS LF@$OP                                 #Naplni OP\
+\nPOPS LF@$OP\
 \nTYPE LF@$TYPE_OP LF@$OP\
-\nJUMPIFEQ $STRVAL_END LF@$TYPE_OP string@string                  # str to str\
+\nJUMPIFEQ $STRVAL_END LF@$TYPE_OP string@string\
 \nJUMPIFEQ $STRVAL_OP_IS_INT  LF@$TYPE_OP string@int\
 \nJUMPIFEQ $STRVAL_OP_IS_FLOAT  LF@$TYPE_OP string@float\
 \nJUMPIFEQ $STRVAL_OP_IS_BOOL LF@$TYPE_OP string@bool\
@@ -133,8 +133,8 @@
 \n    PUSHS string@1\
 \n    POPFRAME\
 \n    RETURN\
-\n    LABEL $STRVAL_BOOL_IS_ZERO                            #OP == FALSE\
-\n    PUSHS string@0  \
+\n    LABEL $STRVAL_BOOL_IS_ZERO\
+\n    PUSHS string@0\
 \n    POPFRAME\
 \nRETURN\
 \n#\
@@ -149,10 +149,10 @@
 \nPUSHFRAME\
 \nDEFVAR LF@$OP\
 \nDEFVAR LF@$TYPE_OP\
-\nPOPS LF@$OP                                 #Naplni OP\
+\nPOPS LF@$OP\
 \nTYPE LF@$TYPE_OP LF@$OP\
 \n#\
-\nJUMPIFEQ $BOOLVAL_END LF@$TYPE_OP string@bool                 # str to str\
+\nJUMPIFEQ $BOOLVAL_END LF@$TYPE_OP string@bool\
 \nJUMPIFEQ $BOOLVAL_OP_IS_INT  LF@$TYPE_OP string@int\
 \nJUMPIFEQ $BOOLVAL_OP_IS_FLOAT  LF@$TYPE_OP string@float\
 \nJUMPIFEQ $BOOLVAL_OP_IS_STR LF@$TYPE_OP string@string\
@@ -189,21 +189,6 @@
 \n    RETURN\
 \n#\
 \n###############################################################"
-
-#define CHR "#CHR(op) => prevod int so ascii\
-    \nLABEL $ORD\
-    \nPUSHFRAME\
-    \nINT2CHARS\
-    \nPOPFRAME\
-    \nRETURN"
-
-#define ORD "#ORD(op) => int value of first char in string\
-    \nLABEL $ORD\
-    \nPUSHFRAME\
-    \nPUSHS int@0\
-    \nSTRI2INTS\
-    \nPOPFRAME\
-    \nRETURN"
 
 #define GEN_TO_GOOD_TYPE "LABEL $TO_GOOD_TYPE\
 \nCREATEFRAME\
@@ -257,8 +242,8 @@
 \n\
 \nLABEL $INTVAL_OP_IS_STR\
 \n #UNSUPPORT TYPE\
-\n EXIT int @4      \
-\n    \
+\n EXIT int @4\
+\n\
 \nLABEL $INTVAL_OP_IS_BOOL\
 \n JUMPIFNEQ $INTVAL_BOOL_IS_ZERO TF @$OP bool @false\
 \n PUSHS int @0\
@@ -296,11 +281,11 @@
 \n    JUMP $FLOATVAL_END\
 \n\
 \nLABEL $FLOATVAL_OP_IS_BOOL\
-\n    JUMPIFEQ $FLOATVAL_BOOL_IS_ZERO TF@$OP bool@false      #OP == FALSE\
+\n    JUMPIFEQ $FLOATVAL_BOOL_IS_ZERO TF@$OP bool@false\
 \n    PUSHS float@0x1.0p+0\
-\n    CREATEFRAME                     \
+\n    CREATEFRAME\
 \n    RETURN\
-\n    LABEL $FLOATVAL_BOOL_IS_ZERO                            #OP != FALSE\
+\n    LABEL $FLOATVAL_BOOL_IS_ZERO\
 \n    PUSHS float@0x0.0p+0\
 \n    CREATEFRAME\
 \n    RETURN\
@@ -422,12 +407,14 @@
 \n###############################################################\
 \n#ORD(op) => char to ascii int \
 \nLABEL $ORD\
+\nCALL $strval\
 \nPUSHS int@0\
 \nSTRI2INTS\
 \nRETURN\
 \n###############################################################\
 \n#CHR(op) => ascii int to chr\
 \nLABEL $CHR\
+\nCALL $intval\
 \nINT2CHARS\
 \nRETURN\n"
 
@@ -571,7 +558,7 @@
 \nCREATEFRAME\
 \nRETURN\n"
 
-#define GEN_STACK_SWITCH "\n#####################################################################\
+#define GEN_STACK_SWITCH "\n############################################\
 \nLABEL $SWITCH_IN_STACK\
 \n\
 \nCREATEFRAME\
@@ -584,7 +571,7 @@
 \nCREATEFRAME\
 \nRETURN"
 
-#define GEN_ARIT_FUNC "#####################################################################\
+#define GEN_ARIT_FUNC "################################################\
 \nLABEL $MUL\
 \nCALL $ARITMETICT_TYPE\
 \nMULS\
@@ -645,10 +632,13 @@
 #define GEN_SUBSTR "LABEL $SUBSTRING\
 \nCREATEFRAME\
 \nDEFVAR TF@$full_string\
+\nCALL $strval\
 \nPOPS TF@$full_string\
 \nDEFVAR TF@$first_idx\
+\nCALL $intval\
 \nPOPS TF@$first_idx\
 \nDEFVAR TF@$last_idx\
+\nCALL $intval\
 \nPOPS TF@$last_idx\
 \nDEFVAR TF@$test\
 \nDEFVAR TF@$SUB_STR\
@@ -687,6 +677,7 @@
 #define GEN_STRLEN "LABEL $STRLEN\
 \nCREATEFRAME\
 \nDEFVAR TF@$LEN_OF_STR\
+\nCALL $strval\
 \nPOPS TF@$LEN_OF_STR\
 \nSTRLEN TF@$LEN_OF_STR TF@$LEN_OF_STR\
 \nPUSHS TF@$LEN_OF_STR\
