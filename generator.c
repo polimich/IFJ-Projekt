@@ -4,8 +4,8 @@
 //                                                      //
 //    Autoři: xlukas18, xmedri01, xpoliv07, xschie03    //
 //                                                      //
-//    Implementace ast.h: xpoliv07, xmedri01            //
-//    Datum: 26. 11. 2022 - x. 11. 2022                 // TODO
+//    Implementace generator.c: xpoliv07, xmedri01      //
+//    Datum: 26. 11. 2022 - 7. 12. 2022                 //
 //                                                      //
 //    Licence: GNU GPL v3, nebo pozdější                //
 //                                                      //
@@ -193,14 +193,16 @@ void generator_print_conditional(ast_conditional_t* conditional, __GEN_DREST__)
 {
     generator_print_expression(conditional->condition, __GEN_CREST__);
     fprintf(output, "PUSHS bool@true\n");
+    fprintf(output, "CALL $SWITCH_IN_STACK\n");
+    fprintf(output, "CALL $TO_GOOD_TYPE\n");
     fprintf(output, "JUMPIFNEQS $ELSE%s\n", generate_label(conditional->condition)->strval);
     generator_print_block(conditional->true_branch, __GEN_CREST__);
     if (conditional->false_branch) {
-        fprintf(output, "JUMP ENDIF$%s\n", generate_label(conditional->condition)->strval);
+        fprintf(output, "JUMP $ENDIF$%s\n", generate_label(conditional->condition)->strval);
         fprintf(output, "LABEL $ELSE%s\n", generate_label(conditional->condition)->strval);
         generator_print_block(conditional->false_branch, __GEN_CREST__);
     }
-    fprintf(output, "LABEL $ENDIF%s\n", generate_label(conditional->condition)->strval);
+    fprintf(output, "LABEL $ENDIF$%s\n", generate_label(conditional->condition)->strval);
 }
 
 void generator_print_loop(ast_loop_t* loop, __GEN_DREST__)
@@ -297,7 +299,8 @@ void generator_print_variable_declarations(FILE* output, symtable_t* symtable)
         generator_print_variable_declarations(output, symtable->rnode);
     }
     if (symtable->symbol->type == symbol_type_local_variable)
-        fprintf(output, "DEFVAR LF@%s\n", symtable->symbol->str->strval);
+        fprintf(stderr, "%s\n", symtable->symbol->str->strval);
+    fprintf(output, "DEFVAR LF@%s\n", symtable->symbol->str->strval);
 }
 
 void generator_print_function(ast_function_t* function, __GEN_DREST__)
