@@ -318,6 +318,9 @@ singleton_t* lexer_get_token(utf8_readstream_t* input, int* line_number)
                 utf8_putc(c, identifier->stream);
                 lexer_state = lexer_state_string_esc;
                 continue;
+            } else if (c == EOF) {
+                throw_warning(1, "unfinished string");
+                continue;
             } else {
                 utf8_putc(c, identifier->stream);
                 continue;
