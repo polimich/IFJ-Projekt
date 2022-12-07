@@ -31,3 +31,6 @@ compiler: $(HDRS) $(SRCS) $(OBJS)
 
 $(OBJS): %.o: %.c %.h Makefile
 	$(CC) -c $< $(CFLAGS)
+
+zip: $(HDRS) $(SRCS) Makefile dokumentace.pdf rozdeleni rozsireni
+	zip xpoliv07 $^
