@@ -90,7 +90,6 @@ void generator_print_function_call(ast_leaf_t* function, __GEN_DREST__)
         for (size_t i = 0; i < function->call_parameters->size; i++) {
             ast_node_t* parameter = function->call_parameters->parameters[i]->node;
             generator_print_expression(parameter, __GEN_CREST__);
-            fprintf(stderr, "param%ld\n", i);
         }
     }
     // built in check
@@ -102,14 +101,16 @@ void generator_print_function_call(ast_leaf_t* function, __GEN_DREST__)
 }
 void generator_print_expression(ast_node_t* node, __GEN_DREST__)
 {
-    if (node->leaf->call_parameters) {
-        // when there is constant or var in expression push to stack
-        fprintf(stderr, "%d", node->leaf->symbol->type); // TODO
+    if (node->leaf) {
+        if (node->leaf->call_parameters) {
+            // when there is constant or var in expression push to stack
+            // fprintf(stderr, "%d", node->leaf->symbol->type); // TODO
 
-        if (node->leaf->symbol->type == symbol_type_constant) {
-            generator_print_constant(node->leaf->symbol, __GEN_CREST__);
-        } else if (node->leaf->symbol->type == symbol_type_local_variable || true) {
-            generator_print_local_variable(node->leaf->symbol, __GEN_CREST__);
+            if (node->leaf->symbol->type == symbol_type_constant) {
+                generator_print_constant(node->leaf->symbol, __GEN_CREST__);
+            } else if (node->leaf->symbol->type == symbol_type_local_variable || true) {
+                generator_print_local_variable(node->leaf->symbol, __GEN_CREST__);
+            }
         }
     } else {
 
