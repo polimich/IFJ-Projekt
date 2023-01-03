@@ -180,8 +180,6 @@ void generator_print_statement(ast_node_t* node, __GEN_DREST__)
     if (node->leaf) {
 
         if (node->leaf->call_parameters) {
-            fprintf(stderr, "%s", node->leaf->symbol->str->strval);
-
             generator_print_function_call(node->leaf, __GEN_CREST__);
         }
     } else {
@@ -220,7 +218,7 @@ void generator_print_loop(ast_loop_t* loop, __GEN_DREST__)
     if (loop->condition) {
         generator_print_expression(loop->condition, __GEN_CREST__);
         fprintf(output, "PUSHS bool@true\n");
-        fprintf(output, "JUMPIFNEQS $WHILE$END %s bool@true\n", generate_label(loop)->strval);
+        fprintf(output, "JUMPIFNEQS $WHILE$END$%s\n", generate_label(loop)->strval);
     }
     generator_print_block(loop->body, __GEN_CREST__);
     if (loop->incrementer) {
@@ -228,7 +226,7 @@ void generator_print_loop(ast_loop_t* loop, __GEN_DREST__)
     }
 
     fprintf(output, "JUMP $WHILE$%s\n", generate_label(loop)->strval);
-    fprintf(output, "LABEL $WHILE_END$%s\n", generate_label(loop)->strval);
+    fprintf(output, "LABEL $WHILE$END$%s\n", generate_label(loop)->strval);
 }
 
 void generator_print_block_item(ast_block_item_t* block_item, __GEN_DREST__)
@@ -370,6 +368,11 @@ void generator_print_mandatory_functions(__GEN_DREST__)
     fprintf(output, GEN_TO_GOOD_TYPE);
     fprintf(output, GEN_WRITE);
     fprintf(output, GEN_CONCAT);
+    fprintf(output, GEN_READS);
+    fprintf(output, GEN_READI);
+    fprintf(output, GEN_READF);
+    fprintf(output, GEN_SUBSTR);
+    fprintf(output, GEN_STRLEN);
 }
 
 void generator(ast_function_list_t* function_list, FILE* output)
