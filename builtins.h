@@ -346,7 +346,7 @@
 \n    TYPE TF@op1$type TF@$op1\
 \n\
 \nLABEL $IS_op2_NULL\
-\nJUMPIFNEQ $OP2_NON_NULL TF@op2$type string@ni\
+\nJUMPIFNEQ $OP2_NON_NULL TF@op2$type string@nil\
 \nLABEL $op2_to_int\
 \n    PUSHS TF@$op2\
 \n    PUSHFRAME\
@@ -451,7 +451,7 @@
 #define GEN_READS "LABEL $READS\
 \nCREATEFRAME\
 \nDEFVAR TF@retval\
-\nREAD TF@retval string@string\
+\nREAD TF@retval string\
 \nPUSHS TF@retval\
 \nCREATEFRAME\
 \nRETURN\n"
@@ -459,7 +459,7 @@
 #define GEN_READI "LABEL $READI\
 \nCREATEFRAME\
 \nDEFVAR TF@retval\
-\nREAD TF@retval string@int\
+\nREAD TF@retval int\
 \nPUSHS TF@retval\
 \nCREATEFRAME\
 \nRETURN\n"
@@ -467,7 +467,7 @@
 #define GEN_READF "LABEL $READF\
 \nCREATEFRAME\
 \nDEFVAR TF@retval\
-\nREAD TF@retval string@float\
+\nREAD TF@retval float\
 \nPUSHS TF@retval\
 \nCREATEFRAME\
 \nRETURN\n"
